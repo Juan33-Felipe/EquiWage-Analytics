@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-content-main antialiased min-h-screen;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* Custom chart styles if needed */
+.recharts-cartesian-axis-tick-value {
+  @apply text-xs fill-content-muted;
+}
