@@ -5,19 +5,26 @@ import { cn } from '../../utils/cn';
 import { Check } from 'lucide-react';
 import { DEPARTMENTS } from '../../data/mockCompensationData';
 import { useCompensation } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function SimulatorControlsCard() {
   const { simulation, updateSimulation, toggleDepartment } = useCompensation();
+  const { t, tDept } = useLanguage();
 
   const targets = [
-    { id: 'minimum', title: 'Bring to Band Minimum', caption: 'Close market disparities (P25)' },
-    { id: 'median', title: 'Bring to Market Median', caption: 'Full market competitiveness (P50)' },
+    { id: 'minimum', title: t('simulator.bringToBandMin'), caption: t('simulator.closeMarket') },
+    { id: 'median', title: t('simulator.bringToMarketMedian'), caption: t('simulator.fullMarket') },
   ];
+
+  const rolloutValueLabel =
+    simulation.rolloutQuarters === 1
+      ? t('simulator.quarterSingular', { count: simulation.rolloutQuarters })
+      : t('simulator.quarterPlural', { count: simulation.rolloutQuarters });
 
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">Policy Parameters</h3>
-      <p className="text-xs text-content-muted mb-6">Tune the scenario to model your budget</p>
+      <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">{t('simulator.policyParameters')}</h3>
+      <p className="text-xs text-content-muted mb-6">{t('simulator.tuneScenario')}</p>
 
       {/* Adjustment target */}
       <div className="space-y-3 mb-6">
@@ -42,7 +49,7 @@ export function SimulatorControlsCard() {
               >
                 {active && <span className="w-2 h-2 rounded-full bg-primary" />}
               </span>
-              <span>
+              <span className="min-w-0">
                 <span className="block text-sm font-semibold text-content-main">{target.title}</span>
                 <span className="block text-xs text-content-muted mt-0.5">{target.caption}</span>
               </span>
@@ -54,8 +61,8 @@ export function SimulatorControlsCard() {
       {/* Phased rollout */}
       <SliderControl
         className="mb-6"
-        label="Phased Rollout"
-        valueLabel={`${simulation.rolloutQuarters} Quarter${simulation.rolloutQuarters > 1 ? 's' : ''}`}
+        label={t('simulator.phasedRollout')}
+        valueLabel={rolloutValueLabel}
         min={1}
         max={4}
         step={1}
@@ -65,7 +72,7 @@ export function SimulatorControlsCard() {
 
       {/* Departments */}
       <div className="pt-5 border-t border-gray-100">
-        <p className="text-sm font-semibold text-content-main mb-3">Include Departments</p>
+        <p className="text-sm font-semibold text-content-main mb-3">{t('simulator.includeDepartments')}</p>
         <div className="flex flex-wrap gap-2">
           {DEPARTMENTS.map((department) => {
             const active = simulation.departments.includes(department);
@@ -80,8 +87,8 @@ export function SimulatorControlsCard() {
                     : 'border-gray-200 text-content-muted hover:border-gray-300'
                 )}
               >
-                {active && <Check className="w-3 h-3" />}
-                {department}
+                {active && <Check className="w-3 h-3 shrink-0" />}
+                {tDept(department)}
               </button>
             );
           })}

@@ -5,10 +5,120 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-background: #F9FAFB;
+    --color-surface: #FFFFFF;
+    --color-content-main: #111827;
+    --color-content-muted: #6B7280;
+    --chart-grid: #F3F4F6;
+    --chart-tick: #9CA3AF;
+  }
+
+  html.dark {
+    --color-background: #111827;
+    --color-surface: #1F2937;
+    --color-content-main: #F9FAFB;
+    --color-content-muted: #9CA3AF;
+    --chart-grid: #374151;
+    --chart-tick: #9CA3AF;
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-background text-content-main antialiased min-h-screen;
+    @apply bg-background text-content-main antialiased min-h-screen transition-colors duration-200;
     font-family: 'Inter', system-ui, sans-serif;
   }
+}
+
+/* Dark theme adaptations for borders, secondary surfaces, and controls */
+html.dark .border-gray-50,
+html.dark .border-gray-100 {
+  border-color: rgba(55, 65, 81, 0.7);
+}
+
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: #374151;
+}
+
+html.dark .divide-gray-50 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(55, 65, 81, 0.6);
+}
+
+html.dark .bg-white {
+  background-color: #1F2937;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-gray-50\/60,
+html.dark .bg-gray-50\/80 {
+  background-color: rgba(17, 24, 39, 0.65);
+}
+
+html.dark .bg-gray-100,
+html.dark .bg-gray-100\/80 {
+  background-color: #111827;
+}
+
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-50\/50:hover,
+html.dark .hover\:bg-gray-50\/60:hover,
+html.dark .hover\:bg-gray-50\/70:hover,
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-gray-200\/50:hover {
+  background-color: rgba(55, 65, 81, 0.55);
+}
+
+html.dark .bg-orange-50,
+html.dark .bg-orange-50\/40,
+html.dark .bg-orange-50\/50,
+html.dark .bg-orange-50\/60 {
+  background-color: rgba(249, 115, 22, 0.14);
+}
+
+html.dark .bg-orange-100 {
+  background-color: rgba(249, 115, 22, 0.22);
+}
+
+html.dark .border-orange-100 {
+  border-color: rgba(249, 115, 22, 0.28);
+}
+
+html.dark .bg-green-50,
+html.dark .bg-green-50\/50,
+html.dark .bg-green-100 {
+  background-color: rgba(16, 185, 129, 0.14);
+}
+
+html.dark .border-green-100 {
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+html.dark .bg-red-50,
+html.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.14);
+}
+
+html.dark .border-red-100 {
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+html.dark .bg-yellow-100 {
+  background-color: rgba(245, 158, 11, 0.16);
+}
+
+html.dark .text-gray-400,
+html.dark .text-gray-500 {
+  color: #9CA3AF;
+}
+
+html.dark .text-gray-700 {
+  color: #E5E7EB;
+}
+
+html.dark select option {
+  background-color: #1F2937;
+  color: #F9FAFB;
 }
 
 /* Custom chart styles if needed */

@@ -5,19 +5,21 @@ import { Card } from '../components/atoms/Card';
 import { AlertRow } from '../components/molecules/AlertRow';
 import { Badge } from '../components/atoms/Badge';
 import { getInitials, useCompensation } from '../context/CompensationContext';
+import { useLanguage } from '../context/LanguageContext';
 import { DEPARTMENTS } from '../data/mockCompensationData';
 
 const AVATAR_TONES = [
-  'bg-blue-50 text-blue-700',
-  'bg-cyan-50 text-cyan-700',
-  'bg-yellow-50 text-yellow-700',
-  'bg-emerald-50 text-emerald-700',
-  'bg-pink-50 text-pink-700',
-  'bg-violet-50 text-violet-700',
+  'bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+  'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+  'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300',
+  'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  'bg-pink-50 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300',
+  'bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
 ];
 
 export function DistributionPage() {
   const { employees, bands } = useCompensation();
+  const { t } = useLanguage();
   const [filters, setFilters] = useState({ department: 'all', level: 'all', range: 'all' });
   const [highlightId, setHighlightId] = useState(null);
 
@@ -50,20 +52,20 @@ export function DistributionPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap justify-between items-start gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-xl font-bold text-content-main tracking-tight">Salary Curve & Outliers</h2>
-            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-green-50/50">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3 mb-1">
+            <h2 className="text-xl font-bold text-content-main tracking-tight">{t('distribution.salaryCurve')}</h2>
+            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-green-50/50 shrink-0">
               <div className="w-1.5 h-1.5 rounded-full bg-success" />
-              Secure Local Session
+              {t('distribution.secureLocalSession')}
             </Badge>
           </div>
           <p className="text-sm text-content-muted">
-            Compare every salary against the market band and spot the outliers at a glance.
+            {t('distribution.compareEvery')}
           </p>
         </div>
-        <div className="text-xs font-medium text-content-muted bg-surface border border-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-          Showing {filtered.length} of {employees.length} employees
+        <div className="text-xs font-medium text-content-muted bg-surface border border-gray-200 rounded-full px-3 py-1.5 shadow-sm shrink-0">
+          {t('distribution.showingEmployees', { count: filtered.length, total: employees.length })}
         </div>
       </div>
 
@@ -76,32 +78,32 @@ export function DistributionPage() {
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-10 gap-6 h-auto xl:h-[560px]">
-        <div className="xl:col-span-7 h-full">
+        <div className="xl:col-span-7 h-full min-h-0">
           <SalaryDistributionChart
             employees={filtered}
             bands={bands}
             highlightedId={highlightId}
             onHoverPoint={(point) => setHighlightId(point?.id ?? null)}
-            title="Salary Distribution Curve"
-            subtitle="Market band (P25–P75) with the median curve overlaid"
+            title={t('distribution.salaryDistribution')}
+            subtitle={t('distribution.bandP25P75')}
           />
         </div>
 
-        <div className="xl:col-span-3 h-full">
-          <Card className="h-full flex flex-col p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold text-content-main tracking-tight">Critical Outliers</h3>
-                <p className="text-xs text-content-muted">Employees below the market minimum</p>
+        <div className="xl:col-span-3 h-full min-h-0">
+          <Card className="h-full flex flex-col p-6 min-h-0">
+            <div className="flex items-start justify-between gap-2 mb-6">
+              <div className="min-w-0">
+                <h3 className="text-lg font-bold text-content-main tracking-tight">{t('distribution.criticalOutliers')}</h3>
+                <p className="text-xs text-content-muted">{t('distribution.employeesBelow')}</p>
               </div>
-              <Badge variant="dangerOutline">{outliers.length}</Badge>
+              <Badge variant="dangerOutline" className="shrink-0">{outliers.length}</Badge>
             </div>
 
-            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 -mr-2">
+            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 -mr-2 min-h-0">
               {outliers.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center text-content-muted">
-                  <p className="text-sm font-medium">No critical outliers</p>
-                  <p className="text-xs mt-1">Everyone in this view sits inside their market band.</p>
+                  <p className="text-sm font-medium">{t('distribution.noCritical')}</p>
+                  <p className="text-xs mt-1">{t('distribution.everyoneInside')}</p>
                 </div>
               ) : (
                 outliers.map((employee, index) => (

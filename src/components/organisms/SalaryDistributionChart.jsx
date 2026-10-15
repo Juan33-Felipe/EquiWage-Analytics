@@ -3,6 +3,7 @@ import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
 import { Sparkles } from 'lucide-react';
 import { formatCurrency } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   ComposedChart,
   Line,
@@ -20,15 +21,57 @@ function spreadOffset(index) {
   return pattern[index % pattern.length];
 }
 
+function ChartTooltip({ active, payload, t }) {
+  if (!active || !payload || !payload.length) return null;
+  const data = payload[0].payload;
+  if (!data.name) return null;
+  const isBelow = data.status === 'below';
+  return (
+    <div className="bg-[#1C1C1C] text-white p-3 rounded-xl shadow-lg text-sm border border-gray-800">
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`w-2 h-2 rounded-full ${isBelow ? 'bg-danger' : 'bg-success'}`} />
+        <span className="font-semibold">{data.name}</span>
+      </div>
+      <div className="space-y-1 text-xs">
+        <div className="flex items-center justify-between gap-6">
+          <span className="text-gray-400">{t('tooltip.level')}</span>
+          <span>{data.level}</span>
+        </div>
+        <div className="flex items-center justify-between gap-6">
+          <span className="text-gray-400">{t('tooltip.currentSalary')}</span>
+          <span className="font-semibold">{formatCurrency(data.currentSalary)}</span>
+        </div>
+        {data.band && (
+          <div className="flex items-center justify-between gap-6">
+            <span className="text-gray-400">{t('tooltip.bandMedian')}</span>
+            <span>{formatCurrency(data.band.median)}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-6 pt-1 border-t border-gray-700">
+          <span className="text-gray-400">{t('tooltip.gap')}</span>
+          <span className={isBelow ? 'text-danger font-semibold' : 'text-success font-semibold'}>
+            {data.gap >= 0 ? '+' : ''}
+            {(data.gap * 100).toFixed(1)}%
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SalaryDistributionChart({
   employees,
   bands,
   highlightedId,
   onHoverPoint,
-  title = 'Salary Distribution',
-  subtitle = 'Employee salaries by job level and market band',
+  title,
+  subtitle,
   className = 'h-full',
 }) {
+  const { t } = useLanguage();
+  const displayTitle = title || t('chart.salaryDistribution');
+  const displaySubtitle = subtitle || t('chart.employeeSalaries');
+
   const bandData = useMemo(
     () => bands.map((band) => ({ level: band.level, p25: band.min, p50: band.median, p75: band.max })),
     [bands]
@@ -59,73 +102,35 @@ export function SalaryDistributionChart({
     20000
   );
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload || !payload.length) return null;
-    const data = payload[0].payload;
-    if (!data.name) return null;
-    const isBelow = data.status === 'below';
-    return (
-      <div className="bg-[#1C1C1C] text-white p-3 rounded-xl shadow-lg text-sm border border-gray-800">
-        <div className="flex items-center gap-2 mb-2">
-          <div className={`w-2 h-2 rounded-full ${isBelow ? 'bg-danger' : 'bg-success'}`} />
-          <span className="font-semibold">{data.name}</span>
-        </div>
-        <div className="space-y-1 text-xs">
-          <div className="flex items-center justify-between gap-6">
-            <span className="text-gray-400">Level</span>
-            <span>{data.level}</span>
-          </div>
-          <div className="flex items-center justify-between gap-6">
-            <span className="text-gray-400">Current salary</span>
-            <span className="font-semibold">{formatCurrency(data.currentSalary)}</span>
-          </div>
-          {data.band && (
-            <div className="flex items-center justify-between gap-6">
-              <span className="text-gray-400">Band median</span>
-              <span>{formatCurrency(data.band.median)}</span>
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-6 pt-1 border-t border-gray-700">
-            <span className="text-gray-400">Gap</span>
-            <span className={isBelow ? 'text-danger font-semibold' : 'text-success font-semibold'}>
-              {data.gap >= 0 ? '+' : ''}
-              {(data.gap * 100).toFixed(1)}%
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const criticalCount = critical.length;
 
   return (
-    <Card className={`${className} flex flex-col p-6`}>
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h3 className="text-lg font-bold text-content-main tracking-tight">{title}</h3>
-            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-green-50/50">
+    <Card className={`${className} flex flex-col p-6 min-h-0`}>
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h3 className="text-lg font-bold text-content-main tracking-tight">{displayTitle}</h3>
+            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-green-50/50 shrink-0">
               <div className="w-1.5 h-1.5 rounded-full bg-success" />
-              Live audit
+              {t('chart.liveAudit')}
             </Badge>
           </div>
-          <p className="text-xs text-content-muted">{subtitle}</p>
+          <p className="text-xs text-content-muted">{displaySubtitle}</p>
         </div>
         <div className="flex items-center gap-3 text-xs font-medium shrink-0">
-          <span className="flex items-center gap-1.5 text-content-muted">
-            <span className="w-2.5 h-2.5 rounded-full bg-success" /> Aligned
+          <span className="flex items-center gap-1.5 text-content-muted whitespace-nowrap">
+            <span className="w-2.5 h-2.5 rounded-full bg-success shrink-0" /> {t('chart.aligned')}
           </span>
-          <span className="flex items-center gap-1.5 text-content-muted">
-            <span className="w-2.5 h-2.5 rounded-full bg-danger" /> Below band
+          <span className="flex items-center gap-1.5 text-content-muted whitespace-nowrap">
+            <span className="w-2.5 h-2.5 rounded-full bg-danger shrink-0" /> {t('chart.belowBand')}
           </span>
         </div>
       </div>
 
-      <div className="flex-1 min-h-[300px] -ml-4">
+      <div className="flex-1 min-h-[260px] -ml-4">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
             <XAxis
               dataKey="x"
               type="number"
@@ -148,7 +153,7 @@ export function SalaryDistributionChart({
               tick={{ fontSize: 10, fill: '#9CA3AF' }}
               dx={-10}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+            <Tooltip content={<ChartTooltip t={t} />} cursor={{ strokeDasharray: '3 3' }} />
 
             {/* Market band (P25–P75) + median curve */}
             <Line data={bandData} type="monotone" dataKey="p75" stroke="#FDBA74" strokeWidth={2} dot={false} activeDot={false} />
@@ -184,17 +189,17 @@ export function SalaryDistributionChart({
         </ResponsiveContainer>
       </div>
 
-      <div className="text-center mt-2 mb-2">
-        <span className="text-xs text-gray-400 font-medium">Job Level</span>
+      <div className="text-center mt-1 mb-1">
+        <span className="text-xs text-gray-400 font-medium">{t('chart.jobLevel')}</span>
       </div>
 
       <div className="mt-2 bg-orange-50/50 border border-orange-100 rounded-lg p-3 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-primary shrink-0" />
-        <p className="text-xs text-content-main">
-          <span className="font-semibold text-primary">Insight:</span>{' '}
+        <p className="text-xs text-content-main leading-snug">
+          <span className="font-semibold text-primary">{t('chart.insight')}</span>{' '}
           {criticalCount > 0
-            ? `${criticalCount} employee${criticalCount > 1 ? 's' : ''} sit below the market minimum and need review.`
-            : 'Every employee is currently aligned within their market band.'}
+            ? t('chart.employeesBelowMarket', { count: criticalCount })
+            : t('chart.everyEmployeeAligned')}
         </p>
       </div>
     </Card>

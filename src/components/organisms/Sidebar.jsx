@@ -2,20 +2,23 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutGrid, Users, BarChart3, FileText, Settings, TrendingUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useLanguage } from '../../context/LanguageContext';
 
 const NAV_ITEMS = [
-  { to: '/dashboard/overview', icon: LayoutGrid, label: 'Dashboard' },
-  { to: '/employees', icon: Users, label: 'Employees & Import' },
-  { to: '/bands', icon: BarChart3, label: 'Salary Bands' },
-  { to: '/reports', icon: FileText, label: 'Reports' },
-  { to: '/settings', icon: Settings, label: 'Settings & Session' },
+  { to: '/dashboard/overview', icon: LayoutGrid, labelKey: 'sidebar.dashboard' },
+  { to: '/employees', icon: Users, labelKey: 'sidebar.employees' },
+  { to: '/bands', icon: BarChart3, labelKey: 'sidebar.bands' },
+  { to: '/reports', icon: FileText, labelKey: 'sidebar.reports' },
+  { to: '/settings', icon: Settings, labelKey: 'sidebar.settings' },
 ];
 
 export function Sidebar({ collapsed = false, onToggle }) {
+  const { t } = useLanguage();
+
   return (
     <aside
       className={cn(
-        'bg-surface border-r border-gray-100 flex flex-col py-6 h-screen sticky top-0 transition-all duration-300 z-30',
+        'bg-surface border-r border-gray-100 flex flex-col py-6 h-screen sticky top-0 transition-all duration-300 z-30 shrink-0',
         collapsed ? 'w-20 items-center' : 'w-64 px-4'
       )}
     >
@@ -25,23 +28,23 @@ export function Sidebar({ collapsed = false, onToggle }) {
           <TrendingUp className="w-6 h-6" />
         </div>
         {!collapsed && (
-          <div className="leading-tight">
-            <p className="font-bold text-content-main tracking-tight">EquiWage</p>
-            <p className="text-xs text-content-muted">Analytics</p>
+          <div className="leading-tight min-w-0">
+            <p className="font-bold text-content-main tracking-tight truncate">EquiWage</p>
+            <p className="text-xs text-content-muted truncate">Analytics</p>
           </div>
         )}
       </div>
 
       {/* Nav Items */}
       <nav className={cn('flex flex-col gap-2 flex-1 w-full', collapsed && 'items-center')}>
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+        {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => (
           <NavLink
             key={to}
             to={to}
-            title={collapsed ? label : undefined}
+            title={collapsed ? t(labelKey) : undefined}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-xl transition-all duration-200 group relative',
+                'flex items-center gap-3 rounded-xl transition-all duration-200 group relative min-w-0',
                 collapsed ? 'w-12 h-12 justify-center' : 'px-3 py-2.5',
                 isActive
                   ? 'bg-orange-50 text-primary font-semibold'
@@ -52,7 +55,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
             {({ isActive }) => (
               <>
                 <Icon className="w-5 h-5 shrink-0" />
-                {!collapsed && <span className="text-sm">{label}</span>}
+                {!collapsed && <span className="text-sm truncate">{t(labelKey)}</span>}
                 {isActive && (
                   <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                 )}
@@ -67,18 +70,18 @@ export function Sidebar({ collapsed = false, onToggle }) {
         <button
           onClick={onToggle}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-content-main transition-colors"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
         >
           {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
-        <div className={cn('flex items-center gap-3', collapsed ? 'justify-center' : 'px-2')}>
+        <div className={cn('flex items-center gap-3 min-w-0', collapsed ? 'justify-center' : 'px-2')}>
           <div className="w-10 h-10 shrink-0 rounded-full bg-orange-100 text-primary flex items-center justify-center font-bold text-xs shadow-sm cursor-pointer">
             EA
           </div>
           {!collapsed && (
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-content-main">HR Admin</p>
-              <p className="text-xs text-content-muted">Local session</p>
+            <div className="leading-tight min-w-0">
+              <p className="text-sm font-semibold text-content-main truncate">{t('sidebar.hrAdmin')}</p>
+              <p className="text-xs text-content-muted truncate">{t('sidebar.localSession')}</p>
             </div>
           )}
         </div>

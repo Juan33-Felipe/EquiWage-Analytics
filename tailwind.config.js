@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,8 +8,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F9FAFB',
-        surface: '#FFFFFF',
+        background: 'var(--color-background)',
+        surface: 'var(--color-surface)',
         primary: {
           DEFAULT: '#F97316',
           hover: '#EA580C',
@@ -17,8 +18,8 @@ export default {
         danger: '#EF4444',
         success: '#10B981',
         content: {
-          main: '#111827',
-          muted: '#6B7280',
+          main: 'var(--color-content-main)',
+          muted: 'var(--color-content-muted)',
         }
       },
       boxShadow: {

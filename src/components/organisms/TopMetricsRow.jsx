@@ -4,6 +4,7 @@ import { HeroCard } from '../molecules/HeroCard';
 import { StatCard } from '../molecules/StatCard';
 import { User, AlertTriangle, ArrowLeftRight } from 'lucide-react';
 import { useCompensation } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const container = {
   hidden: {},
@@ -16,6 +17,7 @@ const item = {
 
 export function TopMetricsRow() {
   const { metrics, simulationResult } = useCompensation();
+  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -24,39 +26,39 @@ export function TopMetricsRow() {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6"
     >
-      <motion.div variants={item}>
+      <motion.div variants={item} className="h-full">
         <HeroCard />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="h-full">
         <StatCard
-          title="Employees Analyzed"
+          title={t('metrics.employeesAnalyzed')}
           value={metrics.headcount.toLocaleString()}
-          subtitle={`${metrics.aligned} aligned within market bands`}
+          subtitle={t('metrics.alignedWithin', { count: metrics.aligned })}
           icon={User}
-          badgeText={`${Math.round(metrics.alignedRate * 100)}% aligned`}
+          badgeText={t('metrics.alignedBadge', { rate: Math.round(metrics.alignedRate * 100) })}
           badgeVariant="successOutline"
         />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="h-full">
         <StatCard
-          title="Market Disparities"
+          title={t('metrics.marketDisparities')}
           value={metrics.marketDisparities.toLocaleString()}
-          subtitle="Employees below their band minimum"
+          subtitle={t('metrics.employeesBelowBandMin')}
           icon={AlertTriangle}
-          badgeText={`${simulationResult.affectedCount} to adjust`}
+          badgeText={t('metrics.toAdjust', { count: simulationResult.affectedCount })}
           badgeVariant="dangerOutline"
         />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="h-full">
         <StatCard
-          title="Average Salary Gap"
+          title={t('metrics.averageSalaryGap')}
           value={`${(metrics.averageGap * 100).toFixed(1)}%`}
-          subtitle="Compared to market median"
+          subtitle={t('metrics.comparedMarketMedian')}
           icon={ArrowLeftRight}
-          badgeText={metrics.averageGap < 0 ? 'Below median' : 'Above median'}
+          badgeText={metrics.averageGap < 0 ? t('metrics.belowMedian') : t('metrics.aboveMedian')}
           badgeVariant={metrics.averageGap < 0 ? 'dangerOutline' : 'successOutline'}
         />
       </motion.div>

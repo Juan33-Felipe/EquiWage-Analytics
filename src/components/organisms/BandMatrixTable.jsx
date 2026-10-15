@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { Card } from '../atoms/Card';
 import { Button } from '../atoms/Button';
 import { formatCurrency, useCompensation } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 function EditableCell({ value, onChange }) {
   return (
@@ -17,28 +18,29 @@ function EditableCell({ value, onChange }) {
 
 export function BandMatrixTable() {
   const { bands, updateBand, addBand } = useCompensation();
+  const { t } = useLanguage();
 
   return (
     <Card className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">Band Matrix Preview</h3>
-          <p className="text-xs text-content-muted">Click any value to adjust the market ranges</p>
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+        <div className="min-w-0">
+          <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">{t('bands.bandMatrix')}</h3>
+          <p className="text-xs text-content-muted">{t('bands.clickAnyValue')}</p>
         </div>
-        <Button variant="outline" className="gap-2 text-xs" onClick={addBand}>
+        <Button variant="outline" className="gap-2 text-xs shrink-0" onClick={addBand}>
           <Plus className="w-4 h-4" />
-          Add Level Range
+          {t('bands.addLevelRange')}
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-100">
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50 text-xs font-semibold text-content-muted uppercase tracking-wider">
             <tr>
-              <th className="px-4 py-3 font-medium">Job Level</th>
-              <th className="px-4 py-3 font-medium text-right">Min Salary (P25)</th>
-              <th className="px-4 py-3 font-medium text-right">Market Median (P50)</th>
-              <th className="px-4 py-3 font-medium text-right">Max Salary (P75)</th>
+              <th className="px-4 py-3 font-medium whitespace-nowrap">{t('bands.jobLevel')}</th>
+              <th className="px-4 py-3 font-medium text-right whitespace-nowrap">{t('bands.minSalary')}</th>
+              <th className="px-4 py-3 font-medium text-right whitespace-nowrap">{t('bands.marketMedian')}</th>
+              <th className="px-4 py-3 font-medium text-right whitespace-nowrap">{t('bands.maxSalary')}</th>
             </tr>
           </thead>
           <tbody className="text-sm divide-y divide-gray-50">
@@ -66,10 +68,16 @@ export function BandMatrixTable() {
 
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1">
         <span className="text-xs text-content-muted">
-          Band midpoint example: <span className="font-semibold text-content-main">Level 5 • {bands[4] ? formatCurrency(bands[4].median) : '—'}</span>
+          {t('bands.bandMidpoint')}{' '}
+          <span className="font-semibold text-content-main">
+            {t('bands.levelN', { level: 5 })} • {bands[4] ? formatCurrency(bands[4].median) : '—'}
+          </span>
         </span>
         <span className="text-xs text-content-muted">
-          Span (P25–P75) example: <span className="font-semibold text-content-main">{bands[4] ? formatCurrency(bands[4].max - bands[4].min) : '—'}</span>
+          {t('bands.span')}{' '}
+          <span className="font-semibold text-content-main">
+            {bands[4] ? formatCurrency(bands[4].max - bands[4].min) : '—'}
+          </span>
         </span>
       </div>
     </Card>

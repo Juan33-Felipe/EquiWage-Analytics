@@ -12,7 +12,7 @@ export const REQUIRED_PAYROLL_COLUMNS = ['ID', 'Nombre', 'Cargo', 'Nivel', 'Sala
 function normalizeKey(key = '') {
   return String(key)
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
     .replace(/\s+/g, ' ');
@@ -50,8 +50,8 @@ export function rowsToEmployees(rows) {
       const salary = Number(String(lookup['salario actual']).replace(/[^0-9.-]/g, '')) || 0;
       return {
         id: String(lookup['id'] || `ROW-${index + 1}`),
-        name: String(lookup['nombre'] || 'Unnamed employee'),
-        role: String(lookup['cargo'] || 'Unassigned role'),
+        name: String(lookup['nombre'] || 'Sin nombre'),
+        role: String(lookup['cargo'] || 'Sin cargo'),
         department: String(lookup['departamento'] || lookup['department'] || 'Unassigned'),
         level,
         currentSalary: salary,
@@ -62,23 +62,23 @@ export function rowsToEmployees(rows) {
 
 /**
  * Valida y transforma un archivo de nómina.
- * @returns {{ok: boolean, employees?: Array, missing?: Array, rowCount?: number, error?: string}}
+ * @returns {{ok: boolean, employees?: Array, missing?: Array, rowCount?: number, errorKey?: string, error?: string}}
  */
 export async function parsePayrollFile(file) {
-  if (!file) return { ok: false, error: 'No file selected.' };
+  if (!file) return { ok: false, errorKey: 'error.noFile', error: 'No file selected.' };
   try {
     const rows = await readTabularFile(file);
     if (!rows.length) {
-      return { ok: false, error: 'The file is empty or has no readable rows.' };
+      return { ok: false, errorKey: 'error.emptyFile', error: 'The file is empty or has no readable rows.' };
     }
     const missing = findMissingColumns(rows);
     if (missing.length) {
-      return { ok: false, missing };
+      return { ok: false, missing, errorKey: 'employees.missingRequired' };
     }
     const employees = rowsToEmployees(rows);
     return { ok: true, employees, rowCount: employees.length };
   } catch {
-    return { ok: false, error: 'We could not read this file. Please export it as .CSV or .XLSX.' };
+    return { ok: false, errorKey: 'error.readError', error: 'We could not read this file. Please export it as .CSV or .XLSX.' };
   }
 }
 
@@ -87,11 +87,11 @@ export async function parsePayrollFile(file) {
  * Espera columnas de nivel y los rangos P25 / P50 / P75.
  */
 export async function parseBandsFile(file) {
-  if (!file) return { ok: false, error: 'No file selected.' };
+  if (!file) return { ok: false, errorKey: 'error.noFile', error: 'No file selected.' };
   try {
     const rows = await readTabularFile(file);
     if (!rows.length) {
-      return { ok: false, error: 'The file is empty or has no readable rows.' };
+      return { ok: false, errorKey: 'error.emptyFile', error: 'The file is empty or has no readable rows.' };
     }
     const bands = rows
       .map((row) => {
@@ -117,10 +117,10 @@ export async function parseBandsFile(file) {
       .filter((band) => [band.level, band.min, band.median, band.max].every(Number.isFinite));
 
     if (!bands.length) {
-      return { ok: false, error: 'We could not find salary ranges in this file.' };
+      return { ok: false, errorKey: 'error.noRanges', error: 'We could not find salary ranges in this file.' };
     }
     return { ok: true, bands, rowCount: bands.length };
   } catch {
-    return { ok: false, error: 'We could not read this file. Please export it as .CSV or .XLSX.' };
+    return { ok: false, errorKey: 'error.readError', error: 'We could not read this file. Please export it as .CSV or .XLSX.' };
   }
 }

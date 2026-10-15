@@ -2,51 +2,55 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Users, TrendingUp } from 'lucide-react';
 import { formatCurrency, useCompensation } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function SimulatorHeroCard() {
   const { simulation, simulationResult } = useCompensation();
-  const targetLabel = simulation.target === 'minimum' ? 'Band Minimum (P25)' : 'Market Median (P50)';
+  const { t } = useLanguage();
+  const targetLabel = simulation.target === 'minimum' ? t('simulator.bandMinimumP25') : t('simulator.marketMedianP50');
 
   return (
-    <div className="relative overflow-hidden rounded-xl shadow-soft bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white p-8">
+    <div className="relative overflow-hidden rounded-xl shadow-soft bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white p-6 sm:p-8">
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold shrink-0">
               <Zap className="w-3.5 h-3.5" />
-              Instant calculation
+              {t('simulator.instantCalculation')}
             </span>
-            <span className="text-xs font-medium text-white/80">Target: {targetLabel}</span>
+            <span className="text-xs font-medium text-white/80">
+              {t('simulator.target')} {targetLabel}
+            </span>
           </div>
-          <p className="text-sm font-medium text-white/90 mb-1">Required Budget to Level Medians</p>
+          <p className="text-sm font-medium text-white/90 mb-1">{t('simulator.requiredBudget')}</p>
           <motion.h2
             key={simulationResult.totalBudget}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="text-5xl font-bold tracking-tight"
+            className="text-4xl sm:text-5xl font-bold tracking-tight truncate"
           >
             {formatCurrency(simulationResult.totalBudget)}
           </motion.h2>
           <p className="text-xs text-white/80 mt-2">
-            Per quarter after phased rollout: {formatCurrency(simulationResult.perQuarter)}
+            {t('simulator.perQuarter')} {formatCurrency(simulationResult.perQuarter)}
           </p>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex flex-wrap gap-6 shrink-0">
           <div className="text-center">
             <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
               <Users className="w-5 h-5" />
             </div>
             <p className="text-2xl font-bold">{simulationResult.affectedCount}</p>
-            <p className="text-[11px] text-white/80">Employees benefiting</p>
+            <p className="text-[11px] text-white/80">{t('simulator.employeesBenefiting')}</p>
           </div>
           <div className="text-center">
             <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
               <TrendingUp className="w-5 h-5" />
             </div>
             <p className="text-2xl font-bold">{formatCurrency(simulationResult.averageAdjustment)}</p>
-            <p className="text-[11px] text-white/80">Average increase</p>
+            <p className="text-[11px] text-white/80">{t('simulator.averageIncrease')}</p>
           </div>
         </div>
       </div>
