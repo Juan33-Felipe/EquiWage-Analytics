@@ -2,15 +2,26 @@ import React from 'react';
 import { Card } from '../atoms/Card';
 import { AlertRow } from '../molecules/AlertRow';
 import { ListFilter } from 'lucide-react';
+import { getInitials, useCompensation } from '../../context/CompensationContext';
 
-export function InequityAlertsWidget() {
-  const alerts = [
-    { initials: 'MC', name: 'Maya Chen', role: 'Senior Product Designer', gap: '-18.2%', colorClass: 'bg-blue-50 text-blue-700' },
-    { initials: 'DB', name: 'Daniel Brooks', role: 'Software Engineer II', gap: '-15.0%', colorClass: 'bg-cyan-50 text-cyan-700' },
-    { initials: 'PN', name: 'Priya Nair', role: 'Marketing Manager', gap: '-12.7%', colorClass: 'bg-yellow-50 text-yellow-700' },
-    { initials: 'JE', name: 'Jordan Ellis', role: 'Financial Analyst', gap: '-10.4%', colorClass: 'bg-emerald-50 text-emerald-700' },
-    { initials: 'SM', name: 'Sofia Martinez', role: 'People Operations Lead', gap: '-9.8%', colorClass: 'bg-pink-50 text-pink-700' },
-  ];
+const AVATAR_TONES = [
+  'bg-blue-50 text-blue-700',
+  'bg-cyan-50 text-cyan-700',
+  'bg-yellow-50 text-yellow-700',
+  'bg-emerald-50 text-emerald-700',
+  'bg-pink-50 text-pink-700',
+  'bg-violet-50 text-violet-700',
+];
+
+export function InequityAlertsWidget({ onSelect, onHover }) {
+  const { employees, inequities, marketGaps } = useCompensation();
+
+  // Prioriza inequidades internas y, si no hay, muestra brechas de mercado.
+  const source = inequities.length ? inequities : marketGaps;
+  const items = [...employees]
+    .filter((employee) => source.some((flagged) => flagged.id === employee.id))
+    .sort((a, b) => a.gap - b.gap)
+    .slice(0, 6);
 
   return (
     <Card className="h-full flex flex-col p-6">
@@ -20,7 +31,7 @@ export function InequityAlertsWidget() {
             <h3 className="text-lg font-bold text-content-main tracking-tight">Inequity Alerts</h3>
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-bold text-danger">
               <div className="w-1.5 h-1.5 rounded-full bg-danger" />
-              87 Detected
+              {source.length} Detected
             </div>
           </div>
           <p className="text-xs text-content-muted">Largest gaps requiring attention</p>
@@ -31,8 +42,24 @@ export function InequityAlertsWidget() {
       </div>
 
       <div className="flex-1 flex flex-col gap-2 mt-2 overflow-y-auto pr-2 -mr-2">
-        {alerts.map((alert, i) => (
-          <AlertRow key={i} {...alert} />
+        {items.length === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center text-content-muted">
+            <p className="text-sm font-medium">No critical alerts</p>
+            <p className="text-xs mt-1">Every employee is within their market band.</p>
+          </div>
+        )}
+        {items.map((employee, index) => (
+          <AlertRow
+            key={employee.id}
+            initials={getInitials(employee.name)}
+            name={employee.name}
+            role={`L${employee.level} • ${employee.role}`}
+            gap={`${employee.gap >= 0 ? '+' : ''}${(employee.gap * 100).toFixed(1)}%`}
+            colorClass={AVATAR_TONES[index % AVATAR_TONES.length]}
+            badgeVariant={employee.status === 'below' ? 'danger' : 'warning'}
+            onClick={() => onSelect?.(employee)}
+            onHover={() => onHover?.(employee)}
+          />
         ))}
       </div>
     </Card>
