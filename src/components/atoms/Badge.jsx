@@ -8,7 +8,8 @@ export function Badge({ variant = 'success', children, className, ...props }) {
     warning: 'bg-yellow-100 text-yellow-700',
     neutral: 'bg-gray-100 text-gray-700',
     dangerOutline: 'bg-red-50 text-danger border border-red-100',
-    successOutline: 'bg-green-50 text-success border border-green-100'
+    successOutline: 'bg-green-50 text-success border border-green-100',
+    primary: 'bg-orange-50 text-primary border border-orange-100'
   };
 
   return (
