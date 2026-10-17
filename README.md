@@ -1,7 +1,36 @@
 # Modelador y Validador de Estructura Salarial (EquiWage Analytics)
 
 ## Descripción del Proyecto
-Software de escritorio para Recursos Humanos diseñado para auditar la equidad salarial interna y la competitividad externa. Permite importar datos de nómina, detectar desviaciones frente a bandas de mercado y simular escenarios presupuestales de nivelación en tiempo real.
+Software de escritorio y plataforma local para Recursos Humanos diseñado para auditar la equidad salarial interna y la competitividad externa. Permite importar datos de nómina, detectar desviaciones frente a bandas de mercado, simular escenarios presupuestales de nivelación en tiempo real y generar diagnósticos ejecutivos asistidos por IA con anonimización estricta de datos personales.
+
+---
+
+## Estructura del Monorepo (NPM Workspaces)
+
+El proyecto está organizado como un **Monorepo** utilizando **NPM Workspaces**:
+
+```text
+equiwage-analytics/
+├── package.json            # Configuración raíz del Monorepo (workspaces y scripts globales)
+├── plan_backend.md         # Plan de implementación por etapas del Backend y Monorepo
+├── README.md               # Documentación general del Monorepo
+├── packages/
+│   └── shared/             # (@equiwage/shared) Tipos, contratos, esquemas de validación y utilidades compartidas
+└── apps/
+    ├── frontend/           # (@equiwage/frontend) Aplicación UI (React + Vite + Tailwind CSS + Recharts)
+    │   └── README.md       # Documentación técnica del Frontend
+    └── backend/            # (@equiwage/backend) Servidor local (Node.js + TypeScript/JS + SQLite + AI API)
+        └── README.md       # Documentación técnica del Backend
+```
+
+### Comandos Globales del Monorepo
+* `npm run dev`: Inicia simultáneamente el servidor backend y la aplicación frontend.
+* `npm run dev:frontend`: Inicia únicamente el entorno de desarrollo del Frontend (`apps/frontend`).
+* `npm run dev:backend`: Inicia únicamente el servidor local del Backend (`apps/backend`).
+* `npm run build`: Ejecuta la compilación de todos los paquetes del workspace (`shared`, `frontend`, `backend`).
+* `npm run lint`: Ejecuta la validación de código en los workspaces.
+
+---
 
 ## Requisitos Funcionales (RF)
 * **RF-001 - Importar Empleados:** El sistema debe permitir cargar un archivo (CSV/Excel) con la nómina actual (ID, Nombre, Cargo, Salario Actual).
