@@ -24,3 +24,16 @@ dist-ssr
 *.sw?
 .claude/
 PLAN.md
+
+# Environment & Local SQLite Database
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+git_changes.txt
