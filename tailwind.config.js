@@ -8,8 +8,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'var(--color-background)',
-        surface: 'var(--color-surface)',
+        background: '#F9FAFB',
+        surface: '#FFFFFF',
         primary: {
           DEFAULT: '#F97316',
           hover: '#EA580C',
@@ -18,8 +18,8 @@ export default {
         danger: '#EF4444',
         success: '#10B981',
         content: {
-          main: 'var(--color-content-main)',
-          muted: 'var(--color-content-muted)',
+          main: '#111827',
+          muted: '#6B7280',
         }
       },
       boxShadow: {
