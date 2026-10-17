@@ -28,7 +28,7 @@ export const es = {
   'header.dashboardSubtitle': 'EquiWage Analytics • Auditoría de Compensaciones',
   'header.equiWageAnalytics': 'EquiWage Analytics',
   'header.compensationAudit': 'Auditoría de Compensaciones',
-  'header.overview': 'Resumen',
+  'header.overview': 'Visión General',
   'header.simulator': 'Simulador',
   'header.distribution': 'Distribución',
   'header.employees': 'Empleados e Importación',
