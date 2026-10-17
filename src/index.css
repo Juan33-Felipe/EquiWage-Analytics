@@ -30,34 +30,73 @@
   }
 }
 
+/* Core Dark Theme Surfaces & Typography (High-contrast #111827 / #1F2937 / #F9FAFB / #9CA3AF) */
+html.dark,
+html.dark body,
+html.dark .bg-background {
+  background-color: #111827 !important;
+  color: #F9FAFB;
+}
+
+html.dark .bg-surface {
+  background-color: #1F2937 !important;
+}
+
+html.dark .text-content-main {
+  color: #F9FAFB !important;
+}
+
+html.dark .text-content-muted {
+  color: #9CA3AF !important;
+}
+
+html.dark .hover\:text-content-main:hover {
+  color: #FFFFFF !important;
+}
+
+/* TabPill in Dark Mode (preserves exact pill design with dark surface contrast) */
+html.dark .tab-pill-container {
+  background-color: #1F2937 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(55, 65, 81, 0.8);
+}
+
+html.dark .tab-pill-active {
+  background-color: #111827 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
 /* Dark theme adaptations for borders, secondary surfaces, and controls */
 html.dark .border-gray-50,
 html.dark .border-gray-100 {
-  border-color: rgba(55, 65, 81, 0.7);
+  border-color: rgba(55, 65, 81, 0.75) !important;
 }
 
 html.dark .border-gray-200,
 html.dark .border-gray-300 {
-  border-color: #374151;
+  border-color: #374151 !important;
+}
+
+html.dark .border-surface {
+  border-color: #1F2937 !important;
 }
 
 html.dark .divide-gray-50 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(55, 65, 81, 0.6);
+  border-color: rgba(55, 65, 81, 0.65) !important;
 }
 
 html.dark .bg-white {
-  background-color: #1F2937;
+  background-color: #1F2937 !important;
 }
 
 html.dark .bg-gray-50,
 html.dark .bg-gray-50\/60,
 html.dark .bg-gray-50\/80 {
-  background-color: rgba(17, 24, 39, 0.65);
+  background-color: rgba(17, 24, 39, 0.65) !important;
 }
 
-html.dark .bg-gray-100,
-html.dark .bg-gray-100\/80 {
-  background-color: #111827;
+html.dark .bg-gray-100 {
+  background-color: #111827 !important;
 }
 
 html.dark .hover\:bg-gray-50:hover,
@@ -66,56 +105,69 @@ html.dark .hover\:bg-gray-50\/60:hover,
 html.dark .hover\:bg-gray-50\/70:hover,
 html.dark .hover\:bg-gray-100:hover,
 html.dark .hover\:bg-gray-200\/50:hover {
-  background-color: rgba(55, 65, 81, 0.55);
+  background-color: rgba(55, 65, 81, 0.55) !important;
 }
 
 html.dark .bg-orange-50,
 html.dark .bg-orange-50\/40,
 html.dark .bg-orange-50\/50,
 html.dark .bg-orange-50\/60 {
-  background-color: rgba(249, 115, 22, 0.14);
+  background-color: rgba(249, 115, 22, 0.15) !important;
 }
 
 html.dark .bg-orange-100 {
-  background-color: rgba(249, 115, 22, 0.22);
+  background-color: rgba(249, 115, 22, 0.22) !important;
 }
 
 html.dark .border-orange-100 {
-  border-color: rgba(249, 115, 22, 0.28);
+  border-color: rgba(249, 115, 22, 0.3) !important;
 }
 
 html.dark .bg-green-50,
 html.dark .bg-green-50\/50,
 html.dark .bg-green-100 {
-  background-color: rgba(16, 185, 129, 0.14);
+  background-color: rgba(16, 185, 129, 0.15) !important;
 }
 
 html.dark .border-green-100 {
-  border-color: rgba(16, 185, 129, 0.28);
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .text-green-700 {
+  color: #34D399 !important;
 }
 
 html.dark .bg-red-50,
 html.dark .bg-red-100 {
-  background-color: rgba(239, 68, 68, 0.14);
+  background-color: rgba(239, 68, 68, 0.15) !important;
 }
 
 html.dark .border-red-100 {
-  border-color: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+html.dark .text-red-600 {
+  color: #F87171 !important;
 }
 
 html.dark .bg-yellow-100 {
-  background-color: rgba(245, 158, 11, 0.16);
+  background-color: rgba(245, 158, 11, 0.18) !important;
+}
+
+html.dark .text-yellow-700 {
+  color: #FBBF24 !important;
 }
 
 html.dark .text-gray-400,
 html.dark .text-gray-500 {
-  color: #9CA3AF;
+  color: #9CA3AF !important;
 }
 
 html.dark .text-gray-700 {
-  color: #E5E7EB;
+  color: #E5E7EB !important;
 }
 
+html.dark select,
 html.dark select option {
   background-color: #1F2937;
   color: #F9FAFB;
@@ -124,6 +176,10 @@ html.dark select option {
 /* Custom chart styles if needed */
 .recharts-cartesian-axis-tick-value {
   @apply text-xs fill-content-muted;
+}
+
+html.dark .recharts-cartesian-axis-tick-value {
+  fill: #9CA3AF !important;
 }
 
 /* Orange slider thumb for the budget simulator */
