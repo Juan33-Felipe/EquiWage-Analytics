@@ -6,6 +6,7 @@ import {
   getInitials as sharedGetInitials,
 } from '@equiwage/shared';
 import { compensationApi } from '../services/compensation.api';
+import { useAuth } from './AuthContext';
 
 const CompensationContext = createContext(null);
 
@@ -21,6 +22,7 @@ function bandMapFromState(bands) {
 }
 
 export function CompensationProvider({ children }) {
+  const { isAuthenticated } = useAuth();
   const [rawEmployees, setRawEmployees] = useState([]);
   const [bands, setBands] = useState([]);
   const [payrollSource, setPayrollSource] = useState('SQLite Local Database');
@@ -94,7 +96,13 @@ export function CompensationProvider({ children }) {
   }, [applyBackendAuditState]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setIsLoading(false);
+      return undefined;
+    }
+
     let active = true;
+    setIsLoading(true);
     compensationApi
       .getFullAudit()
       .then((auditPayload) => {
@@ -112,7 +120,7 @@ export function CompensationProvider({ children }) {
     return () => {
       active = false;
     };
-  }, [applyBackendAuditState]);
+  }, [isAuthenticated, applyBackendAuditState]);
 
   const bandMap = useMemo(() => bandMapFromState(bands), [bands]);
 
