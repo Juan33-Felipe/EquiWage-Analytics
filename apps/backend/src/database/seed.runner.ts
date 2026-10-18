@@ -1,5 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import {
+  DEFAULT_LOCAL_ADMIN_USER,
   DEFAULT_SALARY_BANDS,
   DEFAULT_SEED_EMPLOYEES,
   DEPARTMENTS,
@@ -7,6 +8,7 @@ import {
   SIMULATION_TARGETS,
 } from '@equiwage/shared';
 import { logger } from '../config/logger.js';
+import { authCryptoService } from '../services/auth-crypto.service.js';
 import { runInTransaction } from './sqlite.connection.js';
 
 /**
@@ -40,10 +42,50 @@ export function ensureDatabaseSeeded(db: DatabaseSync): { seeded: boolean; emplo
 }
 
 /**
- * Ensures singleton simulation_settings and app_metadata keys exist even when DB already had rows.
+ * Ensures the default local HR Admin user exists in the SQLite users table.
+ */
+export function ensureDefaultUsersSeeded(db: DatabaseSync): void {
+  const existingAdmin = db
+    .prepare('SELECT id FROM users WHERE username = ? OR email = ?')
+    .get(DEFAULT_LOCAL_ADMIN_USER.username, DEFAULT_LOCAL_ADMIN_USER.email) as { id: string } | undefined;
+
+  if (existingAdmin) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const passwordHash = authCryptoService.hashPasswordSync(DEFAULT_LOCAL_ADMIN_USER.defaultPassword);
+
+  db.prepare(`
+    INSERT INTO users (
+      id, username, email, full_name, role, department, initials, password_hash, is_active, last_login_at, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NULL, ?, ?)
+  `).run(
+    DEFAULT_LOCAL_ADMIN_USER.id,
+    DEFAULT_LOCAL_ADMIN_USER.username,
+    DEFAULT_LOCAL_ADMIN_USER.email,
+    DEFAULT_LOCAL_ADMIN_USER.fullName,
+    DEFAULT_LOCAL_ADMIN_USER.role,
+    DEFAULT_LOCAL_ADMIN_USER.department,
+    DEFAULT_LOCAL_ADMIN_USER.initials,
+    passwordHash,
+    now,
+    now
+  );
+
+  logger.info('Default local HR analyst user seeded', {
+    username: DEFAULT_LOCAL_ADMIN_USER.username,
+    email: DEFAULT_LOCAL_ADMIN_USER.email,
+  });
+}
+
+/**
+ * Ensures singleton simulation_settings, app_metadata keys, and default local users exist even when DB already had rows.
  */
 function ensureDefaultSettingsAndMetadata(db: DatabaseSync): void {
   const now = new Date().toISOString();
+
+  ensureDefaultUsersSeeded(db);
 
   const simRow = db.prepare('SELECT id FROM simulation_settings WHERE id = 1').get();
   if (!simRow) {
@@ -121,6 +163,8 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
     upsertMeta.run('payroll_source', 'Sample dataset', now);
     upsertMeta.run('schema_version', String(SESSION_SCHEMA_VERSION), now);
     upsertMeta.run('seeded_at', now, now);
+
+    ensureDefaultUsersSeeded(db);
 
     logger.info('SQLite seed completed', {
       bandsSeeded: DEFAULT_SALARY_BANDS.length,

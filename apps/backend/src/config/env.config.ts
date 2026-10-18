@@ -32,10 +32,25 @@ export interface BackendEnvConfig {
     timeoutMs: number;
     isConfigured: boolean;
   };
+  auth: {
+    jwtSecret: string;
+    tokenExpiresInHours: number;
+  };
+  email: {
+    host: string;
+    port: number;
+    secure: boolean;
+    user: string;
+    pass: string;
+    from: string;
+    isConfigured: boolean;
+  };
 }
 
 const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:5173,http://127.0.0.1:5173';
 const aiApiKey = (process.env.AI_API_KEY || '').trim();
+const smtpHost = (process.env.SMTP_HOST || '').trim();
+const smtpUser = (process.env.SMTP_USER || '').trim();
 
 export const envConfig: BackendEnvConfig = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -50,5 +65,18 @@ export const envConfig: BackendEnvConfig = {
     apiBaseUrl: (process.env.AI_API_BASE_URL || '').trim(),
     timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 12000,
     isConfigured: aiApiKey.length > 0,
+  },
+  auth: {
+    jwtSecret: (process.env.JWT_SECRET || 'equiwage-local-vault-secret-key-2026').trim(),
+    tokenExpiresInHours: Number(process.env.JWT_EXPIRES_IN_HOURS) || 24,
+  },
+  email: {
+    host: smtpHost || 'smtp.ethereal.email',
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    user: smtpUser,
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.SMTP_FROM || 'EquiWage Analytics <security@equiwage.local>',
+    isConfigured: Boolean(smtpHost && smtpUser),
   },
 };

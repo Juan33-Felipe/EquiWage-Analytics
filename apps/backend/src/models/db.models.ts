@@ -1,5 +1,49 @@
 import { DEPARTMENTS, SIMULATION_TARGETS } from '@equiwage/shared';
-import type { Employee, SalaryBand, SimulationParams, SimulationTarget } from '@equiwage/shared';
+import type { AuthUser, Employee, SalaryBand, SimulationParams, SimulationTarget } from '@equiwage/shared';
+
+export interface UserDbRow {
+  id: string;
+  username: string;
+  email: string;
+  full_name: string;
+  role: string;
+  department: string;
+  initials: string;
+  password_hash: string;
+  is_active: number;
+  is_verified?: number;
+  last_login_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VerificationCodeDbRow {
+  id: number;
+  email: string;
+  code: string;
+  first_name: string;
+  last_name: string;
+  password_hash: string;
+  department: string;
+  role: string;
+  attempts: number;
+  expires_at: string;
+  created_at: string;
+}
+
+export function mapRowToAuthUser(row: UserDbRow): AuthUser {
+  return {
+    id: String(row.id),
+    username: String(row.username),
+    email: String(row.email),
+    fullName: String(row.full_name),
+    role: String(row.role),
+    department: String(row.department),
+    initials: String(row.initials),
+    lastLoginAt: row.last_login_at ?? null,
+    createdAt: row.created_at,
+  };
+}
 
 export interface SalaryBandDbRow {
   level: number;

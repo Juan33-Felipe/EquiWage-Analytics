@@ -62,7 +62,58 @@ export function runSchemaMigrations(db: DatabaseSync): void {
       payload_json TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
+
+    -- 6. Local HR Analysts & Administrators Table (RNF-001 Local Access Control)
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      full_name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      department TEXT NOT NULL,
+      initials TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      last_login_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+    -- 7. Revoked Session Tokens Table (Clean local logout & token invalidation)
+    CREATE TABLE IF NOT EXISTS revoked_tokens (
+      jti TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      revoked_at TEXT NOT NULL
+    );
+
+    -- 8. Temporary 4-Digit Email Verification Codes (User Registration & Account Activation)
+    CREATE TABLE IF NOT EXISTS verification_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL COLLATE NOCASE,
+      code TEXT NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      department TEXT NOT NULL DEFAULT 'HR',
+      role TEXT NOT NULL DEFAULT 'Compensation Analyst',
+      attempts INTEGER NOT NULL DEFAULT 0,
+      expires_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_verification_email ON verification_codes(email);
   `);
+
+  // Ensure is_verified column exists in users table (non-destructive migration)
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 1;`);
+  } catch {
+    // Column already exists, safe to ignore
+  }
 
   logger.info('SQLite schema migrations and indexes verified');
 }
