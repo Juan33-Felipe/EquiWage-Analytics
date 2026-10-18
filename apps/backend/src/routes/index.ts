@@ -1,5 +1,7 @@
 import { Router } from 'express';
+import { requireAuthMiddleware } from '../middlewares/auth.middleware.js';
 import { healthRouter } from './health.routes.js';
+import { authRouter } from './auth.routes.js';
 import { auditRouter } from './audit.routes.js';
 import { employeesRouter } from './employees.routes.js';
 import { bandsRouter } from './bands.routes.js';
@@ -11,12 +13,16 @@ import { aiRouter } from './ai.routes.js';
 
 export const apiRouter = Router();
 
+// Public routes (Health diagnostics & Local Authentication)
 apiRouter.use('/health', healthRouter);
-apiRouter.use('/audit', auditRouter);
-apiRouter.use('/employees', employeesRouter);
-apiRouter.use('/bands', bandsRouter);
-apiRouter.use('/simulation', simulationRouter);
-apiRouter.use('/import', importRouter);
-apiRouter.use('/session', sessionRouter);
-apiRouter.use('/reports', reportsRouter);
-apiRouter.use('/ai', aiRouter);
+apiRouter.use('/auth', authRouter);
+
+// Protected compensation & payroll routes (RNF-001 Local Access Control)
+apiRouter.use('/audit', requireAuthMiddleware, auditRouter);
+apiRouter.use('/employees', requireAuthMiddleware, employeesRouter);
+apiRouter.use('/bands', requireAuthMiddleware, bandsRouter);
+apiRouter.use('/simulation', requireAuthMiddleware, simulationRouter);
+apiRouter.use('/import', requireAuthMiddleware, importRouter);
+apiRouter.use('/session', requireAuthMiddleware, sessionRouter);
+apiRouter.use('/reports', requireAuthMiddleware, reportsRouter);
+apiRouter.use('/ai', requireAuthMiddleware, aiRouter);
