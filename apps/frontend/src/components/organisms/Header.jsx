@@ -2,9 +2,10 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TabPill } from '../molecules/TabPill';
 import { SearchInput } from '../molecules/SearchInput';
-import { Bell, Sun, Moon } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 const DASHBOARD_TABS = [
   { id: 'overview', label: 'overview', to: '/dashboard/overview' },
@@ -25,6 +26,12 @@ export function Header() {
   const isDashboard = location.pathname.startsWith('/dashboard');
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
 
   const pageMeta = PAGE_META[location.pathname];
   const titleText = isDashboard
@@ -71,7 +78,7 @@ export function Header() {
         </div>
       )}
 
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-center gap-3 shrink-0">
         <div className="hidden lg:block">
           <SearchInput />
         </div>
@@ -92,6 +99,15 @@ export function Header() {
         >
           <Bell className="w-5 h-5" />
           <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-surface" />
+        </button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label={t('header.signOut')}
+          title={t('header.signOut')}
+          className="w-10 h-10 rounded-full bg-surface border border-gray-200 flex items-center justify-center text-gray-500 hover:text-danger hover:bg-red-50 transition-colors shadow-sm"
+        >
+          <LogOut className="w-4 h-4" />
         </button>
       </div>
     </header>

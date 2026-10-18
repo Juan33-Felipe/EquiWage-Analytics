@@ -1,8 +1,9 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Users, BarChart3, FileText, Settings, TrendingUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutGrid, Users, BarChart3, FileText, Settings, TrendingUp, PanelLeftClose, PanelLeftOpen, LogOut } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
   { to: '/dashboard/overview', icon: LayoutGrid, labelKey: 'sidebar.dashboard' },
@@ -14,6 +15,17 @@ const NAV_ITEMS = [
 
 export function Sidebar({ collapsed = false, onToggle }) {
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  const displayInitials = user?.initials || 'EV';
+  const displayName = user?.fullName || t('sidebar.hrAdmin');
+  const displaySubtitle = user?.role || t('sidebar.localSession');
 
   return (
     <aside
@@ -65,7 +77,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
         ))}
       </nav>
 
-      {/* Toggle + Profile */}
+      {/* Toggle + Profile + Sign Out */}
       <div className={cn('mt-auto flex flex-col gap-3 w-full', collapsed ? 'items-center' : '')}>
         <button
           onClick={onToggle}
@@ -74,16 +86,34 @@ export function Sidebar({ collapsed = false, onToggle }) {
         >
           {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
-        <div className={cn('flex items-center gap-3 min-w-0', collapsed ? 'justify-center' : 'px-2')}>
-          <div className="w-10 h-10 shrink-0 rounded-full bg-orange-100 text-primary flex items-center justify-center font-bold text-xs shadow-sm cursor-pointer">
-            EA
-          </div>
-          {!collapsed && (
-            <div className="leading-tight min-w-0">
-              <p className="text-sm font-semibold text-content-main truncate">{t('sidebar.hrAdmin')}</p>
-              <p className="text-xs text-content-muted truncate">{t('sidebar.localSession')}</p>
-            </div>
+
+        <div
+          className={cn(
+            'flex items-center justify-between gap-2 min-w-0 rounded-2xl p-1.5',
+            collapsed ? 'flex-col justify-center' : 'px-2'
           )}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 shrink-0 rounded-full bg-orange-100 text-primary flex items-center justify-center font-bold text-xs shadow-sm">
+              {displayInitials}
+            </div>
+            {!collapsed && (
+              <div className="leading-tight min-w-0">
+                <p className="text-sm font-semibold text-content-main truncate">{displayName}</p>
+                <p className="text-xs text-content-muted truncate">{displaySubtitle}</p>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            aria-label={t('sidebar.signOut')}
+            title={t('sidebar.signOut')}
+            className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-gray-500 hover:text-danger hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>
