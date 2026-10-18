@@ -150,9 +150,29 @@ export const DEFAULT_SEED_EMPLOYEES = [
   { id: 'EMP-024', name: 'Owen Bennett', role: 'Support Specialist', department: 'Sales', level: 1, currentSalary: 47500 },
 ];
 
+/**
+ * Default local HR analyst/admin account seeded into SQLite on initial launch.
+ */
+export const DEFAULT_LOCAL_ADMIN_USER = Object.freeze({
+  id: 'USR-ADMIN-001',
+  username: 'hr.admin',
+  email: 'admin@equiwage.local',
+  fullName: 'Elena Vance',
+  role: 'Lead Compensation Analyst',
+  department: 'HR',
+  initials: 'EV',
+  defaultPassword: 'EquiWage2026!',
+});
+
 /** Canonical REST API endpoint paths shared between frontend and backend. */
 export const API_ENDPOINTS = Object.freeze({
   HEALTH: '/api/health',
+  AUTH_LOGIN: '/api/auth/login',
+  AUTH_REGISTER: '/api/auth/register',
+  AUTH_VERIFY_CODE: '/api/auth/verify-code',
+  AUTH_RESEND_CODE: '/api/auth/resend-code',
+  AUTH_SESSION: '/api/auth/session',
+  AUTH_LOGOUT: '/api/auth/logout',
   AUDIT_OVERVIEW: '/api/audit',
   EMPLOYEES: '/api/employees',
   BANDS: '/api/bands',

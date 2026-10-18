@@ -48,8 +48,25 @@ export declare const BAND_COLUMN_ALIASES: Readonly<{
 export declare const DEFAULT_SALARY_BANDS: SalaryBand[];
 export declare const DEFAULT_SEED_EMPLOYEES: Employee[];
 
+export declare const DEFAULT_LOCAL_ADMIN_USER: Readonly<{
+  id: string;
+  username: string;
+  email: string;
+  fullName: string;
+  role: string;
+  department: string;
+  initials: string;
+  defaultPassword: string;
+}>;
+
 export declare const API_ENDPOINTS: Readonly<{
   HEALTH: '/api/health';
+  AUTH_LOGIN: '/api/auth/login';
+  AUTH_REGISTER: '/api/auth/register';
+  AUTH_VERIFY_CODE: '/api/auth/verify-code';
+  AUTH_RESEND_CODE: '/api/auth/resend-code';
+  AUTH_SESSION: '/api/auth/session';
+  AUTH_LOGOUT: '/api/auth/logout';
   AUDIT_OVERVIEW: '/api/audit';
   EMPLOYEES: '/api/employees';
   BANDS: '/api/bands';
