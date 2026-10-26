@@ -1,8 +1,15 @@
 import type {
   AuditMetrics,
+  CountryMinimumWageReference,
+  DepartmentName,
+  Employee,
   EnrichedEmployee,
   InequityFlaggedEmployee,
+  LegalComplianceConfig,
+  ManualAdjustment,
   MarketGapItem,
+  PayrollActionPlan,
+  PayrollActionPlanItem,
   SalaryBand,
   SimulationParams,
   SimulationResult,
@@ -45,7 +52,71 @@ export interface AuditSummaryPayload {
   inequities: InequityFlaggedEmployee[];
   simulation: SimulationParams;
   simulationResult: SimulationResult;
+  legalCompliance?: LegalComplianceConfig;
+  referenceCountries?: CountryMinimumWageReference[];
+  manualAdjustments?: ManualAdjustment[];
   computedInMs?: number;
+}
+
+/**
+ * Employee CRUD payloads (Feature A).
+ */
+export interface EmployeeCreatePayload {
+  id?: string;
+  name: string;
+  role: string;
+  department: DepartmentName;
+  level: number;
+  currentSalary: number;
+}
+
+export interface EmployeeUpdatePayload {
+  name?: string;
+  role?: string;
+  department?: DepartmentName;
+  level?: number;
+  currentSalary?: number;
+  manualAdjustment?: ManualAdjustment;
+}
+
+/**
+ * Legal Compliance update payload (Feature D).
+ */
+export interface LegalComplianceUpdatePayload {
+  enabled?: boolean;
+  countryCode?: string;
+  countryName?: string;
+  minimumWage?: number;
+  currency?: string;
+  notes?: string;
+}
+
+/**
+ * Manual adjustment update payload (Feature B).
+ */
+export interface ManualAdjustmentPayload {
+  employeeId: string;
+  type: 'amount' | 'percent';
+  value: number;
+  notes?: string;
+}
+
+/**
+ * Payroll Action Plan approval and export request/response (Feature E).
+ */
+export interface ApprovePlanRequest {
+  scenarioName?: string;
+  commitToDatabase?: boolean;
+  inflationPercent?: number;
+  notes?: string;
+}
+
+export interface ApprovePlanResponse {
+  plan: PayrollActionPlan;
+  committed: boolean;
+  updatedEmployeeCount: number;
+  exportRows: PayrollActionPlanItem[];
+  timestamp: string;
 }
 
 /**

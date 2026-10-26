@@ -1,4 +1,9 @@
-import type { Employee, SalaryBand } from '../types/domain.types.js';
+import type {
+  CountryMinimumWageReference,
+  Employee,
+  LegalComplianceConfig,
+  SalaryBand,
+} from '../types/domain.types.js';
 
 export declare const APP_NAME: 'EquiWage Analytics';
 export declare const SESSION_SCHEMA_VERSION: 1;
@@ -19,9 +24,18 @@ export declare const BAND_STATUS: Readonly<{
 }>;
 
 export declare const GAP_SEVERITY: Readonly<{
+  LEGAL_VIOLATION: 'legal_violation';
   CRITICAL: 'critical';
   MODERATE: 'moderate';
   NONE: 'none';
+}>;
+
+export declare const ADJUSTMENT_REASONS: Readonly<{
+  LEGAL_COMPLIANCE: 'Legal Compliance';
+  BAND_MINIMUM: 'Band Minimum P25';
+  MARKET_MEDIAN: 'Market Median P50';
+  MANUAL_ADJUSTMENT: 'Individual Manual Adjustment';
+  INFLATION: 'Inflation Adjustment';
 }>;
 
 export declare const ROLLOUT_QUARTERS_OPTIONS: readonly number[];
@@ -59,6 +73,9 @@ export declare const DEFAULT_LOCAL_ADMIN_USER: Readonly<{
   defaultPassword: string;
 }>;
 
+export declare const REFERENCE_COUNTRIES: readonly CountryMinimumWageReference[];
+export declare const DEFAULT_LEGAL_COMPLIANCE_CONFIG: Readonly<LegalComplianceConfig>;
+
 export declare const API_ENDPOINTS: Readonly<{
   HEALTH: '/api/health';
   AUTH_LOGIN: '/api/auth/login';
@@ -78,4 +95,8 @@ export declare const API_ENDPOINTS: Readonly<{
   SESSION_RESET: '/api/session/reset';
   REPORTS_EXECUTIVE: '/api/reports/executive';
   AI_DIAGNOSTICS: '/api/ai/diagnostics';
+  COMPLIANCE_MINIMUM_WAGE: '/api/compliance/minimum-wage';
+  COMPLIANCE_COUNTRIES: '/api/compliance/countries';
+  MANUAL_ADJUSTMENTS: '/api/simulation/manual-adjustments';
+  SIMULATOR_APPROVE_PLAN: '/api/simulator/approve-plan';
 }>;

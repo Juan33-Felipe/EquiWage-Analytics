@@ -40,6 +40,9 @@ export interface AnonymizedAuditContext {
   mostAffectedDepartment: string;
   totalBudgetToBandMinimum: number;
   totalBudgetToMarketMedian: number;
+  legalViolationsCount: number;
+  legalComplianceCost: number;
+  inflationPercent: number;
   activeSimulationTarget: 'minimum' | 'median';
   activeSimulationRolloutQuarters: number;
   activeSimulationBudget: number;

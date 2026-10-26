@@ -6,9 +6,99 @@ export type DepartmentName = 'Engineering' | 'Product' | 'Sales' | 'Marketing' |
 
 export type BandStatus = 'below' | 'aligned' | 'above' | 'unknown';
 
-export type GapSeverity = 'critical' | 'moderate' | 'none';
+export type GapSeverity = 'legal_violation' | 'critical' | 'moderate' | 'none';
 
 export type SimulationTarget = 'minimum' | 'median';
+
+/**
+ * Country reference data for statutory legal minimum wage compliance.
+ */
+export interface CountryMinimumWageReference {
+  code: string;
+  name: string;
+  currency: string;
+  defaultMinimumWage: number;
+  monthlyEquivalent?: number;
+  region: 'LATAM' | 'North America' | 'Europe' | 'Other' | string;
+  notes?: string;
+}
+
+/**
+ * Legal Minimum Wage Compliance configuration (Feature D).
+ * Evaluates strictly Fixed Base Salary (excluding variable bonuses or commissions).
+ */
+export interface LegalComplianceConfig {
+  enabled: boolean;
+  countryCode: string;
+  countryName: string;
+  minimumWage: number;
+  currency?: string;
+  notes?: string;
+  updatedAt?: string;
+}
+
+export type ManualAdjustmentType = 'amount' | 'percent';
+
+/**
+ * Individual Manual Salary Adjustment for 1-on-1 micro-simulations (Feature B).
+ */
+export interface ManualAdjustment {
+  employeeId: string;
+  type: ManualAdjustmentType;
+  value: number;
+  proposedSalary?: number;
+  notes?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Projected Market Inflation Simulation parameters (Feature C).
+ * Dynamically shifts market salary bands (P25 min, P50 median, P75 max) upward by 0% to 25%.
+ */
+export interface InflationSimulationParams {
+  inflationPercent: number;
+  effectiveYear?: number;
+}
+
+export type AdjustmentReason =
+  | 'Legal Compliance'
+  | 'Band Minimum P25'
+  | 'Market Median P50'
+  | 'Individual Manual Adjustment'
+  | 'Inflation Adjustment'
+  | string;
+
+/**
+ * Item in the downloadable and committable Payroll Execution Order (Feature E).
+ */
+export interface PayrollActionPlanItem {
+  employeeId: string;
+  fullName: string;
+  department: DepartmentName;
+  level: number;
+  previousSalary: number;
+  increaseAmount: number;
+  increasePercent: number;
+  newSalary: number;
+  reason: AdjustmentReason;
+  notes?: string;
+}
+
+/**
+ * Approved Payroll Action Plan summary and execution payload.
+ */
+export interface PayrollActionPlan {
+  id: string;
+  target: SimulationTarget | string;
+  inflationPercent?: number;
+  totalPreviousPayroll: number;
+  totalNewPayroll: number;
+  totalCost: number;
+  affectedCount: number;
+  items: PayrollActionPlanItem[];
+  approvedBy?: string;
+  createdAt: string;
+}
 
 /**
  * Market salary band for a specific job level (RF-002).
@@ -50,6 +140,12 @@ export interface EnrichedEmployee extends Employee {
   minDeviationAmount?: number;
   /** Relative deviation below P25 minimum (0 if >= min) */
   minDeviationPercent?: number;
+  /** Flagged if employee fixed base salary is below statutory Legal Minimum Wage */
+  isBelowMinimumWage?: boolean;
+  /** Exact dollar deficit below Legal Minimum Wage (0 if >= minimumWage) */
+  minimumWageDeficit?: number;
+  /** Proposed individual manual adjustment */
+  manualAdjustment?: ManualAdjustment;
   status: BandStatus;
 }
 
@@ -83,6 +179,9 @@ export interface SimulationParams {
   rolloutQuarters: number;
   departments: DepartmentName[];
   customAdjustmentPercent?: number;
+  inflationPercent?: number;
+  includeLegalCompliance?: boolean;
+  manualAdjustments?: ManualAdjustment[];
 }
 
 /**
@@ -93,6 +192,7 @@ export interface SimulationAdjustmentRow extends EnrichedEmployee {
   proposedSalary: number;
   adjustment: number;
   severity: GapSeverity;
+  adjustmentReason?: AdjustmentReason;
 }
 
 /**
@@ -121,6 +221,10 @@ export interface SimulationResult {
     cost: number;
     cumulativeCost: number;
   }>;
+  legalComplianceCost?: number;
+  bandLevelingCost?: number;
+  manualAdjustmentsCost?: number;
+  legalViolatorsCount?: number;
 }
 
 /**
@@ -139,6 +243,9 @@ export interface AuditMetrics {
   totalPayroll?: number;
   costToBandMin?: number;
   minToMedianBudget: number;
+  legalViolationsCount?: number;
+  legalComplianceCost?: number;
+  inflationAppliedPercent?: number;
 }
 
 /**
@@ -152,4 +259,6 @@ export interface ProjectSessionPayload {
   employees: Employee[];
   bands: SalaryBand[];
   simulation: SimulationParams;
+  legalCompliance?: LegalComplianceConfig;
+  manualAdjustments?: ManualAdjustment[];
 }

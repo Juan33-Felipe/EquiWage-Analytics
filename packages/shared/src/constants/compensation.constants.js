@@ -34,9 +34,19 @@ export const BAND_STATUS = Object.freeze({
 
 /** Severity classifications for salary gaps and internal inequities. */
 export const GAP_SEVERITY = Object.freeze({
+  LEGAL_VIOLATION: 'legal_violation',
   CRITICAL: 'critical',
   MODERATE: 'moderate',
   NONE: 'none',
+});
+
+/** Standard adjustment reasons in payroll action plans (Feature E). */
+export const ADJUSTMENT_REASONS = Object.freeze({
+  LEGAL_COMPLIANCE: 'Legal Compliance',
+  BAND_MINIMUM: 'Band Minimum P25',
+  MARKET_MEDIAN: 'Market Median P50',
+  MANUAL_ADJUSTMENT: 'Individual Manual Adjustment',
+  INFLATION: 'Inflation Adjustment',
 });
 
 /** Allowed quarterly phased rollout options (RF-005). */
@@ -101,7 +111,7 @@ export const PAYROLL_COLUMN_ALIASES = Object.freeze({
 export const BAND_COLUMN_ALIASES = Object.freeze({
   level: ['nivel', 'level', 'job level', 'nivel de cargo', 'grade'],
   min: ['minimo p25', 'min', 'p25', 'minimo', 'minimum', 'min salary', 'salario minimo', 'band min'],
-  median: ['mediana p50', 'median', 'p50', 'mediana', 'market median', 'salario medio', 'midpoint'],
+  median: ['mediana p50', 'median', 'p50', 'mediana', 'market median', 'salario medio', 'midpoint', 'median salary', 'salario mediana'],
   max: ['maximo p75', 'max', 'p75', 'maximo', 'maximum', 'max salary', 'salario maximo', 'band max'],
 });
 
@@ -164,6 +174,134 @@ export const DEFAULT_LOCAL_ADMIN_USER = Object.freeze({
   defaultPassword: 'EquiWage2026!',
 });
 
+/**
+ * Preloaded catalog of reference statutory legal minimum wages (Feature D).
+ * Covers key LATAM, North American, and European countries with 100% editable thresholds.
+ */
+export const REFERENCE_COUNTRIES = [
+  {
+    code: 'US',
+    name: 'United States',
+    currency: 'USD',
+    defaultMinimumWage: 42000,
+    monthlyEquivalent: 3500,
+    region: 'North America',
+    notes: 'Reference benchmark for exempt white-collar roles & regional minimum wage floors.',
+  },
+  {
+    code: 'CA',
+    name: 'Canada',
+    currency: 'USD',
+    defaultMinimumWage: 27000,
+    monthlyEquivalent: 2250,
+    region: 'North America',
+    notes: 'Federal statutory minimum wage standard.',
+  },
+  {
+    code: 'MX',
+    name: 'Mexico',
+    currency: 'USD',
+    defaultMinimumWage: 5200,
+    monthlyEquivalent: 433,
+    region: 'LATAM',
+    notes: 'Comisión Nacional de los Salarios Mínimos (CONASAMI) annual base reference.',
+  },
+  {
+    code: 'CO',
+    name: 'Colombia',
+    currency: 'USD',
+    defaultMinimumWage: 4200,
+    monthlyEquivalent: 350,
+    region: 'LATAM',
+    notes: 'Salario Mínimo Mensual Legal Vigente (SMMLV) statutory decree base.',
+  },
+  {
+    code: 'CL',
+    name: 'Chile',
+    currency: 'USD',
+    defaultMinimumWage: 6500,
+    monthlyEquivalent: 541,
+    region: 'LATAM',
+    notes: 'Ingreso Mínimo Mensual legal statutory framework.',
+  },
+  {
+    code: 'BR',
+    name: 'Brazil',
+    currency: 'USD',
+    defaultMinimumWage: 3600,
+    monthlyEquivalent: 300,
+    region: 'LATAM',
+    notes: 'Salário Mínimo Nacional fixed base wage.',
+  },
+  {
+    code: 'AR',
+    name: 'Argentina',
+    currency: 'USD',
+    defaultMinimumWage: 3200,
+    monthlyEquivalent: 266,
+    region: 'LATAM',
+    notes: 'Salario Mínimo Vital y Móvil statutory benchmark.',
+  },
+  {
+    code: 'PE',
+    name: 'Peru',
+    currency: 'USD',
+    defaultMinimumWage: 3500,
+    monthlyEquivalent: 291,
+    region: 'LATAM',
+    notes: 'Remuneración Mínima Vital statutory standard.',
+  },
+  {
+    code: 'ES',
+    name: 'Spain',
+    currency: 'USD',
+    defaultMinimumWage: 17500,
+    monthlyEquivalent: 1458,
+    region: 'Europe',
+    notes: 'Salario Mínimo Interprofesional (SMI, 14 payments annualized).',
+  },
+  {
+    code: 'DE',
+    name: 'Germany',
+    currency: 'USD',
+    defaultMinimumWage: 28500,
+    monthlyEquivalent: 2375,
+    region: 'Europe',
+    notes: 'Gesetzlicher Mindestlohn statutory wage floor.',
+  },
+  {
+    code: 'GB',
+    name: 'United Kingdom',
+    currency: 'USD',
+    defaultMinimumWage: 29500,
+    monthlyEquivalent: 2458,
+    region: 'Europe',
+    notes: 'National Living Wage (NLW) statutory base standard.',
+  },
+  {
+    code: 'FR',
+    name: 'France',
+    currency: 'USD',
+    defaultMinimumWage: 23500,
+    monthlyEquivalent: 1958,
+    region: 'Europe',
+    notes: 'Salaire Minimum Interprofessionnel de Croissance (SMIC).',
+  },
+];
+
+/**
+ * Default legal minimum wage compliance configuration.
+ * Strictly evaluates Fixed Base Salary.
+ */
+export const DEFAULT_LEGAL_COMPLIANCE_CONFIG = Object.freeze({
+  enabled: true,
+  countryCode: 'US',
+  countryName: 'United States',
+  minimumWage: 42000,
+  currency: 'USD',
+  notes: 'Legal minimum wage validation strictly evaluates Fixed Base Salary (excluding variable bonuses or commissions).',
+});
+
 /** Canonical REST API endpoint paths shared between frontend and backend. */
 export const API_ENDPOINTS = Object.freeze({
   HEALTH: '/api/health',
@@ -184,4 +322,8 @@ export const API_ENDPOINTS = Object.freeze({
   SESSION_RESET: '/api/session/reset',
   REPORTS_EXECUTIVE: '/api/reports/executive',
   AI_DIAGNOSTICS: '/api/ai/diagnostics',
+  COMPLIANCE_MINIMUM_WAGE: '/api/compliance/minimum-wage',
+  COMPLIANCE_COUNTRIES: '/api/compliance/countries',
+  MANUAL_ADJUSTMENTS: '/api/simulation/manual-adjustments',
+  SIMULATOR_APPROVE_PLAN: '/api/simulator/approve-plan',
 });
