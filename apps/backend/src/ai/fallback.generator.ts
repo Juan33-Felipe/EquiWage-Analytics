@@ -37,7 +37,23 @@ export function generateFallbackExecutiveDiagnostic(
     ? `Se auditaron ${context.totalEmployeesAnalyzed} posiciones con una tasa de alineación de banda del ${context.alignedRatePercent}% y una desviación promedio frente a la mediana de mercado de ${context.averageMarketGapPercent}%. Se identificaron ${context.belowBandMinimumCount} colaboradores por debajo del mínimo de banda (P25) y ${context.internalInequityCasesCount} casos de inequidad interna (>10% de dispersión en el mismo rol/nivel), concentrados principalmente en ${context.mostAffectedDepartment}. El presupuesto requerido para eliminar rezagos críticos al P25 es de ${minBudgetFormatted} (o ${medianBudgetFormatted} para competitividad plena en la mediana P50).`
     : `Analyzed ${context.totalEmployeesAnalyzed} positions revealing a ${context.alignedRatePercent}% band alignment rate and an average market median deviation of ${context.averageMarketGapPercent}%. The audit identified ${context.belowBandMinimumCount} employees falling below the P25 band minimum and ${context.internalInequityCasesCount} internal inequity cases (>10% role/level spread), most notably within ${context.mostAffectedDepartment}. Remediating critical below-band gaps to P25 requires ${minBudgetFormatted} (or ${medianBudgetFormatted} to reach full P50 market competitiveness).`;
 
-  const keyFindings: AiDiagnosticFinding[] = [
+  const keyFindings: AiDiagnosticFinding[] = [];
+
+  if (context.legalViolationsCount > 0) {
+    const legalCostFormatted = formatCurrency(context.legalComplianceCost);
+    keyFindings.push({
+      title: isEs
+        ? 'Cumplimiento Legal Mandatorio (Bajo Salario Mínimo Legal)'
+        : 'Mandatory Statutory Legal Compliance (Below Minimum Wage)',
+      impact: 'high',
+      description: isEs
+        ? `Se identificaron ${context.legalViolationsCount} colaboradores cuyo salario base fijo se encuentra por debajo del salario mínimo estatutario vigente, representando riesgo de sanción legal inmediata.`
+        : `Identified ${context.legalViolationsCount} employee(s) whose fixed base salary sits below the active statutory minimum wage, creating immediate legal liability exposure.`,
+      metricHighlight: `${context.legalViolationsCount} legal violations • ${legalCostFormatted} deficit`,
+    });
+  }
+
+  keyFindings.push(
     {
       title: isEs
         ? 'Exposición a Brechas de Mercado (Bajo P25)'
@@ -67,8 +83,8 @@ export function generateFallbackExecutiveDiagnostic(
         ? `La brecha salarial promedio frente a la mediana (P50) se ubica en ${context.averageMarketGapPercent}%, con oportunidades de ajuste progresivo en ${compressedLevelLabels}.`
         : `Organizational average gap against the P50 market median stands at ${context.averageMarketGapPercent}%, with targeted calibration opportunities in ${compressedLevelLabels}.`,
       metricHighlight: `${context.averageMarketGapPercent}% avg gap vs P50`,
-    },
-  ];
+    }
+  );
 
   const topDepts = context.departmentBreakdown.slice(0, 4);
   const departmentRecommendations: AiDepartmentRecommendation[] = topDepts.map((dept) => {

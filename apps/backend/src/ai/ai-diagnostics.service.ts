@@ -91,3 +91,4 @@ export class AiDiagnosticsService {
 }
 
 export const aiDiagnosticsService = new AiDiagnosticsService();
+export const aiService = aiDiagnosticsService;

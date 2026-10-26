@@ -11,6 +11,12 @@ importRouter.post(
 );
 
 importRouter.post(
+  '/employees',
+  uploadFileMiddleware.single('file'),
+  importController.importPayroll
+);
+
+importRouter.post(
   '/bands',
   uploadFileMiddleware.single('file'),
   importController.importBands

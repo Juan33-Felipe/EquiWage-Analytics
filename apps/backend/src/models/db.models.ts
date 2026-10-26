@@ -1,5 +1,17 @@
 import { DEPARTMENTS, SIMULATION_TARGETS } from '@equiwage/shared';
-import type { AuthUser, Employee, SalaryBand, SimulationParams, SimulationTarget } from '@equiwage/shared';
+import type {
+  AuthUser,
+  CountryMinimumWageReference,
+  Employee,
+  LegalComplianceConfig,
+  ManualAdjustment,
+  ManualAdjustmentType,
+  PayrollActionPlan,
+  PayrollActionPlanItem,
+  SalaryBand,
+  SimulationParams,
+  SimulationTarget,
+} from '@equiwage/shared';
 
 export interface UserDbRow {
   id: string;
@@ -70,6 +82,8 @@ export interface SimulationSettingsDbRow {
   rollout_quarters: number;
   departments_json: string;
   custom_adjustment_percent: number;
+  inflation_percent?: number;
+  include_legal_compliance?: number;
   updated_at: string;
 }
 
@@ -120,6 +134,8 @@ export function mapRowToSimulationParams(row?: SimulationSettingsDbRow): Simulat
       rolloutQuarters: 1,
       departments: [...DEPARTMENTS],
       customAdjustmentPercent: 0,
+      inflationPercent: 0,
+      includeLegalCompliance: true,
     };
   }
 
@@ -143,5 +159,124 @@ export function mapRowToSimulationParams(row?: SimulationSettingsDbRow): Simulat
     rolloutQuarters: Math.min(Math.max(Number(row.rollout_quarters) || 1, 1), 4),
     departments: parsedDepartments,
     customAdjustmentPercent: Number(row.custom_adjustment_percent) || 0,
+    inflationPercent: Number(row.inflation_percent) || 0,
+    includeLegalCompliance: row.include_legal_compliance !== 0,
+  };
+}
+
+export interface LegalComplianceSettingsDbRow {
+  id: number;
+  enabled: number;
+  country_code: string;
+  country_name: string;
+  minimum_wage: number;
+  currency: string;
+  notes: string | null;
+  updated_at: string;
+}
+
+export interface ReferenceCountryDbRow {
+  code: string;
+  name: string;
+  currency: string;
+  default_minimum_wage: number;
+  monthly_equivalent: number | null;
+  region: string;
+  notes: string | null;
+  updated_at: string;
+}
+
+export interface ManualAdjustmentDbRow {
+  employee_id: string;
+  adjustment_type: string;
+  adjustment_value: number;
+  proposed_salary: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PayrollActionPlanDbRow {
+  id: string;
+  target: string;
+  inflation_percent: number;
+  total_previous_payroll: number;
+  total_new_payroll: number;
+  total_cost: number;
+  affected_count: number;
+  items_json: string;
+  approved_by: string | null;
+  created_at: string;
+}
+
+export function mapRowToLegalComplianceConfig(row?: LegalComplianceSettingsDbRow): LegalComplianceConfig {
+  if (!row) {
+    return {
+      enabled: true,
+      countryCode: 'US',
+      countryName: 'United States',
+      minimumWage: 42000,
+      currency: 'USD',
+      notes: 'Legal minimum wage validation strictly evaluates Fixed Base Salary (excluding variable bonuses or commissions).',
+    };
+  }
+
+  return {
+    enabled: Boolean(row.enabled),
+    countryCode: String(row.country_code),
+    countryName: String(row.country_name),
+    minimumWage: Number(row.minimum_wage),
+    currency: String(row.currency || 'USD'),
+    notes: row.notes ?? undefined,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapRowToReferenceCountry(row: ReferenceCountryDbRow): CountryMinimumWageReference {
+  return {
+    code: String(row.code),
+    name: String(row.name),
+    currency: String(row.currency),
+    defaultMinimumWage: Number(row.default_minimum_wage),
+    monthlyEquivalent: row.monthly_equivalent !== null ? Number(row.monthly_equivalent) : undefined,
+    region: String(row.region),
+    notes: row.notes ?? undefined,
+  };
+}
+
+export function mapRowToManualAdjustment(row: ManualAdjustmentDbRow): ManualAdjustment {
+  const type: ManualAdjustmentType = row.adjustment_type === 'percent' ? 'percent' : 'amount';
+  return {
+    employeeId: String(row.employee_id),
+    type,
+    value: Number(row.adjustment_value),
+    proposedSalary: Number(row.proposed_salary),
+    notes: row.notes ?? undefined,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapRowToPayrollActionPlan(row: PayrollActionPlanDbRow): PayrollActionPlan {
+  let items: PayrollActionPlanItem[] = [];
+  try {
+    const parsed = JSON.parse(row.items_json);
+    if (Array.isArray(parsed)) {
+      items = parsed;
+    }
+  } catch {
+    items = [];
+  }
+
+  return {
+    id: String(row.id),
+    target: String(row.target),
+    inflationPercent: Number(row.inflation_percent || 0),
+    totalPreviousPayroll: Number(row.total_previous_payroll),
+    totalNewPayroll: Number(row.total_new_payroll),
+    totalCost: Number(row.total_cost),
+    affectedCount: Number(row.affected_count),
+    items,
+    approvedBy: row.approved_by ?? undefined,
+    createdAt: row.created_at,
   };
 }

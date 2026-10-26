@@ -3,17 +3,44 @@ import type {
   BandStatus,
   Employee,
   EnrichedEmployee,
+  LegalComplianceConfig,
+  ManualAdjustment,
   MarketGapItem,
   SalaryBand,
 } from '@equiwage/shared';
 
+export interface EnrichmentOptions {
+  inflationPercent?: number;
+  legalCompliance?: LegalComplianceConfig;
+  manualAdjustments?: ManualAdjustment[];
+}
+
 /**
  * Builds an O(1) lookup dictionary mapping job level -> SalaryBand.
+ * Optionally applies projected market inflation multiplier (0% to +25%).
  */
-export function buildBandMap(bands: SalaryBand[]): Record<number, SalaryBand> {
+export function buildBandMap(
+  bands: SalaryBand[],
+  inflationPercent: number = 0
+): Record<number, SalaryBand> {
+  const mult = inflationPercent > 0 ? 1 + inflationPercent / 100 : 1;
   const map: Record<number, SalaryBand> = {};
+
   for (const band of bands) {
-    map[band.level] = band;
+    if (mult === 1) {
+      map[band.level] = band;
+    } else {
+      const min = Math.round(band.min * mult);
+      const median = Math.round(band.median * mult);
+      const max = Math.round(band.max * mult);
+      map[band.level] = {
+        ...band,
+        min,
+        median,
+        max,
+        spread: max - min,
+      };
+    }
   }
   return map;
 }
@@ -21,15 +48,33 @@ export function buildBandMap(bands: SalaryBand[]): Record<number, SalaryBand> {
 /**
  * Enriches raw employee records with their corresponding salary band,
  * relative gap to median, compa-ratio, band penetration, and alignment status (RF-003).
+ * Seamlessly integrates legal compliance minimum wage checks, inflation, and manual adjustments.
  */
 export function enrichEmployeesWithBands(
   employees: Employee[],
-  bands: SalaryBand[]
+  bands: SalaryBand[],
+  options: EnrichmentOptions = {}
 ): EnrichedEmployee[] {
-  const bandMap = buildBandMap(bands);
+  const inflationPercent = Math.max(0, options.inflationPercent ?? 0);
+  const bandMap = buildBandMap(bands, inflationPercent);
+  const minWage =
+    options.legalCompliance?.enabled && options.legalCompliance.minimumWage > 0
+      ? options.legalCompliance.minimumWage
+      : 0;
+
+  const adjustmentsMap = new Map<string, ManualAdjustment>();
+  if (Array.isArray(options.manualAdjustments)) {
+    for (const adj of options.manualAdjustments) {
+      adjustmentsMap.set(adj.employeeId, adj);
+    }
+  }
 
   return employees.map((employee) => {
     const band = bandMap[employee.level] ?? null;
+    const manualAdjustment = adjustmentsMap.get(employee.id);
+    const isBelowMinimumWage = minWage > 0 && employee.currentSalary < minWage;
+    const minimumWageDeficit = isBelowMinimumWage ? Math.round(minWage - employee.currentSalary) : 0;
+
     if (!band) {
       return {
         ...employee,
@@ -39,6 +84,9 @@ export function enrichEmployeesWithBands(
         bandPenetration: 0,
         minDeviationAmount: 0,
         minDeviationPercent: 0,
+        isBelowMinimumWage,
+        minimumWageDeficit,
+        manualAdjustment,
         status: BAND_STATUS.UNKNOWN as BandStatus,
       };
     }
@@ -69,6 +117,9 @@ export function enrichEmployeesWithBands(
       bandPenetration,
       minDeviationAmount,
       minDeviationPercent,
+      isBelowMinimumWage,
+      minimumWageDeficit,
+      manualAdjustment,
       status,
     };
   });

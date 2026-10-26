@@ -1,9 +1,11 @@
 import type { DatabaseSync } from 'node:sqlite';
 import {
+  DEFAULT_LEGAL_COMPLIANCE_CONFIG,
   DEFAULT_LOCAL_ADMIN_USER,
   DEFAULT_SALARY_BANDS,
   DEFAULT_SEED_EMPLOYEES,
   DEPARTMENTS,
+  REFERENCE_COUNTRIES,
   SESSION_SCHEMA_VERSION,
   SIMULATION_TARGETS,
 } from '@equiwage/shared';
@@ -80,12 +82,69 @@ export function ensureDefaultUsersSeeded(db: DatabaseSync): void {
 }
 
 /**
+ * Ensures singleton legal_compliance_settings and preloaded reference countries exist.
+ */
+export function ensureComplianceSeeded(db: DatabaseSync): void {
+  const now = new Date().toISOString();
+
+  const complianceRow = db.prepare('SELECT id FROM legal_compliance_settings WHERE id = 1').get();
+  if (!complianceRow) {
+    db.prepare(`
+      INSERT INTO legal_compliance_settings (
+        id, enabled, country_code, country_name, minimum_wage, currency, notes, updated_at
+      ) VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.enabled ? 1 : 0,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.countryCode,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.countryName,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.minimumWage,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.currency || 'USD',
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.notes || null,
+      now
+    );
+  }
+
+  const countriesCountRow = db.prepare('SELECT COUNT(*) as count FROM reference_countries').get() as
+    | { count: number }
+    | undefined;
+  if (!countriesCountRow || Number(countriesCountRow.count) === 0) {
+    const insertCountry = db.prepare(`
+      INSERT INTO reference_countries (
+        code, name, currency, default_minimum_wage, monthly_equivalent, region, notes, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(code) DO UPDATE SET
+        name = excluded.name,
+        currency = excluded.currency,
+        default_minimum_wage = excluded.default_minimum_wage,
+        monthly_equivalent = excluded.monthly_equivalent,
+        region = excluded.region,
+        notes = excluded.notes,
+        updated_at = excluded.updated_at
+    `);
+
+    for (const c of REFERENCE_COUNTRIES) {
+      insertCountry.run(
+        c.code,
+        c.name,
+        c.currency,
+        c.defaultMinimumWage,
+        c.monthlyEquivalent ?? null,
+        c.region,
+        c.notes ?? null,
+        now
+      );
+    }
+  }
+}
+
+/**
  * Ensures singleton simulation_settings, app_metadata keys, and default local users exist even when DB already had rows.
  */
 function ensureDefaultSettingsAndMetadata(db: DatabaseSync): void {
   const now = new Date().toISOString();
 
   ensureDefaultUsersSeeded(db);
+  ensureComplianceSeeded(db);
 
   const simRow = db.prepare('SELECT id FROM simulation_settings WHERE id = 1').get();
   if (!simRow) {
@@ -113,6 +172,8 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
 
     db.exec('DELETE FROM employees;');
     db.exec('DELETE FROM salary_bands;');
+    db.exec('DELETE FROM employee_manual_adjustments;');
+    db.exec('DELETE FROM payroll_action_plans;');
 
     const insertBand = db.prepare(`
       INSERT INTO salary_bands (level, min_salary, median_salary, max_salary, updated_at)
@@ -166,9 +227,59 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
 
     ensureDefaultUsersSeeded(db);
 
+    db.prepare(`
+      INSERT INTO legal_compliance_settings (
+        id, enabled, country_code, country_name, minimum_wage, currency, notes, updated_at
+      ) VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        enabled = excluded.enabled,
+        country_code = excluded.country_code,
+        country_name = excluded.country_name,
+        minimum_wage = excluded.minimum_wage,
+        currency = excluded.currency,
+        notes = excluded.notes,
+        updated_at = excluded.updated_at
+    `).run(
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.enabled ? 1 : 0,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.countryCode,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.countryName,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.minimumWage,
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.currency || 'USD',
+      DEFAULT_LEGAL_COMPLIANCE_CONFIG.notes || null,
+      now
+    );
+
+    const insertCountry = db.prepare(`
+      INSERT INTO reference_countries (
+        code, name, currency, default_minimum_wage, monthly_equivalent, region, notes, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(code) DO UPDATE SET
+        name = excluded.name,
+        currency = excluded.currency,
+        default_minimum_wage = excluded.default_minimum_wage,
+        monthly_equivalent = excluded.monthly_equivalent,
+        region = excluded.region,
+        notes = excluded.notes,
+        updated_at = excluded.updated_at
+    `);
+
+    for (const c of REFERENCE_COUNTRIES) {
+      insertCountry.run(
+        c.code,
+        c.name,
+        c.currency,
+        c.defaultMinimumWage,
+        c.monthlyEquivalent ?? null,
+        c.region,
+        c.notes ?? null,
+        now
+      );
+    }
+
     logger.info('SQLite seed completed', {
       bandsSeeded: DEFAULT_SALARY_BANDS.length,
       employeesSeeded: DEFAULT_SEED_EMPLOYEES.length,
+      countriesSeeded: REFERENCE_COUNTRIES.length,
     });
 
     return {

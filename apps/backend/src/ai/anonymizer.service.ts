@@ -51,6 +51,14 @@ export class AnonymizerService {
       inequityIdSet.has(emp.id)
     ).length;
 
+    const legalViolators = scopedEmployees.filter((emp) => emp.isBelowMinimumWage);
+    const legalViolationsCount = legalViolators.length;
+    const legalComplianceCost = legalViolators.reduce(
+      (sum, emp) => sum + (emp.minimumWageDeficit ?? 0),
+      0
+    );
+    const inflationPercent = audit.simulation?.inflationPercent ?? 0;
+
     const avgGapRatio =
       totalEmployeesAnalyzed > 0
         ? scopedEmployees.reduce((sum, emp) => sum + emp.gap, 0) / totalEmployeesAnalyzed
@@ -149,6 +157,9 @@ export class AnonymizerService {
       mostAffectedDepartment,
       totalBudgetToBandMinimum,
       totalBudgetToMarketMedian,
+      legalViolationsCount,
+      legalComplianceCost,
+      inflationPercent,
       activeSimulationTarget: audit.simulation.target,
       activeSimulationRolloutQuarters: audit.simulation.rolloutQuarters,
       activeSimulationBudget: audit.simulationResult.totalBudget,

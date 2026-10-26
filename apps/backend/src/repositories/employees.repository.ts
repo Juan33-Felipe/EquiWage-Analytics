@@ -122,6 +122,15 @@ export class EmployeesRepository {
   }
 
   /**
+   * Deletes a single employee record by ID.
+   */
+  deleteById(id: string): boolean {
+    const db = getDatabase();
+    const result = db.prepare('DELETE FROM employees WHERE id = ?').run(id);
+    return Number(result.changes) > 0;
+  }
+
+  /**
    * Returns total count of employees in the database.
    */
   count(): number {

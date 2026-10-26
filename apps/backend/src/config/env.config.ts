@@ -58,25 +58,33 @@ export const envConfig: BackendEnvConfig = {
   port: Number(process.env.PORT) || 4000,
   corsOrigins: rawOrigins.split(',').map((origin) => origin.trim()).filter(Boolean),
   sqliteDbPath: resolveDatabasePath(process.env.SQLITE_DB_PATH),
-  ai: {
-    provider: (process.env.AI_PROVIDER || 'gemini').trim().toLowerCase(),
-    apiKey: aiApiKey,
-    model: (process.env.AI_MODEL || 'gemini-2.5-flash').trim(),
-    apiBaseUrl: (process.env.AI_API_BASE_URL || '').trim(),
-    timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 12000,
-    isConfigured: aiApiKey.length > 0,
+  get ai() {
+    const key = (process.env.AI_API_KEY || '').trim();
+    return {
+      provider: (process.env.AI_PROVIDER || 'gemini').trim().toLowerCase(),
+      apiKey: key,
+      model: (process.env.AI_MODEL || 'gemini-2.5-flash').trim(),
+      apiBaseUrl: (process.env.AI_API_BASE_URL || '').trim(),
+      timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 12000,
+      isConfigured: key.length > 0,
+    };
   },
   auth: {
     jwtSecret: (process.env.JWT_SECRET || 'equiwage-local-vault-secret-key-2026').trim(),
     tokenExpiresInHours: Number(process.env.JWT_EXPIRES_IN_HOURS) || 24,
   },
-  email: {
-    host: smtpHost || 'smtp.ethereal.email',
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    user: smtpUser,
-    pass: process.env.SMTP_PASS || '',
-    from: process.env.SMTP_FROM || 'EquiWage Analytics <security@equiwage.local>',
-    isConfigured: Boolean(smtpHost && smtpUser),
+  get email() {
+    const sHost = (process.env.SMTP_HOST || '').trim();
+    const sUser = (process.env.SMTP_USER || '').trim();
+    const sPass = (process.env.SMTP_PASS || '').trim();
+    return {
+      host: sHost || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : true,
+      user: sUser,
+      pass: sPass,
+      from: process.env.SMTP_FROM || (sUser ? `EquiWage Analytics <${sUser}>` : 'EquiWage Analytics <noreply@equiwage.local>'),
+      isConfigured: Boolean(sUser && sPass),
+    };
   },
 };

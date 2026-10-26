@@ -40,6 +40,8 @@ export function runSchemaMigrations(db: DatabaseSync): void {
       rollout_quarters INTEGER NOT NULL CHECK (rollout_quarters BETWEEN 1 AND 4),
       departments_json TEXT NOT NULL,
       custom_adjustment_percent REAL NOT NULL DEFAULT 0,
+      inflation_percent REAL NOT NULL DEFAULT 0,
+      include_legal_compliance INTEGER NOT NULL DEFAULT 1,
       updated_at TEXT NOT NULL
     );
 
@@ -106,11 +108,76 @@ export function runSchemaMigrations(db: DatabaseSync): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_verification_email ON verification_codes(email);
+
+    -- 9. Legal Minimum Wage Compliance Configuration (Singleton Row id = 1, Feature D)
+    CREATE TABLE IF NOT EXISTS legal_compliance_settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      enabled INTEGER NOT NULL DEFAULT 1,
+      country_code TEXT NOT NULL DEFAULT 'US',
+      country_name TEXT NOT NULL DEFAULT 'United States',
+      minimum_wage REAL NOT NULL CHECK (minimum_wage >= 0),
+      currency TEXT NOT NULL DEFAULT 'USD',
+      notes TEXT,
+      updated_at TEXT NOT NULL
+    );
+
+    -- 10. Seed Catalog of Reference Countries with Default Minimum Wages (Feature D)
+    CREATE TABLE IF NOT EXISTS reference_countries (
+      code TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      currency TEXT NOT NULL,
+      default_minimum_wage REAL NOT NULL CHECK (default_minimum_wage >= 0),
+      monthly_equivalent REAL,
+      region TEXT NOT NULL,
+      notes TEXT,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_reference_countries_region ON reference_countries(region);
+
+    -- 11. Individual Manual Salary Adjustments for Micro-Simulations (Feature B)
+    CREATE TABLE IF NOT EXISTS employee_manual_adjustments (
+      employee_id TEXT PRIMARY KEY,
+      adjustment_type TEXT NOT NULL CHECK (adjustment_type IN ('amount', 'percent')),
+      adjustment_value REAL NOT NULL,
+      proposed_salary REAL NOT NULL CHECK (proposed_salary >= 0),
+      notes TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+    );
+
+    -- 12. Approved Payroll Action Plans & Execution Orders (Feature E)
+    CREATE TABLE IF NOT EXISTS payroll_action_plans (
+      id TEXT PRIMARY KEY,
+      target TEXT NOT NULL,
+      inflation_percent REAL NOT NULL DEFAULT 0,
+      total_previous_payroll REAL NOT NULL,
+      total_new_payroll REAL NOT NULL,
+      total_cost REAL NOT NULL,
+      affected_count INTEGER NOT NULL,
+      items_json TEXT NOT NULL,
+      approved_by TEXT,
+      created_at TEXT NOT NULL
+    );
   `);
 
   // Ensure is_verified column exists in users table (non-destructive migration)
   try {
     db.exec(`ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 1;`);
+  } catch {
+    // Column already exists, safe to ignore
+  }
+
+  // Ensure inflation_percent and include_legal_compliance exist in simulation_settings
+  try {
+    db.exec(`ALTER TABLE simulation_settings ADD COLUMN inflation_percent REAL NOT NULL DEFAULT 0;`);
+  } catch {
+    // Column already exists, safe to ignore
+  }
+
+  try {
+    db.exec(`ALTER TABLE simulation_settings ADD COLUMN include_legal_compliance INTEGER NOT NULL DEFAULT 1;`);
   } catch {
     // Column already exists, safe to ignore
   }

@@ -54,5 +54,24 @@ export function validateSimulationPatchPayload(
     patch.customAdjustmentPercent = pct;
   }
 
+  if (body.inflationPercent !== undefined) {
+    const inflation = Number(body.inflationPercent);
+    if (!Number.isFinite(inflation) || inflation < 0 || inflation > 25) {
+      throw new AppError('Projected market inflation must be between 0% and 25%.', {
+        statusCode: 400,
+        errorKey: 'error.invalidInflationPercent',
+      });
+    }
+    patch.inflationPercent = inflation;
+  }
+
+  if (body.includeLegalCompliance !== undefined) {
+    patch.includeLegalCompliance = Boolean(body.includeLegalCompliance);
+  }
+
+  if (body.manualAdjustments !== undefined && Array.isArray(body.manualAdjustments)) {
+    patch.manualAdjustments = body.manualAdjustments as SimulationParams['manualAdjustments'];
+  }
+
   return patch;
 }

@@ -40,6 +40,13 @@ export function computeAuditMetrics(
     0
   );
 
+  const legalViolators = enrichedEmployees.filter((emp) => emp.isBelowMinimumWage);
+  const legalViolationsCount = legalViolators.length;
+  const legalComplianceCost =
+    simulationResult.legalComplianceCost !== undefined
+      ? simulationResult.legalComplianceCost
+      : legalViolators.reduce((sum, emp) => sum + (emp.minimumWageDeficit ?? 0), 0);
+
   return {
     headcount: total,
     aligned,
@@ -53,5 +60,7 @@ export function computeAuditMetrics(
     totalPayroll,
     costToBandMin,
     minToMedianBudget: simulationResult.totalBudget,
+    legalViolationsCount,
+    legalComplianceCost,
   };
 }
