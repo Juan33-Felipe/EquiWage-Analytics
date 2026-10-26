@@ -8,6 +8,12 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
+    "test": "tsx tests/phase1-runner.ts",
+    "test:phase1": "tsx tests/phase1-runner.ts",
+    "test:phase2": "tsx tests/phase2-runner.ts",
+    "test:phase3": "tsx tests/phase3-runner.ts",
+    "test:phase4": "tsx tests/phase4-runner.ts",
+    "test:all": "tsx tests/phase1-runner.ts && tsx tests/phase2-runner.ts && tsx tests/phase3-runner.ts && tsx tests/phase4-runner.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:seed": "tsx src/database/cli-seed.ts",

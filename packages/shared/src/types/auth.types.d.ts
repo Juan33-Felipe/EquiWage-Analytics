@@ -52,5 +52,4 @@ export interface RegistrationInitiatedResponse {
   email: string;
   message: string;
   expiresInSeconds: number;
-  devCode?: string;
 }

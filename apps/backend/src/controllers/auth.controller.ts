@@ -112,8 +112,8 @@ export class AuthController {
    */
   public verifyCode(req: Request, res: Response, next: NextFunction): void {
     try {
-      const { email, code } = req.body || {};
-      const session = authService.verifyCode(email, code);
+      const { email, code, verificationCode } = req.body || {};
+      const session = authService.verifyCode(email, code || verificationCode);
       const response: ApiSuccessResponse<AuthSessionPayload> = {
         ok: true,
         data: session,

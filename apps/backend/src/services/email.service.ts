@@ -12,6 +12,10 @@ export interface SendVerificationEmailResult {
 export class EmailService {
   private transporter: Transporter | null = null;
 
+  public setTransporter(transporter: Transporter | null): void {
+    this.transporter = transporter;
+  }
+
   private getTransporter(): Transporter | null {
     if (this.transporter) {
       return this.transporter;
@@ -93,51 +97,47 @@ export class EmailService {
 </html>
     `.trim();
 
-    const transporter = this.getTransporter();
-
-    if (transporter) {
-      try {
-        const info = await transporter.sendMail({
-          from: envConfig.email.from,
-          to: toEmail,
-          subject,
-          html: htmlContent,
-          text: `Hello ${cleanName},\n\nYour 4-digit EquiWage Analytics verification code is: ${code}\n\nThis code expires in 15 minutes.\n\nEquiWage Analytics`,
-        });
-
-        const previewUrl = nodemailer.getTestMessageUrl(info);
-        logger.info('Verification email sent via SMTP', {
-          to: toEmail,
-          messageId: info.messageId,
-          previewUrl: previewUrl || undefined,
-        });
-
-        return {
-          delivered: true,
-          messageId: info.messageId,
-          previewUrl,
-          mode: 'smtp',
-        };
-      } catch (error) {
-        logger.warn('SMTP delivery failed, falling back to local dev delivery', {
-          to: toEmail,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
+    if (!envConfig.email.isConfigured && !this.transporter) {
+      logger.error('Email delivery requested but SMTP credentials (SMTP_USER / SMTP_PASS) are not configured in apps/backend/.env');
+      throw new Error(
+        'The email service is not configured. Please set SMTP_USER and SMTP_PASS (Gmail App Password) in the backend configuration.'
+      );
     }
 
-    // Local development fallback: Log clearly in console
-    logger.info('====================================================');
-    logger.info(`[DEV EMAIL SIMULATOR] 4-Digit Verification Code:`);
-    logger.info(`  To: ${toEmail} (${cleanName})`);
-    logger.info(`  Code: [ ${code} ]`);
-    logger.info(`  Expires in: 15 minutes`);
-    logger.info('====================================================');
+    const transporter = this.getTransporter();
+    if (!transporter) {
+      throw new Error('Unable to initialize email transporter. Please verify your mail server settings.');
+    }
 
-    return {
-      delivered: true,
-      mode: 'dev_fallback',
-    };
+    try {
+      const info = await transporter.sendMail({
+        from: envConfig.email.from,
+        to: toEmail,
+        subject,
+        html: htmlContent,
+        text: `Hello ${cleanName},\n\nYour 4-digit EquiWage Analytics verification code is: ${code}\n\nThis code expires in 15 minutes.\n\nEquiWage Analytics`,
+      });
+
+      logger.info('Verification email successfully dispatched via Gmail SMTP', {
+        to: toEmail,
+        messageId: info.messageId,
+      });
+
+      return {
+        delivered: true,
+        messageId: info.messageId,
+        mode: 'smtp',
+      };
+    } catch (error) {
+      const errMessage = error instanceof Error ? error.message : String(error);
+      logger.error('Failed to send verification email via Gmail SMTP', {
+        to: toEmail,
+        error: errMessage,
+      });
+      throw new Error(
+        `Failed to deliver email: ${errMessage}. Please verify your Gmail address and Google App Password.`
+      );
+    }
   }
 }
 

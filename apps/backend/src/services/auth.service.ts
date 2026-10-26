@@ -222,20 +222,27 @@ export class AuthService {
       expiresInMinutes: 15,
     });
 
-    const emailResult = await emailService.sendVerificationCodeEmail(email, firstName, code);
+    try {
+      await emailService.sendVerificationCodeEmail(email, firstName, code);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      throw new AppError(msg, {
+        statusCode: 502,
+        errorKey: 'auth.emailDeliveryFailed',
+      });
+    }
 
     return {
       email,
       message: 'Verification code sent to your email address.',
       expiresInSeconds: 900,
-      devCode: emailResult.mode === 'dev_fallback' ? code : undefined,
     };
   }
 
   /**
    * Resends a fresh 4-digit code to an email currently pending registration.
    */
-  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number; devCode?: string }> {
+  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number }> {
     const email = String(emailRaw || '').trim().toLowerCase();
     const pending = usersRepository.getLatestVerificationCode(email);
 
@@ -258,13 +265,20 @@ export class AuthService {
       expiresInMinutes: 15,
     });
 
-    const emailResult = await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
+    try {
+      await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      throw new AppError(msg, {
+        statusCode: 502,
+        errorKey: 'auth.emailDeliveryFailed',
+      });
+    }
 
     return {
       email: pending.email,
       message: 'New verification code sent.',
       expiresInSeconds: 900,
-      devCode: emailResult.mode === 'dev_fallback' ? code : undefined,
     };
   }
 
@@ -321,7 +335,10 @@ export class AuthService {
 
     // Generate clean username from email or name
     const usernameCandidate = email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '');
-    const username = usernameCandidate || `user_${Date.now()}`;
+    let username = usernameCandidate || `user_${Date.now()}`;
+    if (usersRepository.findByIdentifier(username)) {
+      username = `${username}_${Math.floor(1000 + Math.random() * 9000)}`;
+    }
     const userId = `USR-${Date.now().toString(36).toUpperCase()}`;
 
     const createdUser = usersRepository.createUser({

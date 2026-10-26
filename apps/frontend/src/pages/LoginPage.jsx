@@ -7,7 +7,6 @@ import {
   Eye,
   EyeOff,
   Globe,
-  KeyRound,
   Lock,
   Moon,
   ShieldCheck,
@@ -15,7 +14,6 @@ import {
   TrendingUp,
   User,
 } from 'lucide-react';
-import { DEFAULT_LOCAL_ADMIN_USER } from '@equiwage/shared';
 import { FormInput } from '../components/atoms/FormInput';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -29,8 +27,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [identifier, setIdentifier] = useState(DEFAULT_LOCAL_ADMIN_USER.email);
-  const [password, setPassword] = useState(DEFAULT_LOCAL_ADMIN_USER.defaultPassword);
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [localValidationError, setLocalValidationError] = useState(null);
@@ -51,13 +49,6 @@ export function LoginPage() {
     setPassword(event.target.value);
     if (localValidationError) setLocalValidationError(null);
     if (authError) clearAuthError();
-  };
-
-  const handleFillDefaultAccount = () => {
-    setIdentifier(DEFAULT_LOCAL_ADMIN_USER.email);
-    setPassword(DEFAULT_LOCAL_ADMIN_USER.defaultPassword);
-    setLocalValidationError(null);
-    clearAuthError();
   };
 
   const handleSubmit = async (event) => {
@@ -294,34 +285,6 @@ export function LoginPage() {
                 </p>
               </div>
             </form>
-
-            {/* Quick Local Analyst Credentials Card */}
-            <div className="mt-6 pt-5 border-t border-gray-100">
-              <div className="rounded-2xl bg-orange-50 border border-orange-100 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-content-main flex items-center gap-1.5">
-                    <KeyRound className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span>{t('auth.demoCardTitle')}</span>
-                  </p>
-                  <p className="text-[11px] text-content-muted mt-0.5">
-                    {t('auth.demoCardDesc')}
-                  </p>
-                  <p className="text-xs font-mono font-semibold text-content-main mt-1 truncate">
-                    {DEFAULT_LOCAL_ADMIN_USER.email} • {DEFAULT_LOCAL_ADMIN_USER.defaultPassword}
-                  </p>
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
-                  onClick={handleFillDefaultAccount}
-                  className="shrink-0 rounded-full bg-surface border border-gray-200 px-3.5 py-2 text-xs font-semibold text-primary hover:bg-gray-50 transition-colors shadow-sm"
-                >
-                  {t('auth.fillDemoButton')}
-                </motion.button>
-              </div>
-            </div>
           </div>
         </motion.div>
       </main>

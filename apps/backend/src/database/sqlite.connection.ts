@@ -40,11 +40,25 @@ export function getDatabase(): DatabaseSync {
   return dbInstance;
 }
 
+let transactionDepth = 0;
+
 /**
  * Executes a synchronous callback inside an atomic SQLite transaction (BEGIN IMMEDIATE ... COMMIT/ROLLBACK).
+ * Safely handles nested transaction calls by maintaining an active depth counter.
  */
 export function runInTransaction<T>(work: (db: DatabaseSync) => T): T {
   const db = getDatabase();
+
+  if (transactionDepth > 0) {
+    transactionDepth++;
+    try {
+      return work(db);
+    } finally {
+      transactionDepth--;
+    }
+  }
+
+  transactionDepth = 1;
   db.exec('BEGIN IMMEDIATE TRANSACTION;');
   try {
     const result = work(db);
@@ -57,6 +71,8 @@ export function runInTransaction<T>(work: (db: DatabaseSync) => T): T {
       // Ignore rollback error if transaction was already rolled back
     }
     throw error;
+  } finally {
+    transactionDepth = 0;
   }
 }
 
