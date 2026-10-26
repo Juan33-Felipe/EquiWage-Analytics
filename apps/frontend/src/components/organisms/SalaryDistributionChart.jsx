@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '../atoms/Card';
 import { Badge } from '../atoms/Badge';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ShieldAlert } from 'lucide-react';
 import { formatCurrency } from '../../context/CompensationContext';
 import { useLanguage } from '../../context/LanguageContext';
 import {
@@ -25,21 +25,34 @@ function ChartTooltip({ active, payload, t }) {
   if (!active || !payload || !payload.length) return null;
   const data = payload[0].payload;
   if (!data.name) return null;
+  const isLegal = Boolean(data.isBelowMinimumWage);
   const isBelow = data.status === 'below';
+
   return (
-    <div className="bg-[#1C1C1C] text-white p-3 rounded-xl shadow-lg text-sm border border-gray-800">
-      <div className="flex items-center gap-2 mb-2">
-        <div className={`w-2 h-2 rounded-full ${isBelow ? 'bg-danger' : 'bg-success'}`} />
-        <span className="font-semibold">{data.name}</span>
+    <div className="bg-[#1C1C1C] text-white p-3.5 rounded-xl shadow-lg text-sm border border-gray-800 min-w-[210px]">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <div
+            className={`w-2.5 h-2.5 rounded-full ${
+              isLegal ? 'bg-orange-500' : isBelow ? 'bg-danger' : 'bg-success'
+            }`}
+          />
+          <span className="font-semibold text-white">{data.name}</span>
+        </div>
+        {isLegal && (
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-950/60 text-orange-300 border border-orange-700/50">
+            &lt; Mínimo Legal
+          </span>
+        )}
       </div>
-      <div className="space-y-1 text-xs">
+      <div className="space-y-1.5 text-xs">
         <div className="flex items-center justify-between gap-6">
           <span className="text-gray-400">{t('tooltip.level')}</span>
-          <span>{data.level}</span>
+          <span className="font-medium">Nivel {data.level}</span>
         </div>
         <div className="flex items-center justify-between gap-6">
           <span className="text-gray-400">{t('tooltip.currentSalary')}</span>
-          <span className="font-semibold">{formatCurrency(data.currentSalary)}</span>
+          <span className="font-bold text-white">{formatCurrency(data.currentSalary)}</span>
         </div>
         {data.band && (
           <div className="flex items-center justify-between gap-6">
@@ -47,13 +60,24 @@ function ChartTooltip({ active, payload, t }) {
             <span>{formatCurrency(data.band.median)}</span>
           </div>
         )}
-        <div className="flex items-center justify-between gap-6 pt-1 border-t border-gray-700">
+        <div className="flex items-center justify-between gap-6 pt-1.5 border-t border-gray-700">
           <span className="text-gray-400">{t('tooltip.gap')}</span>
-          <span className={isBelow ? 'text-danger font-semibold' : 'text-success font-semibold'}>
+          <span
+            className={
+              isLegal
+                ? 'text-orange-400 font-bold'
+                : isBelow
+                  ? 'text-danger font-semibold'
+                  : 'text-success font-semibold'
+            }
+          >
             {data.gap >= 0 ? '+' : ''}
             {(data.gap * 100).toFixed(1)}%
           </span>
         </div>
+        <p className="text-[10px] text-gray-400 pt-1 text-center italic border-t border-gray-800">
+          Haz clic para abrir micro-simulación 1-a-1
+        </p>
       </div>
     </div>
   );
@@ -64,6 +88,7 @@ export function SalaryDistributionChart({
   bands,
   highlightedId,
   onHoverPoint,
+  onClickPoint,
   title,
   subtitle,
   className = 'h-full',
@@ -87,8 +112,9 @@ export function SalaryDistributionChart({
     [employees]
   );
 
-  const aligned = points.filter((p) => p.status === 'aligned' || p.status === 'above');
-  const critical = points.filter((p) => p.status === 'below');
+  const legalViolators = points.filter((p) => p.isBelowMinimumWage);
+  const critical = points.filter((p) => p.status === 'below' && !p.isBelowMinimumWage);
+  const aligned = points.filter((p) => p.status !== 'below' && !p.isBelowMinimumWage);
   const highlighted = points.filter((p) => p.id === highlightedId);
 
   const maxSalary = Math.max(
@@ -103,6 +129,13 @@ export function SalaryDistributionChart({
   );
 
   const criticalCount = critical.length;
+  const legalCount = legalViolators.length;
+
+  const handlePointClick = (entry) => {
+    if (onClickPoint && entry) {
+      onClickPoint(entry);
+    }
+  };
 
   return (
     <Card className={`${className} flex flex-col p-6 min-h-0`}>
@@ -117,12 +150,17 @@ export function SalaryDistributionChart({
           </div>
           <p className="text-xs text-content-muted">{displaySubtitle}</p>
         </div>
-        <div className="flex items-center gap-3 text-xs font-medium shrink-0">
+        <div className="flex items-center flex-wrap gap-3 text-xs font-medium shrink-0">
+          {legalCount > 0 && (
+            <span className="flex items-center gap-1.5 text-orange-700 dark:text-orange-300 font-bold whitespace-nowrap">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" /> &lt; Salario Mínimo ({legalCount})
+            </span>
+          )}
           <span className="flex items-center gap-1.5 text-content-muted whitespace-nowrap">
-            <span className="w-2.5 h-2.5 rounded-full bg-success shrink-0" /> {t('chart.aligned')}
+            <span className="w-2.5 h-2.5 rounded-full bg-danger shrink-0" /> {t('chart.belowBand')} ({criticalCount})
           </span>
           <span className="flex items-center gap-1.5 text-content-muted whitespace-nowrap">
-            <span className="w-2.5 h-2.5 rounded-full bg-danger shrink-0" /> {t('chart.belowBand')}
+            <span className="w-2.5 h-2.5 rounded-full bg-success shrink-0" /> {t('chart.aligned')}
           </span>
         </div>
       </div>
@@ -161,10 +199,39 @@ export function SalaryDistributionChart({
             <Line data={bandData} type="monotone" dataKey="p50" stroke="#F97316" strokeWidth={2} strokeDasharray="6 4" dot={false} activeDot={false} />
 
             {/* Aligned points */}
-            <Scatter data={aligned} fill="#10B981" dataKey="salary" onMouseEnter={onHoverPoint} onTouchStart={onHoverPoint} />
+            <Scatter
+              data={aligned}
+              fill="#10B981"
+              dataKey="salary"
+              className="cursor-pointer"
+              onClick={handlePointClick}
+              onMouseEnter={onHoverPoint}
+              onTouchStart={onHoverPoint}
+            />
 
-            {/* Critical points */}
-            <Scatter data={critical} fill="#EF4444" dataKey="salary" onMouseEnter={onHoverPoint} onTouchStart={onHoverPoint} />
+            {/* Critical below band points (Red) */}
+            <Scatter
+              data={critical}
+              fill="#EF4444"
+              dataKey="salary"
+              className="cursor-pointer"
+              onClick={handlePointClick}
+              onMouseEnter={onHoverPoint}
+              onTouchStart={onHoverPoint}
+            />
+
+            {/* Priority 1 Legal Minimum Wage violators (Primary Orange #F97316) */}
+            {legalViolators.length > 0 && (
+              <Scatter
+                data={legalViolators}
+                fill="#EA580C"
+                dataKey="salary"
+                className="cursor-pointer"
+                onClick={handlePointClick}
+                onMouseEnter={onHoverPoint}
+                onTouchStart={onHoverPoint}
+              />
+            )}
 
             {/* Highlighted (hovered/selected) point */}
             {highlighted.length > 0 && (
@@ -174,10 +241,14 @@ export function SalaryDistributionChart({
                 dataKey="salary"
                 shape={(props) => {
                   const { cx, cy, payload } = props;
-                  const color = payload.status === 'below' ? '#EF4444' : '#F97316';
+                  const color = payload.isBelowMinimumWage
+                    ? '#EA580C'
+                    : payload.status === 'below'
+                      ? '#EF4444'
+                      : '#F97316';
                   return (
-                    <g>
-                      <circle cx={cx} cy={cy} r={9} fill={color} opacity={0.2} />
+                    <g className="cursor-pointer" onClick={() => handlePointClick(payload)}>
+                      <circle cx={cx} cy={cy} r={9} fill={color} opacity={0.25} />
                       <circle cx={cx} cy={cy} r={5} fill={color} />
                       <circle cx={cx} cy={cy} r={7} fill="none" stroke={color} strokeWidth={1.5} />
                     </g>
@@ -197,9 +268,16 @@ export function SalaryDistributionChart({
         <Sparkles className="w-4 h-4 text-primary shrink-0" />
         <p className="text-xs text-content-main leading-snug">
           <span className="font-semibold text-primary">{t('chart.insight')}</span>{' '}
+          {legalCount > 0 ? (
+            <span className="text-orange-700 dark:text-orange-400 font-semibold">
+              {legalCount} {legalCount === 1 ? 'caso incumple' : 'casos incumplen'} el piso legal estatutario.{' '}
+            </span>
+          ) : null}
           {criticalCount > 0
             ? t('chart.employeesBelowMarket', { count: criticalCount })
-            : t('chart.everyEmployeeAligned')}
+            : legalCount === 0
+              ? t('chart.everyEmployeeAligned')
+              : ''}
         </p>
       </div>
     </Card>

@@ -9,7 +9,9 @@ export function Badge({ variant = 'success', children, className, ...props }) {
     neutral: 'bg-gray-100 text-gray-700',
     dangerOutline: 'bg-red-50 text-danger border border-red-100',
     successOutline: 'bg-green-50 text-success border border-green-100',
-    primary: 'bg-orange-50 text-primary border border-orange-100'
+    primary: 'bg-orange-50 text-primary border border-orange-100',
+    legal: 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 border border-orange-200/60 dark:border-orange-800/60',
+    legalOutline: 'bg-orange-50 text-orange-800 border border-orange-300 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800 font-semibold',
   };
 
   return (

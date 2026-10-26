@@ -4,6 +4,7 @@ import { SalaryDistributionChart } from '../components/organisms/SalaryDistribut
 import { Card } from '../components/atoms/Card';
 import { AlertRow } from '../components/molecules/AlertRow';
 import { Badge } from '../components/atoms/Badge';
+import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
 import { getInitials, useCompensation } from '../context/CompensationContext';
 import { useLanguage } from '../context/LanguageContext';
 import { DEPARTMENTS } from '@equiwage/shared';
@@ -18,10 +19,17 @@ const AVATAR_TONES = [
 ];
 
 export function DistributionPage() {
-  const { employees, bands } = useCompensation();
+  const {
+    employees,
+    bands,
+    legalCompliance,
+    setManualAdjustment,
+    removeManualAdjustment,
+  } = useCompensation();
   const { t } = useLanguage();
   const [filters, setFilters] = useState({ department: 'all', level: 'all', range: 'all' });
   const [highlightId, setHighlightId] = useState(null);
+  const [selectedDrawerEmployee, setSelectedDrawerEmployee] = useState(null);
 
   const levels = useMemo(() => [...new Set(bands.map((band) => band.level))].sort((a, b) => a - b), [bands]);
 
@@ -43,8 +51,12 @@ export function DistributionPage() {
   const outliers = useMemo(
     () =>
       [...filtered]
-        .filter((employee) => employee.status === 'below')
-        .sort((a, b) => a.gap - b.gap)
+        .filter((employee) => employee.status === 'below' || employee.isBelowMinimumWage)
+        .sort((a, b) => {
+          if (a.isBelowMinimumWage && !b.isBelowMinimumWage) return -1;
+          if (!a.isBelowMinimumWage && b.isBelowMinimumWage) return 1;
+          return a.gap - b.gap;
+        })
         .slice(0, 8),
     [filtered]
   );
@@ -84,6 +96,7 @@ export function DistributionPage() {
             bands={bands}
             highlightedId={highlightId}
             onHoverPoint={(point) => setHighlightId(point?.id ?? null)}
+            onClickPoint={(point) => setSelectedDrawerEmployee(point)}
             title={t('distribution.salaryDistribution')}
             subtitle={t('distribution.bandP25P75')}
           />
@@ -114,9 +127,12 @@ export function DistributionPage() {
                     role={`L${employee.level} • ${employee.role}`}
                     gap={`${(employee.gap * 100).toFixed(1)}%`}
                     colorClass={AVATAR_TONES[index % AVATAR_TONES.length]}
-                    badgeVariant="danger"
+                    badgeVariant={employee.isBelowMinimumWage ? 'legal' : 'danger'}
                     highlight={highlightId === employee.id}
-                    onClick={() => setHighlightId(employee.id)}
+                    onClick={() => {
+                      setHighlightId(employee.id);
+                      setSelectedDrawerEmployee(employee);
+                    }}
                     onHover={() => setHighlightId(employee.id)}
                   />
                 ))
@@ -125,6 +141,16 @@ export function DistributionPage() {
           </Card>
         </div>
       </div>
+
+      {/* Individual Adjustment Drawer */}
+      <IndividualAdjustmentDrawer
+        isOpen={Boolean(selectedDrawerEmployee)}
+        onClose={() => setSelectedDrawerEmployee(null)}
+        employee={selectedDrawerEmployee}
+        legalCompliance={legalCompliance}
+        onSaveAdjustment={setManualAdjustment}
+        onRemoveAdjustment={removeManualAdjustment}
+      />
     </div>
   );
 }

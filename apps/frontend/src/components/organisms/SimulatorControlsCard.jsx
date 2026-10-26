@@ -58,6 +58,29 @@ export function SimulatorControlsCard() {
         })}
       </div>
 
+      {/* Projected Market Inflation Slider (Feature C) */}
+      <div className="mb-6 p-4 rounded-xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/40">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-bold text-content-main dark:text-dark-text tracking-tight flex items-center gap-1.5">
+            <span>Inflación de Mercado Proyectada</span>
+          </label>
+          <span className="text-xs font-mono font-bold text-primary bg-surface dark:bg-dark-surface px-2 py-0.5 rounded-md border border-orange-200 dark:border-orange-900/60">
+            +{simulation.inflationPercent || 0}%
+          </span>
+        </div>
+        <SliderControl
+          min={0}
+          max={25}
+          step={1}
+          value={simulation.inflationPercent || 0}
+          onChange={(value) => updateSimulation({ inflationPercent: value })}
+          valueLabel={`+${simulation.inflationPercent || 0}%`}
+        />
+        <p className="text-[11px] text-content-muted dark:text-dark-muted mt-2 leading-relaxed">
+          Desplaza dinámicamente las bandas salariales (P25, P50, P75) hacia arriba para proyectar desfases de competitividad para el próximo ciclo.
+        </p>
+      </div>
+
       {/* Phased rollout */}
       <SliderControl
         className="mb-6"

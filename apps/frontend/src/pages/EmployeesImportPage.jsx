@@ -5,14 +5,37 @@ import { Button } from '../components/atoms/Button';
 import { Avatar } from '../components/atoms/Avatar';
 import { Badge } from '../components/atoms/Badge';
 import { FileDropzone } from '../components/molecules/FileDropzone';
+import { EmployeeFormModal } from '../components/molecules/EmployeeFormModal';
+import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
 import { parsePayrollFile } from '../utils/payrollParser';
 import { formatCurrency, getInitials, useCompensation } from '../context/CompensationContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Upload, Database, ArrowRight, Search } from 'lucide-react';
+import {
+  Upload,
+  Database,
+  ArrowRight,
+  Search,
+  UserPlus,
+  Pencil,
+  Trash2,
+  Sliders,
+  ShieldAlert,
+} from 'lucide-react';
 
 export function EmployeesImportPage() {
   const navigate = useNavigate();
-  const { employees, uploadPayrollFile, importPayroll, payrollSource } = useCompensation();
+  const {
+    employees,
+    uploadPayrollFile,
+    importPayroll,
+    payrollSource,
+    addEmployee,
+    updateEmployee,
+    deleteEmployee,
+    legalCompliance,
+    setManualAdjustment,
+    removeManualAdjustment,
+  } = useCompensation();
   const { t, tDept, tSource } = useLanguage();
   const [status, setStatus] = useState('idle');
   const [uploadMeta, setUploadMeta] = useState(null);
@@ -20,6 +43,12 @@ export function EmployeesImportPage() {
   const [customError, setCustomError] = useState('');
   const [missing, setMissing] = useState([]);
   const [query, setQuery] = useState('');
+
+  // Modals & Drawers state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [adjustmentEmployee, setAdjustmentEmployee] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const handleFile = async (file) => {
     setStatus('loading');
@@ -34,7 +63,6 @@ export function EmployeesImportPage() {
       return;
     }
 
-    // If backend returned structured validation errors (missing columns, empty file, etc.)
     if (backendResult.missing?.length || backendResult.errorKey) {
       setStatus('error');
       setUploadMeta(null);
@@ -44,7 +72,6 @@ export function EmployeesImportPage() {
       return;
     }
 
-    // Local parser fallback if backend server is unreachable
     const result = await parsePayrollFile(file);
     if (result.ok) {
       await importPayroll(result.employees, file.name);
@@ -56,6 +83,21 @@ export function EmployeesImportPage() {
       setErrorKey(result.errorKey || 'employees.missingRequired');
       setCustomError(result.error || '');
       setMissing(result.missing || []);
+    }
+  };
+
+  const handleSaveEmployee = async (formData, isEditing) => {
+    if (isEditing) {
+      return await updateEmployee(formData.id, formData);
+    } else {
+      return await addEmployee(formData);
+    }
+  };
+
+  const handleDeleteEmployee = async (id) => {
+    const res = await deleteEmployee(id);
+    if (res.ok) {
+      setDeleteConfirmId(null);
     }
   };
 
@@ -74,11 +116,24 @@ export function EmployeesImportPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-content-main tracking-tight">{t('employees.title')}</h2>
-        <p className="text-sm text-content-muted mt-1">
-          {t('employees.subtitle')}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-content-main tracking-tight">{t('employees.title')}</h2>
+          <p className="text-sm text-content-muted mt-1">
+            {t('employees.subtitle')}
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          onClick={() => {
+            setEditingEmployee(null);
+            setIsFormOpen(true);
+          }}
+          className="gap-2 shadow-soft"
+        >
+          <UserPlus className="w-4 h-4" />
+          Registrar Empleado
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -135,17 +190,18 @@ export function EmployeesImportPage() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-gray-50/80 sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
                   <tr>
-                    <th className="px-6 py-4 font-medium whitespace-nowrap">{t('employees.tableEmployee')}</th>
-                    <th className="px-6 py-4 font-medium whitespace-nowrap">{t('employees.tableLevel')}</th>
-                    <th className="px-6 py-4 font-medium whitespace-nowrap">{t('employees.tableDepartment')}</th>
-                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('employees.tableCurrentSalary')}</th>
-                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('employees.tableStatus')}</th>
+                    <th className="px-5 py-4 font-medium whitespace-nowrap">{t('employees.tableEmployee')}</th>
+                    <th className="px-3 py-4 font-medium whitespace-nowrap">{t('employees.tableLevel')}</th>
+                    <th className="px-4 py-4 font-medium whitespace-nowrap">{t('employees.tableDepartment')}</th>
+                    <th className="px-4 py-4 font-medium text-right whitespace-nowrap">{t('employees.tableCurrentSalary')}</th>
+                    <th className="px-4 py-4 font-medium text-center whitespace-nowrap">{t('employees.tableStatus')}</th>
+                    <th className="px-5 py-4 font-medium text-right whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-gray-50">
                   {filtered.map((employee) => (
-                    <tr key={employee.id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="px-6 py-3">
+                    <tr key={employee.id} className="hover:bg-gray-50/60 transition-colors group">
+                      <td className="px-5 py-3">
                         <div className="flex items-center gap-3 min-w-0">
                           <Avatar initials={getInitials(employee.name)} className="w-9 h-9 text-xs shrink-0" />
                           <div className="min-w-0">
@@ -154,40 +210,97 @@ export function EmployeesImportPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-3 whitespace-nowrap">
+                      <td className="px-3 py-3 whitespace-nowrap">
                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-50 text-primary font-bold text-xs">
                           {employee.level}
                         </span>
                       </td>
-                      <td className="px-6 py-3 text-content-muted text-xs font-medium whitespace-nowrap">
+                      <td className="px-4 py-3 text-content-muted text-xs font-medium whitespace-nowrap">
                         {tDept(employee.department)}
                       </td>
-                      <td className="px-6 py-3 text-right font-medium text-content-main whitespace-nowrap">
+                      <td className="px-4 py-3 text-right font-medium text-content-main whitespace-nowrap">
                         {formatCurrency(employee.currentSalary)}
                       </td>
-                      <td className="px-6 py-3 text-right whitespace-nowrap">
-                        <Badge
-                          variant={
-                            employee.status === 'below'
-                              ? 'dangerOutline'
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        {employee.isBelowMinimumWage ? (
+                          <Badge variant="legal" className="whitespace-nowrap inline-flex items-center gap-1">
+                            <ShieldAlert className="w-3 h-3" />
+                            &lt; Salario Mínimo
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant={
+                              employee.status === 'below'
+                                ? 'dangerOutline'
+                                : employee.status === 'above'
+                                  ? 'warning'
+                                  : 'successOutline'
+                            }
+                            className="whitespace-nowrap"
+                          >
+                            {employee.status === 'below'
+                              ? t('employees.belowBand')
                               : employee.status === 'above'
-                                ? 'warning'
-                                : 'successOutline'
-                          }
-                          className="whitespace-nowrap"
-                        >
-                          {employee.status === 'below'
-                            ? t('employees.belowBand')
-                            : employee.status === 'above'
-                              ? t('employees.aboveBand')
-                              : t('employees.aligned')}
-                        </Badge>
+                                ? t('employees.aboveBand')
+                                : t('employees.aligned')}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-5 py-3 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Micro-adjustment button */}
+                          <button
+                            title="Ajuste Manual Individual"
+                            onClick={() => setAdjustmentEmployee(employee)}
+                            className="p-1.5 rounded-lg text-content-muted hover:text-primary hover:bg-orange-50 dark:hover:bg-dark-border transition-colors"
+                          >
+                            <Sliders className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Edit button */}
+                          <button
+                            title="Editar Empleado"
+                            onClick={() => {
+                              setEditingEmployee(employee);
+                              setIsFormOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-content-muted hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-dark-border transition-colors"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Delete button or confirmation */}
+                          {deleteConfirmId === employee.id ? (
+                            <div className="inline-flex items-center gap-1 bg-rose-50 p-0.5 rounded-lg border border-rose-200">
+                              <button
+                                onClick={() => handleDeleteEmployee(employee.id)}
+                                className="px-2 py-0.5 bg-rose-600 text-white rounded text-[11px] font-bold hover:bg-rose-700 transition-colors"
+                              >
+                                Confirmar
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="px-1.5 py-0.5 text-slate-500 rounded text-[11px] hover:text-slate-700 transition-colors"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              title="Eliminar Registro"
+                              onClick={() => setDeleteConfirmId(employee.id)}
+                              className="p-1.5 rounded-lg text-content-muted hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-dark-border transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-sm text-content-muted">
+                      <td colSpan={6} className="px-6 py-12 text-center text-sm text-content-muted">
                         {t('employees.noMatch', { query })}
                       </td>
                     </tr>
@@ -205,6 +318,27 @@ export function EmployeesImportPage() {
           </Card>
         </div>
       </div>
+
+      {/* Employee Form Modal (Create / Edit) */}
+      <EmployeeFormModal
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingEmployee(null);
+        }}
+        initialEmployee={editingEmployee}
+        onSave={handleSaveEmployee}
+      />
+
+      {/* Individual Manual Adjustment Drawer */}
+      <IndividualAdjustmentDrawer
+        isOpen={Boolean(adjustmentEmployee)}
+        onClose={() => setAdjustmentEmployee(null)}
+        employee={adjustmentEmployee}
+        legalCompliance={legalCompliance}
+        onSaveAdjustment={setManualAdjustment}
+        onRemoveAdjustment={removeManualAdjustment}
+      />
     </div>
   );
 }

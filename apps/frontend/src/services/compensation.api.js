@@ -116,4 +116,94 @@ export const compensationApi = {
     link.click();
     URL.revokeObjectURL(url);
   },
+
+  /** POST /api/employees */
+  createEmployee(employeeData) {
+    return apiRequest(API_ENDPOINTS.EMPLOYEES, {
+      method: 'POST',
+      body: employeeData,
+    });
+  },
+
+  /** PUT /api/employees/:id */
+  updateEmployee(id, employeeData) {
+    return apiRequest(`${API_ENDPOINTS.EMPLOYEES}/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: employeeData,
+    });
+  },
+
+  /** DELETE /api/employees/:id */
+  deleteEmployee(id) {
+    return apiRequest(`${API_ENDPOINTS.EMPLOYEES}/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /** GET /api/compliance/minimum-wage */
+  getLegalCompliance() {
+    return apiRequest(API_ENDPOINTS.COMPLIANCE_MINIMUM_WAGE, { method: 'GET' });
+  },
+
+  /** PUT /api/compliance/minimum-wage */
+  updateLegalCompliance(patch) {
+    return apiRequest(API_ENDPOINTS.COMPLIANCE_MINIMUM_WAGE, {
+      method: 'PUT',
+      body: patch,
+    });
+  },
+
+  /** GET /api/compliance/countries */
+  getReferenceCountries() {
+    return apiRequest(API_ENDPOINTS.COMPLIANCE_COUNTRIES, { method: 'GET' });
+  },
+
+  /** PUT /api/compliance/countries/:code */
+  updateReferenceCountry(code, patch) {
+    return apiRequest(`${API_ENDPOINTS.COMPLIANCE_COUNTRIES}/${encodeURIComponent(code)}`, {
+      method: 'PUT',
+      body: patch,
+    });
+  },
+
+  /** GET /api/simulation/manual-adjustments */
+  getManualAdjustments() {
+    return apiRequest(API_ENDPOINTS.MANUAL_ADJUSTMENTS, { method: 'GET' });
+  },
+
+  /** POST /api/simulation/manual-adjustments */
+  upsertManualAdjustment(employeeId, type, value, notes) {
+    return apiRequest(API_ENDPOINTS.MANUAL_ADJUSTMENTS, {
+      method: 'POST',
+      body: { employeeId, type, value, notes },
+    });
+  },
+
+  /** POST /api/simulation/manual-adjustments helper */
+  saveManualAdjustment(adjustmentData) {
+    return apiRequest(API_ENDPOINTS.MANUAL_ADJUSTMENTS, {
+      method: 'POST',
+      body: adjustmentData,
+    });
+  },
+
+  /** DELETE /api/simulation/manual-adjustments/:employeeId */
+  deleteManualAdjustment(employeeId) {
+    return apiRequest(`${API_ENDPOINTS.MANUAL_ADJUSTMENTS}/${encodeURIComponent(employeeId)}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /** DELETE /api/simulation/manual-adjustments */
+  clearAllManualAdjustments() {
+    return apiRequest(API_ENDPOINTS.MANUAL_ADJUSTMENTS, { method: 'DELETE' });
+  },
+
+  /** POST /api/simulator/approve-plan */
+  approvePayrollPlan(options = {}) {
+    return apiRequest(API_ENDPOINTS.SIMULATOR_APPROVE_PLAN, {
+      method: 'POST',
+      body: options,
+    });
+  },
 };

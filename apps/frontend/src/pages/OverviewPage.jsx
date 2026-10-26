@@ -5,6 +5,7 @@ import { Button } from '../components/atoms/Button';
 import { TopMetricsRow } from '../components/organisms/TopMetricsRow';
 import { SalaryDistributionChart } from '../components/organisms/SalaryDistributionChart';
 import { InequityAlertsWidget } from '../components/organisms/InequityAlertsWidget';
+import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
 import { useCompensation, formatCurrency } from '../context/CompensationContext';
 import { useLanguage } from '../context/LanguageContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -12,9 +13,18 @@ import { Activity, ArrowRight, Sparkles } from 'lucide-react';
 
 export function OverviewPage() {
   const navigate = useNavigate();
-  const { employees, bands, metrics, simulationResult } = useCompensation();
+  const {
+    employees,
+    bands,
+    metrics,
+    simulationResult,
+    legalCompliance,
+    setManualAdjustment,
+    removeManualAdjustment,
+  } = useCompensation();
   const { t } = useLanguage();
   const [highlightId, setHighlightId] = useState(null);
+  const [selectedDrawerEmployee, setSelectedDrawerEmployee] = useState(null);
 
   const statusCounts = employees.reduce(
     (acc, employee) => {
@@ -52,6 +62,7 @@ export function OverviewPage() {
             bands={bands}
             highlightedId={highlightId}
             onHoverPoint={(point) => setHighlightId(point?.id ?? null)}
+            onClickPoint={(point) => setSelectedDrawerEmployee(point)}
           />
         </div>
         <div className="h-full min-h-0">
@@ -59,7 +70,7 @@ export function OverviewPage() {
             onHover={(employee) => setHighlightId(employee.id)}
             onSelect={(employee) => {
               setHighlightId(employee.id);
-              navigate('/dashboard/distribution');
+              setSelectedDrawerEmployee(employee);
             }}
           />
         </div>
@@ -165,6 +176,16 @@ export function OverviewPage() {
           <div className="absolute top-0 right-0 w-56 h-56 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
         </Card>
       </div>
+
+      {/* Individual Manual Adjustment Drawer */}
+      <IndividualAdjustmentDrawer
+        isOpen={Boolean(selectedDrawerEmployee)}
+        onClose={() => setSelectedDrawerEmployee(null)}
+        employee={selectedDrawerEmployee}
+        legalCompliance={legalCompliance}
+        onSaveAdjustment={setManualAdjustment}
+        onRemoveAdjustment={removeManualAdjustment}
+      />
     </div>
   );
 }

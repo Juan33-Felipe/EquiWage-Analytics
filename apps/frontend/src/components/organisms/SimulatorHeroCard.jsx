@@ -32,9 +32,28 @@ export function SimulatorHeroCard() {
           >
             {formatCurrency(simulationResult.totalBudget)}
           </motion.h2>
+
           <p className="text-xs text-white/80 mt-2">
             {t('simulator.perQuarter')} {formatCurrency(simulationResult.perQuarter)}
           </p>
+
+          {/* Detailed Budget Breakdown Badges */}
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-white/20 text-xs">
+            {simulationResult.legalComplianceCost > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-orange-950/60 text-orange-200 border border-orange-400/40 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-300" />
+                Piso Legal: {formatCurrency(simulationResult.legalComplianceCost)}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/15 text-white border border-white/20 font-medium">
+              Nivelación de Banda: {formatCurrency(simulationResult.bandLevelingCost || (simulationResult.totalBudget - (simulationResult.legalComplianceCost || 0) - (simulationResult.manualAdjustmentsCost || 0)))}
+            </span>
+            {simulationResult.manualAdjustmentsCost > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/25 text-white border border-white/30 font-medium">
+                Ajustes Manuales: +{formatCurrency(simulationResult.manualAdjustmentsCost)}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-6 shrink-0">

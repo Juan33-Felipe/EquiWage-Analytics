@@ -6,15 +6,15 @@ const THEME_KEY = 'equiwage.theme';
 const DEFAULT_THEME = 'light';
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(() => {
-    if (typeof window === 'undefined') return DEFAULT_THEME;
-    try {
-      const saved = window.localStorage.getItem(THEME_KEY);
-      return saved === 'dark' || saved === 'light' ? saved : DEFAULT_THEME;
-    } catch {
-      return DEFAULT_THEME;
+  // Always start in light mode on application launch as requested
+  const [theme, setThemeState] = useState(DEFAULT_THEME);
+
+  useEffect(() => {
+    // Ensure dark class is removed on launch
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('dark');
     }
-  });
+  }, []);
 
   useEffect(() => {
     try {

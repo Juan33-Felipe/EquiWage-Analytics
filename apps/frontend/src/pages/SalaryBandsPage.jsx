@@ -4,6 +4,7 @@ import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
 import { BandMatrixTable } from '../components/organisms/BandMatrixTable';
+import { LegalComplianceCard } from '../components/organisms/LegalComplianceCard';
 import { FileDropzone } from '../components/molecules/FileDropzone';
 import { parseBandsFile } from '../utils/payrollParser';
 import { useCompensation } from '../context/CompensationContext';
@@ -13,7 +14,15 @@ import { cn } from '../utils/cn';
 
 export function SalaryBandsPage() {
   const navigate = useNavigate();
-  const { uploadBandsFile, importBands, bands } = useCompensation();
+  const {
+    uploadBandsFile,
+    importBands,
+    bands,
+    legalCompliance,
+    referenceCountries,
+    metrics,
+    updateLegalCompliance,
+  } = useCompensation();
   const { t } = useLanguage();
   const [mode, setMode] = useState('manual');
   const [status, setStatus] = useState('idle');
@@ -66,6 +75,15 @@ export function SalaryBandsPage() {
           {t('bands.subtitleText')}
         </p>
       </div>
+
+      {/* Feature D: Legal Minimum Wage Compliance Card */}
+      <LegalComplianceCard
+        legalCompliance={legalCompliance}
+        referenceCountries={referenceCountries}
+        legalViolatorsCount={metrics.legalViolationsCount}
+        legalComplianceCost={metrics.legalComplianceCost}
+        onUpdateCompliance={updateLegalCompliance}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         <div className="xl:col-span-4 space-y-6">

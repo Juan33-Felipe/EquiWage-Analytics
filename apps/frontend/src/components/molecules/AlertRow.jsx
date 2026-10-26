@@ -15,10 +15,11 @@ export function AlertRow({
   highlight = false,
 }) {
   const badgeStyles = {
-    danger: 'text-danger bg-red-50',
-    warning: 'text-orange-600 bg-orange-50',
-    success: 'text-success bg-green-50',
-    neutral: 'text-content-muted bg-gray-100',
+    danger: 'text-danger bg-red-50 dark:bg-red-950/30 dark:text-red-400',
+    warning: 'text-orange-600 bg-orange-50 dark:bg-orange-950/30 dark:text-orange-400',
+    success: 'text-success bg-green-50 dark:bg-green-950/30 dark:text-green-400',
+    neutral: 'text-content-muted bg-gray-100 dark:bg-slate-800 dark:text-gray-400',
+    legal: 'text-orange-700 bg-orange-50 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800 font-bold',
   };
 
   return (

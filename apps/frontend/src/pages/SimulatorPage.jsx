@@ -7,20 +7,34 @@ import { SimulatorHeroCard } from '../components/organisms/SimulatorHeroCard';
 import { SimulatorControlsCard } from '../components/organisms/SimulatorControlsCard';
 import { DepartmentImpactChart } from '../components/organisms/DepartmentImpactChart';
 import { formatCurrency, getInitials, useCompensation } from '../context/CompensationContext';
-import { ArrowRight, Download, ArrowUpRight } from 'lucide-react';
+import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
+import { PayrollApprovalModal } from '../components/molecules/PayrollApprovalModal';
+import { ArrowRight, Download, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
 const SEVERITY = {
+  legal_violation: { labelKey: '< Mínimo Legal', variant: 'legal' },
   critical: { labelKey: 'alerts.critical', variant: 'dangerOutline' },
   moderate: { labelKey: 'alerts.moderate', variant: 'warning' },
   none: { labelKey: 'employees.table.aligned', variant: 'success' },
 };
 
 export function SimulatorPage() {
-  const { simulationResult, simulation, exportSession, applySimulationScenario } = useCompensation();
+  const {
+    simulationResult,
+    simulation,
+    exportSession,
+    applySimulationScenario,
+    approvePayrollPlan,
+    legalCompliance,
+    setManualAdjustment,
+    removeManualAdjustment,
+  } = useCompensation();
   const { t } = useLanguage();
   const [appliedNotice, setAppliedNotice] = React.useState(false);
+  const [selectedDrawerEmployee, setSelectedDrawerEmployee] = React.useState(null);
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = React.useState(false);
   const rows = simulationResult.rows;
 
   const handleApplyScenario = async () => {
@@ -50,10 +64,21 @@ export function SimulatorPage() {
             {t('simulator.modelDescription')}
           </p>
         </div>
-        <Button variant="outline" className="gap-2 shrink-0" onClick={exportSession}>
-          <Download className="w-4 h-4" />
-          {t('simulator.saveSession')}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="outline" className="gap-2" onClick={exportSession}>
+            <Download className="w-4 h-4" />
+            {t('simulator.saveSession')}
+          </Button>
+          <Button
+            variant="primary"
+            className="gap-2 shadow-soft"
+            onClick={() => setIsApprovalModalOpen(true)}
+            disabled={rows.length === 0}
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            Aprobar y Generar Orden de Nómina
+          </Button>
+        </div>
       </div>
 
       <SimulatorHeroCard />
@@ -111,7 +136,8 @@ export function SimulatorPage() {
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.2) }}
-                      className="hover:bg-gray-50/60 transition-colors group"
+                      onClick={() => setSelectedDrawerEmployee(row)}
+                      className="hover:bg-gray-50/60 transition-colors group cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3 min-w-0">
@@ -167,17 +193,47 @@ export function SimulatorPage() {
               </Badge>
             )}
           </div>
-          <Button
-            variant="primary"
-            className="gap-2 active:scale-95 transition-transform shrink-0"
-            onClick={handleApplyScenario}
-            disabled={rows.length === 0}
-          >
-            {t('simulator.applyScenario')}
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleApplyScenario}
+              disabled={rows.length === 0}
+            >
+              {t('simulator.applyScenario')}
+            </Button>
+            <Button
+              variant="primary"
+              className="gap-2 active:scale-95 transition-transform shrink-0"
+              onClick={() => setIsApprovalModalOpen(true)}
+              disabled={rows.length === 0}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Aprobar y Generar Orden (.CSV)
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </Card>
+
+      {/* Individual Adjustment Drawer */}
+      <IndividualAdjustmentDrawer
+        isOpen={Boolean(selectedDrawerEmployee)}
+        onClose={() => setSelectedDrawerEmployee(null)}
+        employee={selectedDrawerEmployee}
+        legalCompliance={legalCompliance}
+        onSaveAdjustment={setManualAdjustment}
+        onRemoveAdjustment={removeManualAdjustment}
+      />
+
+      {/* Payroll Approval & Execution Order Modal */}
+      <PayrollApprovalModal
+        isOpen={isApprovalModalOpen}
+        onClose={() => setIsApprovalModalOpen(false)}
+        simulationResult={simulationResult}
+        simulation={simulation}
+        onConfirmApprove={approvePayrollPlan}
+      />
     </div>
   );
 }
