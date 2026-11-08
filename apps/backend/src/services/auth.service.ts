@@ -222,19 +222,15 @@ export class AuthService {
       expiresInMinutes: 15,
     });
 
-    try {
-      await emailService.sendVerificationCodeEmail(email, firstName, code);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      throw new AppError(msg, {
-        statusCode: 502,
-        errorKey: 'auth.emailDeliveryFailed',
-      });
-    }
+    const emailResult = await emailService.sendVerificationCodeEmail(email, firstName, code);
+    const isSimulated = !emailResult.delivered;
 
     return {
       email,
-      message: 'Verification code sent to your email address.',
+      message: emailResult.delivered
+        ? 'Verification code sent to your email address.'
+        : `Verification code generated: ${code} (Email service unconfigured/simulated)`,
+      ...(isSimulated ? { devCode: code } : {}),
       expiresInSeconds: 900,
     };
   }
@@ -242,7 +238,7 @@ export class AuthService {
   /**
    * Resends a fresh 4-digit code to an email currently pending registration.
    */
-  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number }> {
+  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number; devCode?: string }> {
     const email = String(emailRaw || '').trim().toLowerCase();
     const pending = usersRepository.getLatestVerificationCode(email);
 
@@ -265,19 +261,15 @@ export class AuthService {
       expiresInMinutes: 15,
     });
 
-    try {
-      await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      throw new AppError(msg, {
-        statusCode: 502,
-        errorKey: 'auth.emailDeliveryFailed',
-      });
-    }
+    const emailResult = await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
+    const isSimulated = !emailResult.delivered;
 
     return {
       email: pending.email,
-      message: 'New verification code sent.',
+      message: emailResult.delivered
+        ? 'New verification code sent.'
+        : `New verification code generated: ${code} (Email service unconfigured/simulated)`,
+      ...(isSimulated ? { devCode: code } : {}),
       expiresInSeconds: 900,
     };
   }
