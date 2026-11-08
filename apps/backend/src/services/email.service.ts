@@ -7,6 +7,7 @@ export interface SendVerificationEmailResult {
   messageId?: string;
   previewUrl?: string | false;
   mode: 'smtp' | 'dev_fallback';
+  simulated?: boolean;
 }
 
 export class EmailService {
@@ -98,15 +99,26 @@ export class EmailService {
     `.trim();
 
     if (!envConfig.email.isConfigured && !this.transporter) {
-      logger.error('Email delivery requested but SMTP credentials (SMTP_USER / SMTP_PASS) are not configured in apps/backend/.env');
-      throw new Error(
-        'The email service is not configured. Please set SMTP_USER and SMTP_PASS (Gmail App Password) in the backend configuration.'
-      );
+      logger.warn('[EMAIL SERVICE] SMTP credentials (SMTP_USER / SMTP_PASS) not configured. Using local simulation mode.');
+      logger.info('========================================================================');
+      logger.info(`🔑 [SIMULATED EMAIL] Verification code for ${toEmail}: [ ${code} ]`);
+      logger.info('SMTP is not configured in apps/backend/.env. Code logged for local verification.');
+      logger.info('========================================================================');
+      return {
+        delivered: false,
+        mode: 'dev_fallback',
+        simulated: true,
+      };
     }
 
     const transporter = this.getTransporter();
     if (!transporter) {
-      throw new Error('Unable to initialize email transporter. Please verify your mail server settings.');
+      logger.warn(`[EMAIL SERVICE] Transporter unavailable. Fallback code for ${toEmail}: [ ${code} ]`);
+      return {
+        delivered: false,
+        mode: 'dev_fallback',
+        simulated: true,
+      };
     }
 
     try {
@@ -130,13 +142,20 @@ export class EmailService {
       };
     } catch (error) {
       const errMessage = error instanceof Error ? error.message : String(error);
-      logger.error('Failed to send verification email via Gmail SMTP', {
+      logger.warn('Failed to send verification email via Gmail SMTP — falling back to local simulation mode', {
         to: toEmail,
         error: errMessage,
       });
-      throw new Error(
-        `Failed to deliver email: ${errMessage}. Please verify your Gmail address and Google App Password.`
-      );
+      logger.info('========================================================================');
+      logger.info(`🔑 [FALLBACK EMAIL] Verification code for ${toEmail}: [ ${code} ]`);
+      logger.info(`Reason: ${errMessage}`);
+      logger.info('========================================================================');
+
+      return {
+        delivered: false,
+        mode: 'dev_fallback',
+        simulated: true,
+      };
     }
   }
 }
