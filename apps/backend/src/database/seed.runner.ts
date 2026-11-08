@@ -24,22 +24,23 @@ export function ensureDatabaseSeeded(db: DatabaseSync): { seeded: boolean; emplo
   const existingBands = Number(bandCountRow?.count ?? 0);
   const existingEmployees = Number(empCountRow?.count ?? 0);
 
-  if (existingBands > 0 && existingEmployees > 0) {
-    ensureDefaultSettingsAndMetadata(db);
-    return {
-      seeded: false,
-      employeeCount: existingEmployees,
-      bandCount: existingBands,
-    };
+  ensureDefaultSettingsAndMetadata(db);
+
+  if (existingBands === 0) {
+    const now = new Date().toISOString();
+    const insertBand = db.prepare(`
+      INSERT INTO salary_bands (level, min_salary, median_salary, max_salary, updated_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    for (const band of DEFAULT_SALARY_BANDS) {
+      insertBand.run(band.level, band.min, band.median, band.max, now);
+    }
   }
 
-  logger.info('Database is empty — populating initial salary bands (L1-L8) and employee payroll seed...');
-  const result = resetDatabaseToSeed();
-
   return {
-    seeded: true,
-    employeeCount: result.employeeCount,
-    bandCount: result.bandCount,
+    seeded: false,
+    employeeCount: existingEmployees,
+    bandCount: existingBands || DEFAULT_SALARY_BANDS.length,
   };
 }
 
