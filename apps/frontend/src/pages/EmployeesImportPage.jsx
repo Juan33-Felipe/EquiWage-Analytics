@@ -129,7 +129,7 @@ export function EmployeesImportPage() {
             setEditingEmployee(null);
             setIsFormOpen(true);
           }}
-          className="gap-2 shadow-soft"
+          className="gap-2"
         >
           <UserPlus className="w-4 h-4" />
           Registrar Empleado
@@ -155,7 +155,7 @@ export function EmployeesImportPage() {
             />
           </Card>
 
-          <Card className="p-6 bg-orange-50/40 border border-orange-100">
+          <Card className="p-6 bg-primary/10 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Database className="w-4 h-4 text-primary shrink-0" />
               <h3 className="text-sm font-bold text-content-main">{t('employees.secureLocalSession')}</h3>
@@ -168,7 +168,7 @@ export function EmployeesImportPage() {
 
         <div className="lg:col-span-7">
           <Card className="p-0 overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+            <div className="p-6 border-b border-border flex flex-wrap justify-between items-center gap-4">
               <div className="min-w-0">
                 <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">{t('employees.employeeDirectory')}</h3>
                 <p className="text-xs text-content-muted truncate">
@@ -176,19 +176,19 @@ export function EmployeesImportPage() {
                 </p>
               </div>
               <div className="relative w-full sm:w-auto">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-content-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={t('employees.quickSearch')}
-                  className="w-full sm:w-56 bg-surface border border-gray-200 rounded-full py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 shadow-sm"
+                  className="w-full sm:w-56 bg-surface border border-border rounded-full py-2 pl-9 pr-4 text-sm text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30"
                 />
               </div>
             </div>
 
             <div className="max-h-[520px] overflow-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-50/80 sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
+                <thead className="bg-surface-light sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
                   <tr>
                     <th className="px-5 py-4 font-medium whitespace-nowrap">{t('employees.tableEmployee')}</th>
                     <th className="px-3 py-4 font-medium whitespace-nowrap">{t('employees.tableLevel')}</th>
@@ -198,9 +198,9 @@ export function EmployeesImportPage() {
                     <th className="px-5 py-4 font-medium text-right whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm divide-y divide-gray-50">
+                <tbody className="text-sm divide-y divide-border/50">
                   {filtered.map((employee) => (
-                    <tr key={employee.id} className="hover:bg-gray-50/60 transition-colors group">
+                    <tr key={employee.id} className="hover:bg-surface-light transition-colors group">
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3 min-w-0">
                           <Avatar initials={getInitials(employee.name)} className="w-9 h-9 text-xs shrink-0" />
@@ -211,7 +211,7 @@ export function EmployeesImportPage() {
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-50 text-primary font-bold text-xs">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary font-bold text-xs">
                           {employee.level}
                         </span>
                       </td>
@@ -252,7 +252,7 @@ export function EmployeesImportPage() {
                           <button
                             title="Ajuste Manual Individual"
                             onClick={() => setAdjustmentEmployee(employee)}
-                            className="p-1.5 rounded-lg text-content-muted hover:text-primary hover:bg-orange-50 dark:hover:bg-dark-border transition-colors"
+                            className="p-1.5 rounded-lg text-content-muted hover:text-primary hover:bg-primary/15 transition-colors"
                           >
                             <Sliders className="w-3.5 h-3.5" />
                           </button>
@@ -264,14 +264,14 @@ export function EmployeesImportPage() {
                               setEditingEmployee(employee);
                               setIsFormOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-content-muted hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-dark-border transition-colors"
+                            className="p-1.5 rounded-lg text-content-muted hover:text-blue-400 hover:bg-blue-500/15 transition-colors"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
 
                           {/* Delete button or confirmation */}
                           {deleteConfirmId === employee.id ? (
-                            <div className="inline-flex items-center gap-1 bg-rose-50 p-0.5 rounded-lg border border-rose-200">
+                            <div className="inline-flex items-center gap-1 bg-red-500/15 p-0.5 rounded-lg border border-red-500/20">
                               <button
                                 onClick={() => handleDeleteEmployee(employee.id)}
                                 className="px-2 py-0.5 bg-rose-600 text-white rounded text-[11px] font-bold hover:bg-rose-700 transition-colors"
@@ -280,7 +280,7 @@ export function EmployeesImportPage() {
                               </button>
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="px-1.5 py-0.5 text-slate-500 rounded text-[11px] hover:text-slate-700 transition-colors"
+                                className="px-1.5 py-0.5 text-content-muted rounded text-[11px] hover:text-content-main transition-colors"
                               >
                                 ✕
                               </button>
@@ -289,7 +289,7 @@ export function EmployeesImportPage() {
                             <button
                               title="Eliminar Registro"
                               onClick={() => setDeleteConfirmId(employee.id)}
-                              className="p-1.5 rounded-lg text-content-muted hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-dark-border transition-colors"
+                              className="p-1.5 rounded-lg text-content-muted hover:text-rose-400 hover:bg-red-500/15 transition-colors"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -309,7 +309,7 @@ export function EmployeesImportPage() {
               </table>
             </div>
 
-            <div className="p-6 border-t border-gray-100 flex justify-end">
+            <div className="p-6 border-t border-border flex justify-end">
               <Button variant="primary" className="gap-2" onClick={() => navigate('/dashboard/overview')}>
                 {t('employees.validateAndRun')}
                 <ArrowRight className="w-4 h-4" />
