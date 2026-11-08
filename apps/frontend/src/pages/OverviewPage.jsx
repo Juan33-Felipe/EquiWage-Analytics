@@ -105,8 +105,8 @@ export function OverviewPage() {
                     backgroundColor: 'var(--color-surface)',
                     color: 'var(--color-content-main)',
                     borderRadius: '12px',
-                    border: '1px solid rgba(156, 163, 175, 0.2)',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    border: '1px solid var(--color-border)',
+                    boxShadow: 'var(--shadow-soft)',
                     fontSize: '12px',
                   }}
                   itemStyle={{ color: 'var(--color-content-main)' }}
@@ -128,16 +128,16 @@ export function OverviewPage() {
           </div>
         </Card>
 
-        <Card className="lg:col-span-2 bg-gradient-to-br from-primary-hover to-primary-light text-white border-0 p-6 relative overflow-hidden">
+        <Card className="lg:col-span-2 bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white border-primary/30 p-6 relative overflow-hidden">
           <div className="relative z-10 flex flex-col h-full">
             <h3 className="text-lg font-bold tracking-tight mb-1">{t('overview.financialImpact')}</h3>
-            <p className="text-xs text-white/85 mb-6">{t('overview.whatItWould')}</p>
+            <p className="text-xs text-white/80 mb-6">{t('overview.whatItWould')}</p>
 
             <div className="space-y-3">
-              <div className="p-4 bg-white/15 rounded-xl border border-white/25 flex justify-between items-center gap-3">
+              <div className="p-4 bg-white/15 rounded-xl border border-white/20 flex justify-between items-center gap-3 backdrop-blur-sm">
                 <div className="min-w-0">
                   <h4 className="font-semibold text-sm">{t('overview.costToBandMin')}</h4>
-                  <p className="text-xs text-white/85 mt-0.5">
+                  <p className="text-xs text-white/75 mt-0.5">
                     {t('overview.bringEmployees', { count: metrics.marketDisparities })}
                   </p>
                 </div>
@@ -149,17 +149,17 @@ export function OverviewPage() {
                   )}
                 </span>
               </div>
-              <div className="p-4 bg-black/10 rounded-xl border border-black/10 flex justify-between items-center gap-3">
+              <div className="p-4 bg-black/15 rounded-xl border border-black/10 flex justify-between items-center gap-3">
                 <div className="min-w-0">
                   <h4 className="font-semibold text-sm">{t('overview.costToMarketMedian')}</h4>
-                  <p className="text-xs text-white/80 mt-0.5">{t('overview.fullCompetitiveness')}</p>
+                  <p className="text-xs text-white/70 mt-0.5">{t('overview.fullCompetitiveness')}</p>
                 </div>
                 <span className="text-xl font-bold shrink-0">{formatCurrency(simulationResult.totalBudget)}</span>
               </div>
             </div>
 
             <div className="mt-auto pt-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
-              <p className="text-xs text-white/85 flex items-center gap-2 min-w-0">
+              <p className="text-xs text-white/80 flex items-center gap-2 min-w-0">
                 <Sparkles className="w-4 h-4 shrink-0" />
                 <span>{t('overview.adjustScenario')}</span>
               </p>
@@ -177,7 +177,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      {/* Individual Manual Adjustment Drawer */}
       <IndividualAdjustmentDrawer
         isOpen={Boolean(selectedDrawerEmployee)}
         onClose={() => setSelectedDrawerEmployee(null)}
