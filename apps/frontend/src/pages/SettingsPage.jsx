@@ -95,11 +95,11 @@ export function SettingsPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 min-w-0">
+            <div className="rounded-xl border border-border bg-surface-light p-4 min-w-0">
               <p className="text-xs text-content-muted mb-1 truncate">{t('settings.employeesInSession')}</p>
               <p className="text-2xl font-bold text-content-main">{employees.length.toLocaleString()}</p>
             </div>
-            <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 min-w-0">
+            <div className="rounded-xl border border-border bg-surface-light p-4 min-w-0">
               <p className="text-xs text-content-muted mb-1 truncate">{t('settings.jobLevelsConfigured')}</p>
               <p className="text-2xl font-bold text-content-main">{bands.length}</p>
             </div>
@@ -131,15 +131,15 @@ export function SettingsPage() {
             <div
               className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium ${
                 status.type === 'error'
-                  ? 'bg-red-50 border border-red-100 text-danger'
-                  : 'bg-green-50 border border-green-100 text-success'
+                  ? 'bg-red-50 dark:bg-red-500/15 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400'
+                  : 'bg-green-50 dark:bg-emerald-500/15 border border-green-200 dark:border-emerald-500/20 text-green-700 dark:text-emerald-400'
               }`}
             >
               {status.key ? t(status.key, status.params) : status.message}
             </div>
           )}
 
-          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap items-end gap-6">
+          <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-end gap-6">
             <div>
               <p className="text-sm font-medium text-content-main mb-2">{t('settings.language')}</p>
               <SelectPill
@@ -186,7 +186,7 @@ export function SettingsPage() {
         </Card>
 
         <Card className="p-6">
-          <div className="w-12 h-12 rounded-full bg-green-50 text-success flex items-center justify-center mb-4">
+          <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-emerald-500/15 text-green-600 dark:text-emerald-400 flex items-center justify-center mb-4">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-content-main mb-2">{t('settings.privacyByDesign')}</h3>
@@ -207,7 +207,7 @@ export function SettingsPage() {
               <span className="text-xs text-content-main">{t('settings.youOwnProject')}</span>
             </div>
           </div>
-          <div className="mt-5 pt-5 border-t border-gray-100">
+          <div className="mt-5 pt-5 border-t border-border">
             <Badge variant="successOutline" className="gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-success" />
               {t('settings.secureLocalSession')}
