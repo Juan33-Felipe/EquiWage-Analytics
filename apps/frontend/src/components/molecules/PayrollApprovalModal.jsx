@@ -101,7 +101,7 @@ export function PayrollApprovalModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         />
 
         <motion.div
@@ -109,26 +109,26 @@ export function PayrollApprovalModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="relative w-full max-w-2xl bg-surface dark:bg-dark-surface rounded-2xl shadow-soft border border-slate-100 dark:border-dark-border p-6 z-10"
+          className="relative w-full max-w-2xl bg-surface rounded-2xl border border-border p-6 z-10"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-dark-border">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-primary flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-content-main dark:text-dark-text tracking-tight">
+                <h3 className="text-lg font-bold text-content-main tracking-tight">
                   Aprobar Plan y Generar Orden de Nómina
                 </h3>
-                <p className="text-xs text-content-muted dark:text-dark-muted">
+                <p className="text-xs text-content-muted">
                   Flujo de aprobación ejecutiva y exportación formal para Finanzas / Nóminas
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-content-muted hover:text-content-main hover:bg-slate-100 dark:hover:bg-dark-border transition-colors"
+              className="p-1.5 rounded-lg text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -137,22 +137,22 @@ export function PayrollApprovalModal({
           {generatedPlan ? (
             /* Success State */
             <div className="py-6 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-emerald-500/15 text-green-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div>
-                <h4 className="text-lg font-bold text-content-main dark:text-dark-text">
+                <h4 className="text-lg font-bold text-content-main">
                   ¡Orden de Nómina Aprobada y Generada!
                 </h4>
-                <p className="text-xs text-content-muted dark:text-dark-muted mt-1 max-w-md mx-auto">
+                <p className="text-xs text-content-muted mt-1 max-w-md mx-auto">
                   La orden de ejecución formal (.CSV) se ha descargado a tu equipo con {generatedPlan.affectedCount}{' '}
                   ajustes salariales autorizados.
                 </p>
               </div>
 
               {commitToDatabase && (
-                <div className="p-3 max-w-md mx-auto rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-center gap-2">
+                <div className="p-3 max-w-md mx-auto rounded-xl bg-green-50 dark:bg-emerald-500/15 border border-green-200 dark:border-emerald-500/20 text-xs text-green-700 dark:text-emerald-300 flex items-center justify-center gap-2">
                   <Database className="w-4 h-4" />
                   <span>Los salarios fueron consolidados como actuales en la base de datos SQLite.</span>
                 </div>
@@ -177,38 +177,38 @@ export function PayrollApprovalModal({
             <div className="mt-5 space-y-5">
               {/* Executive Summary Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-border/40 border border-slate-200/60 dark:border-dark-border">
-                  <p className="text-[11px] text-content-muted dark:text-dark-muted font-medium">Presupuesto Aprobado</p>
+                <div className="p-3 rounded-xl bg-surface-light border border-border">
+                  <p className="text-[11px] text-content-muted font-medium">Presupuesto Aprobado</p>
                   <p className="text-base font-bold text-primary mt-0.5">{formatCurrency(totalCost)}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-border/40 border border-slate-200/60 dark:border-dark-border">
-                  <p className="text-[11px] text-content-muted dark:text-dark-muted font-medium">Colaboradores Beneficiados</p>
-                  <p className="text-base font-bold text-content-main dark:text-dark-text mt-0.5">
+                <div className="p-3 rounded-xl bg-surface-light border border-border">
+                  <p className="text-[11px] text-content-muted font-medium">Colaboradores Beneficiados</p>
+                  <p className="text-base font-bold text-content-main mt-0.5">
                     {affectedCount} personas
                   </p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-dark-border/40 border border-slate-200/60 dark:border-dark-border">
-                  <p className="text-[11px] text-content-muted dark:text-dark-muted font-medium">Objetivo de Política</p>
-                  <p className="text-base font-bold text-content-main dark:text-dark-text mt-0.5 capitalize">
+                <div className="p-3 rounded-xl bg-surface-light border border-border">
+                  <p className="text-[11px] text-content-muted font-medium">Objetivo de Política</p>
+                  <p className="text-base font-bold text-content-main mt-0.5 capitalize">
                     {simulation.target === 'minimum' ? 'P25 Mínimo' : 'P50 Mediana'}
                   </p>
                 </div>
               </div>
 
               {/* Commit Option Toggle */}
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50/60 dark:bg-dark-border/20 space-y-3">
+              <div className="p-4 rounded-xl border border-border bg-surface-light space-y-3">
                 <label className="flex items-start gap-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={commitToDatabase}
                     onChange={(e) => setCommitToDatabase(e.target.checked)}
-                    className="mt-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
+                    className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary"
                   />
                   <div>
-                    <span className="block text-xs font-bold text-content-main dark:text-dark-text">
+                    <span className="block text-xs font-bold text-content-main">
                       Consolidar en Base de Datos SQLite (Actualizar Salarios Vigentes)
                     </span>
-                    <span className="block text-[11px] text-content-muted dark:text-dark-muted mt-0.5 leading-relaxed">
+                    <span className="block text-[11px] text-content-muted mt-0.5 leading-relaxed">
                       Si se activa, el nuevo salario propuesto reemplazará el salario base actual en la tabla local{' '}
                       <code>employees</code>. Si se deja desmarcado, solo generará la orden exportable sin sobreescribir la nómina activa.
                     </span>
@@ -218,7 +218,7 @@ export function PayrollApprovalModal({
 
               {/* Approver Name */}
               <div>
-                <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+                <label className="block text-xs font-semibold text-content-main mb-1.5">
                   Autorizado Por (Responsable RRHH / Finanzas)
                 </label>
                 <input
@@ -226,12 +226,12 @@ export function PayrollApprovalModal({
                   value={approvedBy}
                   onChange={(e) => setApprovedBy(e.target.value)}
                   placeholder="Ej. Directora de Compensaciones & Beneficios"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-dark-border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 />
               </div>
 
               {/* Dataset Columns Preview Notice */}
-              <div className="p-3 rounded-xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/40 text-xs text-content-main dark:text-dark-text flex items-start gap-2">
+              <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-content-main flex items-start gap-2">
                 <FileSpreadsheet className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
                   El archivo descargable incluye: <em>ID, Nombre Completo, Departamento, Nivel, Salario Anterior, Incremento (+USD y +%), Nuevo Salario y Motivo de Ajuste (Cumplimiento Legal / Mínimo P25 / Mediana P50 / Ajuste Manual)</em>.
@@ -239,7 +239,7 @@ export function PayrollApprovalModal({
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 border-t border-slate-100 dark:border-dark-border flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
                 <Button type="button" variant="outline" onClick={onClose} disabled={isProcessing}>
                   Cancelar
                 </Button>
