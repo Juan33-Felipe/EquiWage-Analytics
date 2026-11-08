@@ -12,23 +12,23 @@ export function HeroCard() {
   const fulfillment = Math.round(alignedRate * 100);
 
   return (
-    <div className="bg-gradient-to-br from-primary-hover to-primary-light rounded-xl shadow-soft p-6 flex flex-col justify-between text-white relative overflow-hidden h-full">
+    <div className="bg-gradient-to-br from-primary-hover via-primary to-primary-light rounded-xl p-6 flex flex-col justify-between text-white relative overflow-hidden h-full">
       <div className="relative z-10 min-w-0">
-        <p className="text-xs font-semibold tracking-wider text-white/80 uppercase mb-2 truncate">
+        <p className="text-xs font-semibold tracking-wider text-white/70 uppercase mb-2 truncate">
           {t('metrics.compensationEquity')}
         </p>
         <p className="text-sm font-medium text-white/90 mb-1 truncate">{t('metrics.totalAdjustment')}</p>
         <h2 className="text-3xl xl:text-4xl font-bold mb-2 tracking-tight truncate">
           {formatCurrency(metrics.minToMedianBudget)}
         </h2>
-        <p className="text-xs text-white/80 leading-relaxed">
+        <p className="text-xs text-white/70 leading-relaxed">
           {t('metrics.estimatedBudget')}
         </p>
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-3 relative z-10 mt-6">
         <div className="min-w-0">
-          <p className="text-[10px] text-white/80 mb-1 leading-tight">
+          <p className="text-[10px] text-white/70 mb-1 leading-tight">
             {t('metrics.medianTarget')}
             <br />
             {t('metrics.fulfillment')}
@@ -38,7 +38,7 @@ export function HeroCard() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className={`w-1.5 h-1.5 rounded-full ${i <= Math.round(fulfillment / 20) ? 'bg-white' : 'bg-white/40'}`}
+                  className={`w-1.5 h-1.5 rounded-full ${i <= Math.round(fulfillment / 20) ? 'bg-white' : 'bg-white/30'}`}
                 />
               ))}
             </div>
@@ -56,14 +56,13 @@ export function HeroCard() {
       </div>
 
       {simulationResult.affectedCount > 0 && (
-        <p className="text-[10px] text-white/80 relative z-10 mt-3 truncate">
+        <p className="text-[10px] text-white/70 relative z-10 mt-3 truncate">
           {t('metrics.employeesBelowBand', { count: simulationResult.affectedCount })}
         </p>
       )}
 
-      {/* Decorative background shapes */}
       <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/5 rounded-full blur-2xl translate-y-1/4 -translate-x-1/4" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full blur-2xl translate-y-1/4 -translate-x-1/4" />
     </div>
   );
 }
