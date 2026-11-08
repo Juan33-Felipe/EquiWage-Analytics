@@ -20,7 +20,7 @@
     "lint": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@equiwage/shared": "*",
+    "@equiwage/shared": "workspace:*",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
