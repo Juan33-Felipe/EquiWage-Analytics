@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@equiwage/shared": "*",
+    "@equiwage/shared": "workspace:*",
     "clsx": "^2.1.1",
     "framer-motion": "^14.2.0",
     "lucide-react": "^1.52.0",
