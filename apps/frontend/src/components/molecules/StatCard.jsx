@@ -7,7 +7,7 @@ export function StatCard({ title, value, subtitle, icon: Icon, badgeText, badgeV
   return (
     <Card className={cn("justify-between h-full", className)}>
       <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
-        <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-gray-50">
+        <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-surface-light border border-border">
           <Icon className="w-5 h-5 text-primary" />
         </div>
         {badgeText && (
