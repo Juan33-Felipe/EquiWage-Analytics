@@ -71,7 +71,7 @@ export function SimulatorPage() {
           </Button>
           <Button
             variant="primary"
-            className="gap-2 shadow-soft"
+            className="gap-2"
             onClick={() => setIsApprovalModalOpen(true)}
             disabled={rows.length === 0}
           >
@@ -93,7 +93,7 @@ export function SimulatorPage() {
       </div>
 
       <Card className="p-0 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+        <div className="p-6 border-b border-border flex flex-wrap justify-between items-center gap-4">
           <div className="min-w-0">
             <h3 className="text-lg font-bold text-content-main tracking-tight mb-1">
               {t('simulator.simulatedAdjustments')}
@@ -103,7 +103,7 @@ export function SimulatorPage() {
               {rolloutCaption}
             </p>
           </div>
-          <Badge variant="primary" className="bg-orange-50 text-primary shrink-0">
+          <Badge variant="primary" className="bg-primary/15 text-primary shrink-0">
             {t('simulator.employeesBadge', {
               count: rows.length,
               budget: formatCurrency(simulationResult.totalBudget),
@@ -118,7 +118,7 @@ export function SimulatorPage() {
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50/80 sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
+              <thead className="bg-surface-light sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
                 <tr>
                   <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.employee')}</th>
                   <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.currentSalary')}</th>
@@ -127,7 +127,7 @@ export function SimulatorPage() {
                   <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('simulator.gapSeverity')}</th>
                 </tr>
               </thead>
-              <tbody className="text-sm divide-y divide-gray-50">
+              <tbody className="text-sm divide-y divide-border/50">
                 {rows.map((row, index) => {
                   const severity = SEVERITY[row.severity] || SEVERITY.none;
                   return (
@@ -137,7 +137,7 @@ export function SimulatorPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.2) }}
                       onClick={() => setSelectedDrawerEmployee(row)}
-                      className="hover:bg-gray-50/60 transition-colors group cursor-pointer"
+                      className="hover:bg-surface-light transition-colors group cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3 min-w-0">
@@ -157,7 +157,7 @@ export function SimulatorPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-400 line-through text-xs font-medium">
+                          <span className="text-content-muted line-through text-xs font-medium">
                             {formatCurrency(row.currentSalary)}
                           </span>
                           <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -165,7 +165,7 @@ export function SimulatorPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 font-semibold text-success bg-green-50 px-2 py-1 rounded-md text-xs border border-green-100">
+                        <span className="inline-flex items-center gap-1 font-semibold text-green-700 dark:text-emerald-400 bg-green-50 dark:bg-emerald-500/15 px-2 py-1 rounded-md text-xs border border-green-200 dark:border-emerald-500/20">
                           <ArrowUpRight className="w-3.5 h-3.5" />
                           +{formatCurrency(row.adjustment)}
                         </span>
@@ -181,7 +181,7 @@ export function SimulatorPage() {
           )}
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex flex-wrap justify-between items-center gap-4">
+        <div className="p-6 border-t border-border flex flex-wrap justify-between items-center gap-4">
           <div className="flex items-center gap-3">
             <p className="text-xs text-content-muted">
               {t('simulator.totalBudgetRequired')}{' '}
