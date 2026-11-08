@@ -73,13 +73,28 @@ export class ApiClientError extends Error {
   }
 }
 
+export function getApiBaseUrl() {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    // When connecting through Vite dev server (port 5173), relative URLs route through Vite's /api proxy
+    // This allows any mobile or external LAN device to connect seamlessly over a single port
+    if (window.location.port === '5173') {
+      return '';
+    }
+    return `${window.location.protocol}//${window.location.hostname}:4000`;
+  }
+  return 'http://127.0.0.1:4000';
+}
+
 export function resolveApiUrl(endpoint) {
   if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
     return endpoint;
   }
-  const base = DEFAULT_API_BASE_URL.replace(/\/$/, '');
+  const base = getApiBaseUrl();
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  return `${base}${path}`;
+  return base ? `${base}${path}` : path;
 }
 
 export async function apiRequest(endpoint, options = {}) {
