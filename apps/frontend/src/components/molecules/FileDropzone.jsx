@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 
 export function FileDropzone({
   onFile,
-  status = 'idle', // 'idle' | 'loading' | 'success' | 'error'
+  status = 'idle',
   successMessage,
   errorMessage,
   missingColumns = [],
@@ -39,11 +39,11 @@ export function FileDropzone({
         className={cn(
           'border-2 border-dashed rounded-xl p-6 sm:p-8 flex flex-col items-center text-center cursor-pointer transition-all duration-200',
           isDragging
-            ? 'border-primary bg-orange-50/60'
-            : 'border-gray-200 hover:border-primary/40 hover:bg-gray-50/60'
+            ? 'border-primary bg-primary/10'
+            : 'border-border hover:border-primary/40 hover:bg-surface-light/50'
         )}
       >
-        <div className="w-14 h-14 rounded-full bg-orange-50 text-primary flex items-center justify-center mb-4 shrink-0">
+        <div className="w-14 h-14 rounded-full bg-primary/15 text-primary flex items-center justify-center mb-4 shrink-0">
           <UploadCloud className="w-7 h-7" />
         </div>
         <p className="text-sm font-semibold text-content-main mb-1">
@@ -71,20 +71,20 @@ export function FileDropzone({
       </div>
 
       {status === 'success' && (
-        <div className="mt-4 flex items-center gap-2 bg-green-50 border border-green-100 text-success rounded-xl px-4 py-3">
+        <div className="mt-4 flex items-center gap-2 bg-green-50 dark:bg-emerald-500/15 border border-green-200 dark:border-emerald-500/20 text-green-700 dark:text-emerald-400 rounded-xl px-4 py-3">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <span className="text-sm font-medium min-w-0 break-words">{successMessage}</span>
         </div>
       )}
 
       {status === 'error' && (
-        <div className="mt-4 bg-red-50 border border-red-100 text-danger rounded-xl px-4 py-3">
+        <div className="mt-4 bg-red-50 dark:bg-red-500/15 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl px-4 py-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span className="text-sm font-semibold min-w-0 break-words">{errorMessage}</span>
           </div>
           {missingColumns.length > 0 && (
-            <p className="text-xs text-danger/90 mt-2 ml-7 leading-relaxed">
+            <p className="text-xs text-red-500 dark:text-red-400/80 mt-2 ml-7 leading-relaxed">
               {t('error.missingColumns', { columns: missingColumns.join(', ') })}
             </p>
           )}
