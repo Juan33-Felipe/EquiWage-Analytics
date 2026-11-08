@@ -77,7 +77,7 @@ export function DepartmentImpactChart() {
       {data.length > 0 && (
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
           {data.map((item, index) => (
-            <div key={item.department} className="flex items-center justify-between gap-2 rounded-xl bg-gray-50 px-3 py-2">
+            <div key={item.department} className="flex items-center justify-between gap-2 rounded-xl bg-surface-light px-3 py-2">
               <div className="flex items-center gap-2 min-w-0">
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
