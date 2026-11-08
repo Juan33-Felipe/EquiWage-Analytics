@@ -13,7 +13,6 @@ export function SearchInput() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
 
-  // Atajo visual ⌘K / Ctrl+K para enfocar el buscador.
   useEffect(() => {
     const handler = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -41,7 +40,7 @@ export function SearchInput() {
   return (
     <div className="relative group">
       <div className="relative flex items-center">
-        <div className="absolute left-3 text-gray-400 group-focus-within:text-primary transition-colors">
+        <div className="absolute left-3 text-content-muted group-focus-within:text-primary transition-colors">
           <Search className="w-4 h-4" />
         </div>
         <input
@@ -55,17 +54,17 @@ export function SearchInput() {
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder={t('search.placeholder')}
-          className="w-52 xl:w-64 bg-surface border border-gray-200 rounded-full py-2 pl-9 pr-12 text-sm text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-gray-400 shadow-sm truncate"
+          className="w-52 xl:w-64 bg-surface border border-border rounded-full py-2 pl-9 pr-12 text-sm text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-content-muted truncate"
         />
         <div className="absolute right-3 flex items-center">
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200 bg-gray-50 text-[10px] font-medium text-gray-500 font-sans">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-surface-light text-[10px] font-medium text-content-muted font-sans">
             <span className="text-xs">⌘</span> K
           </kbd>
         </div>
       </div>
 
       {open && query.trim() && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-surface rounded-xl shadow-soft border border-gray-100 p-2 z-50">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-surface rounded-xl border border-border p-2 z-50">
           {results.length === 0 && (
             <p className="text-xs text-content-muted px-3 py-3">{t('search.noEmployees', { query })}</p>
           )}
@@ -77,7 +76,7 @@ export function SearchInput() {
                 setQuery('');
                 navigate('/employees');
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-light transition-colors text-left"
             >
               <Avatar initials={getInitials(employee.name)} className="w-8 h-8 text-xs shrink-0" />
               <div className="min-w-0 flex-1">
