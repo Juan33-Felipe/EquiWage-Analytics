@@ -70,7 +70,7 @@ export class LlmClient {
     systemInstruction: string,
     userPrompt: string
   ): Promise<LlmParsedDiagnostic> {
-    const model = envConfig.ai.model || 'gemini-2.5-flash';
+    const model = envConfig.ai.model || 'gemini-3.5-flash';
     const baseUrl =
       envConfig.ai.apiBaseUrl || 'https://generativelanguage.googleapis.com/v1beta/models';
     const endpoint = `${baseUrl.replace(/\/$/, '')}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(envConfig.ai.apiKey)}`;
