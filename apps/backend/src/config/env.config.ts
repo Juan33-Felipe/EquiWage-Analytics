@@ -5,8 +5,12 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BACKEND_ROOT = path.resolve(__dirname, '../..');
+const MONOREPO_ROOT = path.resolve(BACKEND_ROOT, '../..');
 
+// Load .env from backend root, monorepo root, or cwd
 dotenv.config({ path: path.resolve(BACKEND_ROOT, '.env') });
+dotenv.config({ path: path.resolve(MONOREPO_ROOT, '.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 function resolveDatabasePath(rawPath?: string): string {
   if (!rawPath || rawPath.trim() === '') {
@@ -54,7 +58,7 @@ const smtpUser = (process.env.SMTP_USER || '').trim();
 
 export const envConfig: BackendEnvConfig = {
   nodeEnv: process.env.NODE_ENV || 'development',
-  host: process.env.HOST || '127.0.0.1',
+  host: process.env.HOST || '0.0.0.0',
   port: Number(process.env.PORT) || 4000,
   corsOrigins: rawOrigins.split(',').map((origin) => origin.trim()).filter(Boolean),
   sqliteDbPath: resolveDatabasePath(process.env.SQLITE_DB_PATH),
