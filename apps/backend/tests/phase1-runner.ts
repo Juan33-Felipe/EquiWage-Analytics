@@ -308,7 +308,7 @@ async function main() {
       assertEqual(res.body.errorKey, 'auth.emailAlreadyRegistered', 'errorKey matches emailAlreadyRegistered');
     });
 
-    await runTest('Auth Registration', 'POST /api/auth/register clean 502 error when SMTP credentials are intentionally missing', async () => {
+    await runTest('Auth Registration', 'POST /api/auth/register succeeds with local simulation when SMTP credentials are unconfigured', async () => {
       // Temporarily clear SMTP env credentials
       const originalUser = process.env.SMTP_USER;
       const originalPass = process.env.SMTP_PASS;
@@ -327,11 +327,13 @@ async function main() {
             confirmPassword: 'Password123!',
           },
         });
-        assertEqual(res.status, 502, 'HTTP status must be 502 Bad Gateway when SMTP is unconfigured');
-        assertEqual(res.body.ok, false, 'ok must be false');
-        assertEqual(res.body.errorKey, 'auth.emailDeliveryFailed', 'errorKey matches auth.emailDeliveryFailed');
-        assert(res.body.message.includes('email service is not configured'), 'user-friendly message returned');
+        assertEqual(res.status, 200, 'HTTP status must be 200 OK when SMTP is unconfigured');
+        assertEqual(res.body.ok, true, 'ok must be true');
+        assertEqual(res.body.data.email, 'nosmtp@example.com', 'email matches');
+        assert(typeof res.body.data.devCode === 'string', 'devCode is returned in simulation mode');
       } finally {
+        db.prepare('DELETE FROM users WHERE email = ?').run('nosmtp@example.com');
+        db.prepare('DELETE FROM verification_codes WHERE email = ?').run('nosmtp@example.com');
         process.env.SMTP_USER = originalUser;
         process.env.SMTP_PASS = originalPass;
         emailService.setTransporter(null);
