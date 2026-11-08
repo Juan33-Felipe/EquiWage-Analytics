@@ -94,12 +94,12 @@ export function SalaryBandsPage() {
             </div>
             <p className="text-xs text-content-muted mb-5">{t('bands.chooseHow')}</p>
 
-            <div className="flex bg-gray-100 p-1 rounded-full mb-5 gap-1">
+            <div className="flex bg-surface-light p-1 rounded-full mb-5 gap-1">
               <button
                 onClick={() => setMode('import')}
                 className={cn(
                   'flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs font-semibold transition-all',
-                  mode === 'import' ? 'bg-white text-content-main shadow-sm' : 'text-content-muted hover:text-content-main'
+                  mode === 'import' ? 'bg-surface text-content-main' : 'text-content-muted hover:text-content-main'
                 )}
               >
                 <Upload className="w-3.5 h-3.5 shrink-0" />
@@ -109,7 +109,7 @@ export function SalaryBandsPage() {
                 onClick={() => setMode('manual')}
                 className={cn(
                   'flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs font-semibold transition-all',
-                  mode === 'manual' ? 'bg-white text-content-main shadow-sm' : 'text-content-muted hover:text-content-main'
+                  mode === 'manual' ? 'bg-surface text-content-main' : 'text-content-muted hover:text-content-main'
                 )}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
@@ -127,7 +127,7 @@ export function SalaryBandsPage() {
                 hint={t('bands.importHint')}
               />
             ) : (
-              <div className="rounded-xl bg-gray-50 p-4">
+              <div className="rounded-xl bg-surface-light p-4">
                 <p className="text-sm font-semibold text-content-main mb-1">{t('bands.manualReady')}</p>
                 <p className="text-xs text-content-muted leading-relaxed">
                   {t('bands.manualHint')}
@@ -135,7 +135,7 @@ export function SalaryBandsPage() {
               </div>
             )}
 
-            <div className="mt-5 pt-5 border-t border-gray-100 flex items-start gap-2">
+            <div className="mt-5 pt-5 border-t border-border flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-success mt-0.5 shrink-0" />
               <p className="text-xs text-content-muted leading-relaxed">
                 {t('bands.keptLocally')}
@@ -150,7 +150,7 @@ export function SalaryBandsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {bands.map((band) => (
-                <span key={band.level} className="w-9 h-9 flex items-center justify-center rounded-full bg-orange-50 text-primary font-bold text-sm">
+                <span key={band.level} className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/15 text-primary font-bold text-sm">
                   {band.level}
                 </span>
               ))}
