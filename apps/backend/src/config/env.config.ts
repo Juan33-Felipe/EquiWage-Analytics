@@ -63,9 +63,9 @@ export const envConfig: BackendEnvConfig = {
     return {
       provider: (process.env.AI_PROVIDER || 'gemini').trim().toLowerCase(),
       apiKey: key,
-      model: (process.env.AI_MODEL || 'gemini-2.5-flash').trim(),
+      model: (process.env.AI_MODEL || 'gemini-3.5-flash').trim(),
       apiBaseUrl: (process.env.AI_API_BASE_URL || '').trim(),
-      timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 12000,
+      timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 30000,
       isConfigured: key.length > 0,
     };
   },
