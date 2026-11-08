@@ -8,8 +8,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F9FAFB',
-        surface: '#FFFFFF',
+        background: 'var(--color-background)',
+        surface: 'var(--color-surface)',
+        'surface-light': 'var(--color-surface-light)',
+        border: 'var(--color-border)',
         primary: {
           DEFAULT: '#F97316',
           hover: '#EA580C',
@@ -18,20 +20,23 @@ export default {
         danger: '#EF4444',
         success: '#10B981',
         content: {
-          main: '#111827',
-          muted: '#6B7280',
-        }
+          main: 'var(--color-content-main)',
+          muted: 'var(--color-content-muted)',
+        },
+        sidebar: 'var(--color-sidebar)',
       },
       boxShadow: {
-        soft: '0px 10px 30px rgba(0, 0, 0, 0.04)',
+        soft: 'var(--shadow-soft)',
+        glow: '0 0 20px rgba(249, 115, 22, 0.15)',
       },
       borderRadius: {
-        xl: '24px',
+        xl: '16px',
+        '2xl': '20px',
         pill: '9999px',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-      }
+      },
     },
   },
   plugins: [],
