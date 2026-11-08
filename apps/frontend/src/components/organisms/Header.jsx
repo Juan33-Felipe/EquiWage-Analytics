@@ -48,14 +48,14 @@ export function Header() {
   const activeTab = DASHBOARD_TABS.find((tab) => tab.to === location.pathname)?.id || 'overview';
 
   return (
-    <header className="flex items-center justify-between gap-4 py-6 px-8 bg-background sticky top-0 z-20">
+    <header className="flex items-center justify-between gap-4 py-5 px-8 bg-background sticky top-0 z-20 border-b border-border">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold text-content-main tracking-tight mb-1 truncate">{titleText}</h1>
+        <h1 className="text-2xl font-bold text-content-main tracking-tight mb-0.5 truncate">{titleText}</h1>
         <p className="text-xs text-content-muted flex items-center gap-2 font-medium truncate">
           {subtitleText.includes('•') ? (
             subtitleText.split('•').map((part, index) => (
               <React.Fragment key={part.trim()}>
-                {index > 0 && <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0" />}
+                {index > 0 && <span className="w-1 h-1 rounded-full bg-border shrink-0" />}
                 <span className="truncate">{part.trim()}</span>
               </React.Fragment>
             ))
@@ -78,7 +78,7 @@ export function Header() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <div className="hidden lg:block">
           <SearchInput />
         </div>
@@ -87,27 +87,27 @@ export function Header() {
           onClick={toggleTheme}
           aria-label={isDark ? t('header.lightMode') : t('header.darkMode')}
           title={isDark ? t('header.lightMode') : t('header.darkMode')}
-          className="w-10 h-10 rounded-full bg-surface border border-gray-200 flex items-center justify-center text-gray-500 hover:text-content-main hover:bg-gray-50 transition-colors shadow-sm"
+          className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
         >
-          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
         </button>
         <button
           type="button"
           aria-label={t('header.notifications')}
           title={t('header.notifications')}
-          className="w-10 h-10 rounded-full bg-surface border border-gray-200 flex items-center justify-center text-gray-500 hover:text-content-main hover:bg-gray-50 transition-colors relative shadow-sm"
+          className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center text-content-muted hover:text-content-main hover:bg-surface-light transition-colors relative"
         >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-surface" />
+          <Bell className="w-[18px] h-[18px]" />
+          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
         </button>
         <button
           type="button"
           onClick={handleLogout}
           aria-label={t('header.signOut')}
           title={t('header.signOut')}
-          className="w-10 h-10 rounded-full bg-surface border border-gray-200 flex items-center justify-center text-gray-500 hover:text-danger hover:bg-red-50 transition-colors shadow-sm"
+          className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center text-content-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-[18px] h-[18px]" />
         </button>
       </div>
     </header>
