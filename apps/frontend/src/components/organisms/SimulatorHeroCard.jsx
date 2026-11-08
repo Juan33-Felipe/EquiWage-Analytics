@@ -10,7 +10,7 @@ export function SimulatorHeroCard() {
   const targetLabel = simulation.target === 'minimum' ? t('simulator.bandMinimumP25') : t('simulator.marketMedianP50');
 
   return (
-    <div className="relative overflow-hidden rounded-xl shadow-soft bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white p-6 sm:p-8">
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white p-6 sm:p-8">
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-3">
