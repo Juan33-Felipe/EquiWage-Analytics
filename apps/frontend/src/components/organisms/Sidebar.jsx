@@ -30,14 +30,14 @@ export function Sidebar({ collapsed = false, onToggle }) {
   return (
     <aside
       className={cn(
-        'bg-surface border-r border-gray-100 flex flex-col py-6 h-screen sticky top-0 transition-all duration-300 z-30 shrink-0',
+        'bg-sidebar border-r border-border flex flex-col py-6 h-screen sticky top-0 transition-all duration-300 z-30 shrink-0',
         collapsed ? 'w-20 items-center' : 'w-64 px-4'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 mb-8', collapsed ? 'justify-center' : 'px-2')}>
-        <div className="w-12 h-12 shrink-0 rounded-2xl bg-orange-50 flex items-center justify-center text-primary shadow-sm">
-          <TrendingUp className="w-6 h-6" />
+      <div className={cn('flex items-center gap-3 mb-10', collapsed ? 'justify-center' : 'px-2')}>
+        <div className="w-10 h-10 shrink-0 rounded-xl bg-primary flex items-center justify-center text-white">
+          <TrendingUp className="w-5 h-5" />
         </div>
         {!collapsed && (
           <div className="leading-tight min-w-0">
@@ -48,7 +48,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
       </div>
 
       {/* Nav Items */}
-      <nav className={cn('flex flex-col gap-2 flex-1 w-full', collapsed && 'items-center')}>
+      <nav className={cn('flex flex-col gap-1 flex-1 w-full', collapsed && 'items-center')}>
         {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => (
           <NavLink
             key={to}
@@ -59,14 +59,14 @@ export function Sidebar({ collapsed = false, onToggle }) {
                 'flex items-center gap-3 rounded-xl transition-all duration-200 group relative min-w-0',
                 collapsed ? 'w-12 h-12 justify-center' : 'px-3 py-2.5',
                 isActive
-                  ? 'bg-orange-50 text-primary font-semibold'
-                  : 'text-gray-500 hover:text-content-main hover:bg-gray-50 font-medium'
+                  ? 'bg-surface-light text-content-main font-semibold'
+                  : 'text-content-muted hover:text-content-main hover:bg-surface-light/50 font-medium'
               )
             }
           >
             {({ isActive }) => (
               <>
-                <Icon className="w-5 h-5 shrink-0" />
+                <Icon className={cn("w-5 h-5 shrink-0", isActive && "text-primary")} />
                 {!collapsed && <span className="text-sm truncate">{t(labelKey)}</span>}
                 {isActive && (
                   <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
@@ -81,7 +81,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
       <div className={cn('mt-auto flex flex-col gap-3 w-full', collapsed ? 'items-center' : '')}>
         <button
           onClick={onToggle}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-content-main transition-colors"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-content-muted hover:bg-surface-light hover:text-content-main transition-colors"
           title={collapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
         >
           {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -89,12 +89,12 @@ export function Sidebar({ collapsed = false, onToggle }) {
 
         <div
           className={cn(
-            'flex items-center justify-between gap-2 min-w-0 rounded-2xl p-1.5',
-            collapsed ? 'flex-col justify-center' : 'px-2'
+            'flex items-center justify-between gap-2 min-w-0 rounded-xl p-2',
+            collapsed ? 'flex-col justify-center' : 'bg-surface-light/50'
           )}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 shrink-0 rounded-full bg-orange-100 text-primary flex items-center justify-center font-bold text-xs shadow-sm">
+            <div className="w-9 h-9 shrink-0 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
               {displayInitials}
             </div>
             {!collapsed && (
@@ -110,7 +110,7 @@ export function Sidebar({ collapsed = false, onToggle }) {
             onClick={handleLogout}
             aria-label={t('sidebar.signOut')}
             title={t('sidebar.signOut')}
-            className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-gray-500 hover:text-danger hover:bg-red-50 transition-colors"
+            className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-content-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
           </button>
