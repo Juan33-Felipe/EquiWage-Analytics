@@ -99,7 +99,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         />
 
         {/* Modal Window */}
@@ -108,19 +108,19 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="relative w-full max-w-lg bg-surface dark:bg-dark-surface rounded-2xl shadow-soft border border-slate-100 dark:border-dark-border p-6 z-10"
+          className="relative w-full max-w-lg bg-surface rounded-2xl border border-border p-6 z-10"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-dark-border">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-primary flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
                 {isEditing ? <Edit3 className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
               </div>
               <div>
-                <h3 className="text-lg font-bold text-content-main dark:text-dark-text tracking-tight">
+                <h3 className="text-lg font-bold text-content-main tracking-tight">
                   {isEditing ? 'Editar Empleado' : 'Registrar Nuevo Empleado'}
                 </h3>
-                <p className="text-xs text-content-muted dark:text-dark-muted">
+                <p className="text-xs text-content-muted">
                   {isEditing
                     ? 'Actualiza los datos del empleado y recalcula auditoría en tiempo real.'
                     : 'Añade un empleado al registro local de nómina.'}
@@ -129,7 +129,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-content-muted hover:text-content-main hover:bg-slate-100 dark:hover:bg-dark-border transition-colors"
+              className="p-1.5 rounded-lg text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -138,7 +138,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
           {/* Form */}
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             {errors.submit && (
-              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-start gap-2 text-xs text-rose-700 dark:text-rose-300">
+              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-500/15 border border-red-200 dark:border-red-500/20 flex items-start gap-2 text-xs text-red-600 dark:text-red-400">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errors.submit}</span>
               </div>
@@ -147,7 +147,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Employee ID */}
               <div>
-                <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+                <label className="block text-xs font-semibold text-content-main mb-1.5">
                   ID Empleado
                 </label>
                 <input
@@ -158,8 +158,8 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                   placeholder="EMP-001"
                   className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono transition-all ${
                     isEditing
-                      ? 'bg-slate-100 dark:bg-dark-border/40 text-content-muted cursor-not-allowed border-slate-200 dark:border-dark-border'
-                      : 'bg-surface dark:bg-dark-surface border-slate-200 dark:border-dark-border text-content-main dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                      ? 'bg-surface-light text-content-muted cursor-not-allowed border-border'
+                      : 'bg-surface border-border text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary'
                   } ${errors.id ? 'border-rose-400 focus:ring-rose-200' : ''}`}
                 />
                 {errors.id && <p className="text-[11px] text-rose-500 mt-1">{errors.id}</p>}
@@ -167,13 +167,13 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
 
               {/* Level */}
               <div>
-                <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+                <label className="block text-xs font-semibold text-content-main mb-1.5">
                   Nivel de Puesto (L1 - L8)
                 </label>
                 <select
                   value={formData.level}
                   onChange={(e) => setFormData({ ...formData, level: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-dark-border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((lvl) => (
                     <option key={lvl} value={lvl}>
@@ -187,7 +187,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
 
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+              <label className="block text-xs font-semibold text-content-main mb-1.5">
                 Nombre Completo
               </label>
               <input
@@ -195,8 +195,8 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ej. Juan Pérez"
-                className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
-                  errors.name ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 dark:border-dark-border'
+                className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
+                  errors.name ? 'border-rose-400 focus:ring-rose-200' : 'border-border'
                 }`}
               />
               {errors.name && <p className="text-[11px] text-rose-500 mt-1">{errors.name}</p>}
@@ -205,7 +205,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             {/* Role & Department */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+                <label className="block text-xs font-semibold text-content-main mb-1.5">
                   Cargo / Rol
                 </label>
                 <input
@@ -213,21 +213,21 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                   placeholder="Ej. Software Engineer"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
-                    errors.role ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 dark:border-dark-border'
+                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
+                    errors.role ? 'border-rose-400 focus:ring-rose-200' : 'border-border'
                   }`}
                 />
                 {errors.role && <p className="text-[11px] text-rose-500 mt-1">{errors.role}</p>}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+                <label className="block text-xs font-semibold text-content-main mb-1.5">
                   Departamento
                 </label>
                 <select
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-dark-border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 >
                   {DEPARTMENTS.map((dept) => (
                     <option key={dept} value={dept}>
@@ -240,11 +240,11 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
 
             {/* Current Fixed Base Salary */}
             <div>
-              <label className="block text-xs font-semibold text-content-main dark:text-dark-text mb-1.5">
+              <label className="block text-xs font-semibold text-content-main mb-1.5">
                 Salario Base Fijo Anual (USD)
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-content-muted dark:text-dark-muted font-semibold text-sm">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-content-muted font-semibold text-sm">
                   $
                 </span>
                 <input
@@ -254,19 +254,19 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                   value={formData.currentSalary}
                   onChange={(e) => setFormData({ ...formData, currentSalary: e.target.value })}
                   placeholder="55000"
-                  className={`w-full pl-8 pr-3.5 py-2.5 rounded-xl border bg-surface dark:bg-dark-surface text-content-main dark:text-dark-text text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
-                    errors.currentSalary ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 dark:border-dark-border'
+                  className={`w-full pl-8 pr-3.5 py-2.5 rounded-xl border bg-surface text-content-main text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
+                    errors.currentSalary ? 'border-rose-400 focus:ring-rose-200' : 'border-border'
                   }`}
                 />
               </div>
-              <p className="text-[11px] text-content-muted dark:text-dark-muted mt-1">
+              <p className="text-[11px] text-content-muted mt-1">
                 La auditoría y el cumplimiento legal validan estrictamente el salario base fijo.
               </p>
               {errors.currentSalary && <p className="text-[11px] text-rose-500 mt-1">{errors.currentSalary}</p>}
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-4 border-t border-slate-100 dark:border-dark-border flex items-center justify-end gap-3">
+            <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
               <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
                 Cancelar
               </Button>
