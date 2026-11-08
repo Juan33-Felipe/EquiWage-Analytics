@@ -5,10 +5,10 @@
   "description": "EquiWage Analytics Frontend Application (React + Vite + Tailwind CSS)",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@equiwage/shared": "workspace:*",
