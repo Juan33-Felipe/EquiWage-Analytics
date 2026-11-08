@@ -37,14 +37,14 @@ export function SimulatorControlsCard() {
               className={cn(
                 'w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all',
                 active
-                  ? 'border-primary bg-orange-50/60 shadow-sm'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-primary bg-primary/15'
+                  : 'border-border hover:border-content-muted/30 hover:bg-surface-light'
               )}
             >
               <span
                 className={cn(
                   'mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-                  active ? 'border-primary' : 'border-gray-300'
+                  active ? 'border-primary' : 'border-border'
                 )}
               >
                 {active && <span className="w-2 h-2 rounded-full bg-primary" />}
@@ -59,12 +59,12 @@ export function SimulatorControlsCard() {
       </div>
 
       {/* Projected Market Inflation Slider (Feature C) */}
-      <div className="mb-6 p-4 rounded-xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/40">
+      <div className="mb-6 p-4 rounded-xl bg-primary/10 border border-primary/20">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-bold text-content-main dark:text-dark-text tracking-tight flex items-center gap-1.5">
+          <label className="text-xs font-bold text-content-main tracking-tight flex items-center gap-1.5">
             <span>Inflación de Mercado Proyectada</span>
           </label>
-          <span className="text-xs font-mono font-bold text-primary bg-surface dark:bg-dark-surface px-2 py-0.5 rounded-md border border-orange-200 dark:border-orange-900/60">
+          <span className="text-xs font-mono font-bold text-primary bg-surface px-2 py-0.5 rounded-md border border-primary/20">
             +{simulation.inflationPercent || 0}%
           </span>
         </div>
@@ -76,7 +76,7 @@ export function SimulatorControlsCard() {
           onChange={(value) => updateSimulation({ inflationPercent: value })}
           valueLabel={`+${simulation.inflationPercent || 0}%`}
         />
-        <p className="text-[11px] text-content-muted dark:text-dark-muted mt-2 leading-relaxed">
+        <p className="text-[11px] text-content-muted mt-2 leading-relaxed">
           Desplaza dinámicamente las bandas salariales (P25, P50, P75) hacia arriba para proyectar desfases de competitividad para el próximo ciclo.
         </p>
       </div>
@@ -94,7 +94,7 @@ export function SimulatorControlsCard() {
       />
 
       {/* Departments */}
-      <div className="pt-5 border-t border-gray-100">
+      <div className="pt-5 border-t border-border">
         <p className="text-sm font-semibold text-content-main mb-3">{t('simulator.includeDepartments')}</p>
         <div className="flex flex-wrap gap-2">
           {DEPARTMENTS.map((department) => {
@@ -107,7 +107,7 @@ export function SimulatorControlsCard() {
                   'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
                   active
                     ? 'border-primary bg-primary text-white'
-                    : 'border-gray-200 text-content-muted hover:border-gray-300'
+                    : 'border-border text-content-muted hover:border-content-muted/30'
                 )}
               >
                 {active && <Check className="w-3 h-3 shrink-0" />}
