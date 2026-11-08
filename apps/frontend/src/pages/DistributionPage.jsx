@@ -10,12 +10,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { DEPARTMENTS } from '@equiwage/shared';
 
 const AVATAR_TONES = [
-  'bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
-  'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
-  'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300',
-  'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
-  'bg-pink-50 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300',
-  'bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+  'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300',
+  'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300',
+  'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-300',
+  'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300',
+  'bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-300',
+  'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300',
 ];
 
 export function DistributionPage() {
@@ -67,7 +67,7 @@ export function DistributionPage() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3 mb-1">
             <h2 className="text-xl font-bold text-content-main tracking-tight">{t('distribution.salaryCurve')}</h2>
-            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-green-50/50 shrink-0">
+            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-emerald-500/10 shrink-0">
               <div className="w-1.5 h-1.5 rounded-full bg-success" />
               {t('distribution.secureLocalSession')}
             </Badge>
@@ -76,7 +76,7 @@ export function DistributionPage() {
             {t('distribution.compareEvery')}
           </p>
         </div>
-        <div className="text-xs font-medium text-content-muted bg-surface border border-gray-200 rounded-full px-3 py-1.5 shadow-sm shrink-0">
+        <div className="text-xs font-medium text-content-muted bg-surface border border-border rounded-full px-3 py-1.5 shrink-0">
           {t('distribution.showingEmployees', { count: filtered.length, total: employees.length })}
         </div>
       </div>
