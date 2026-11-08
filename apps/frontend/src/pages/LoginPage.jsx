@@ -8,22 +8,18 @@ import {
   EyeOff,
   Globe,
   Lock,
-  Moon,
   ShieldCheck,
-  Sun,
   TrendingUp,
   User,
 } from 'lucide-react';
 import { FormInput } from '../components/atoms/FormInput';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
 
 export function LoginPage() {
   const { isAuthenticated, isAuthenticating, authError, login, clearAuthError } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -82,7 +78,7 @@ export function LoginPage() {
       {/* Top Bar: Brand Identity + Language & Theme Controls */}
       <header className="w-full max-w-5xl mx-auto flex items-center justify-between py-2">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center text-primary shadow-sm">
+          <div className="w-11 h-11 rounded-2xl bg-primary/15 flex items-center justify-center text-primary">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
@@ -99,22 +95,13 @@ export function LoginPage() {
           <button
             type="button"
             onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-            className="h-10 px-3.5 rounded-full bg-surface border border-gray-200 flex items-center gap-2 text-xs font-semibold text-content-main hover:bg-gray-50 transition-colors shadow-sm"
+            className="h-10 px-3.5 rounded-full bg-surface border border-border flex items-center gap-2 text-xs font-semibold text-content-main hover:bg-surface-light transition-colors"
             title={t('settings.language')}
           >
             <Globe className="w-4 h-4 text-primary" />
             <span>{language === 'en' ? 'ES' : 'EN'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={isDark ? t('header.lightMode') : t('header.darkMode')}
-            title={isDark ? t('header.lightMode') : t('header.darkMode')}
-            className="w-10 h-10 rounded-full bg-surface border border-gray-200 flex items-center justify-center text-gray-500 hover:text-content-main hover:bg-gray-50 transition-colors shadow-sm"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
         </div>
       </header>
 
@@ -124,7 +111,7 @@ export function LoginPage() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.32, ease: 'easeOut' }}
-          className="w-full max-w-5xl bg-surface rounded-[24px] shadow-soft border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-12"
+          className="w-full max-w-5xl bg-surface rounded-[24px] border border-border overflow-hidden grid grid-cols-1 lg:grid-cols-12"
         >
           {/* Left Decorative Corporate Gradient Panel */}
           <div className="lg:col-span-5 bg-gradient-to-br from-[#EA580C] via-[#F97316] to-[#FED7AA] p-8 sm:p-10 text-white flex flex-col justify-between">
@@ -163,7 +150,7 @@ export function LoginPage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 role="status"
-                className="mb-5 rounded-2xl bg-green-50 border border-green-100 px-4 py-3.5 flex items-start gap-3"
+                className="mb-5 rounded-2xl bg-emerald-500/15 border border-emerald-500/20 px-4 py-3.5 flex items-start gap-3"
               >
                 <CheckCircle2
                   className="w-5 h-5 shrink-0 mt-0.5"
@@ -171,7 +158,7 @@ export function LoginPage() {
                 />
                 <p
                   className="text-xs font-semibold leading-relaxed"
-                  style={{ color: '#065F46' }}
+                  style={{ color: '#6EE7B7' }}
                 >
                   {location.state.successMessage}
                 </p>
@@ -183,7 +170,7 @@ export function LoginPage() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 role="alert"
-                className="mb-5 rounded-2xl bg-red-50 border border-red-100 px-4 py-3.5 flex items-start gap-3"
+                className="mb-5 rounded-2xl bg-red-500/15 border border-red-500/20 px-4 py-3.5 flex items-start gap-3"
               >
                 <AlertCircle
                   className="w-5 h-5 shrink-0 mt-0.5"
@@ -246,7 +233,7 @@ export function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(event) => setRememberMe(event.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary accent-[#F97316]"
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary accent-[#F97316]"
                   />
                   <span className="text-xs font-medium text-content-muted">
                     {t('auth.rememberSession')}
