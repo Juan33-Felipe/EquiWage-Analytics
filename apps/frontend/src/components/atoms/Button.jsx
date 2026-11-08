@@ -3,16 +3,16 @@ import { cn } from '../../utils/cn';
 
 export function Button({ variant = 'primary', className, children, ...props }) {
   const variants = {
-    primary: 'bg-primary hover:bg-primary-hover text-white shadow-sm',
-    dark: 'bg-[#1C1C1C] hover:bg-black text-white',
-    outline: 'border border-gray-200 hover:bg-gray-50 text-content-main',
-    ghost: 'hover:bg-gray-100 text-content-main',
+    primary: 'bg-primary hover:bg-primary-hover text-white shadow-sm shadow-primary/20',
+    dark: 'bg-white/10 hover:bg-white/15 text-white backdrop-blur-sm',
+    outline: 'border border-border hover:bg-surface-light text-content-main',
+    ghost: 'hover:bg-surface-light text-content-main',
   };
 
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center px-4 py-2 rounded-full font-medium transition-colors text-sm",
+        "inline-flex items-center justify-center px-4 py-2 rounded-full font-medium transition-all text-sm",
         variants[variant],
         className
       )}
