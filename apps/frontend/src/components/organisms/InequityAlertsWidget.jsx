@@ -6,19 +6,18 @@ import { getInitials, useCompensation } from '../../context/CompensationContext'
 import { useLanguage } from '../../context/LanguageContext';
 
 const AVATAR_TONES = [
-  'bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
-  'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
-  'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300',
-  'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
-  'bg-pink-50 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300',
-  'bg-violet-50 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+  'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300',
+  'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300',
+  'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-300',
+  'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300',
+  'bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-300',
+  'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300',
 ];
 
 export function InequityAlertsWidget({ onSelect, onHover }) {
   const { employees, inequities, marketGaps, legalViolators } = useCompensation();
   const { t } = useLanguage();
 
-  // Prioritize: 1. Legal minimum wage violators, 2. Internal inequities, 3. Market gaps
   const items = useMemo(() => {
     const list = [...employees].filter((employee) => {
       return (
@@ -35,7 +34,7 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
         return a.gap - b.gap;
       })
       .slice(0, 6);
-  }, [employees, inequities, marketGaps, legalViolators]);
+  }, [employees, inequities, marketGaps]);
 
   const totalAlertCount = (legalViolators?.length || 0) + inequities.length + marketGaps.length;
 
@@ -45,14 +44,14 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h3 className="text-lg font-bold text-content-main tracking-tight">{t('alerts.inequityAlerts')}</h3>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-bold text-danger shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-danger" />
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-500/15 text-[10px] font-bold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 shrink-0">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
               {t('alerts.detected', { count: totalAlertCount })}
             </div>
           </div>
           <p className="text-xs text-content-muted">{t('alerts.largestGaps')}</p>
         </div>
-        <button className="w-8 h-8 shrink-0 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors shadow-sm">
+        <button className="w-8 h-8 shrink-0 rounded-lg border border-border flex items-center justify-center text-content-muted hover:bg-surface-light hover:text-content-main transition-colors">
           <ListFilter className="w-4 h-4" />
         </button>
       </div>
@@ -60,8 +59,12 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
       <div className="flex-1 flex flex-col gap-2 mt-2 overflow-y-auto pr-2 -mr-2 min-h-0">
         {items.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center text-content-muted">
-            <p className="text-sm font-medium">{t('alerts.noCritical')}</p>
-            <p className="text-xs mt-1">{t('alerts.everyEmployeeWithin')}</p>
+            <p className="text-sm font-medium">
+              {(employees?.length || 0) === 0 ? t('alerts.noEmployees') : t('alerts.noCritical')}
+            </p>
+            <p className="text-xs mt-1">
+              {(employees?.length || 0) === 0 ? t('alerts.noEmployeesDesc') : t('alerts.everyEmployeeWithin')}
+            </p>
           </div>
         )}
         {items.map((employee, index) => (
