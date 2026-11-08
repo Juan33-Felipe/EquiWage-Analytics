@@ -15,11 +15,11 @@ export function AlertRow({
   highlight = false,
 }) {
   const badgeStyles = {
-    danger: 'text-danger bg-red-50 dark:bg-red-950/30 dark:text-red-400',
-    warning: 'text-orange-600 bg-orange-50 dark:bg-orange-950/30 dark:text-orange-400',
-    success: 'text-success bg-green-50 dark:bg-green-950/30 dark:text-green-400',
-    neutral: 'text-content-muted bg-gray-100 dark:bg-slate-800 dark:text-gray-400',
-    legal: 'text-orange-700 bg-orange-50 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800 font-bold',
+    danger: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/15 border border-red-200 dark:border-red-500/20',
+    warning: 'text-amber-600 dark:text-amber-400 bg-yellow-50 dark:bg-amber-500/15 border border-yellow-200 dark:border-amber-500/20',
+    success: 'text-green-700 dark:text-emerald-400 bg-green-50 dark:bg-emerald-500/15 border border-green-200 dark:border-emerald-500/20',
+    neutral: 'text-content-muted bg-gray-50 dark:bg-white/5 border border-border',
+    legal: 'text-primary-light bg-primary/15 border border-primary/25 font-bold',
   };
 
   return (
@@ -29,9 +29,9 @@ export function AlertRow({
       whileHover={{ scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       className={cn(
-        'flex items-center justify-between py-3 border-b border-gray-50 last:border-0 px-2 -mx-2 rounded-lg cursor-pointer transition-shadow',
-        'hover:bg-gray-50/70 hover:shadow-soft',
-        highlight && 'bg-orange-50/40'
+        'flex items-center justify-between py-3 border-b border-border/50 last:border-0 px-2 -mx-2 rounded-lg cursor-pointer transition-shadow',
+        'hover:bg-surface-light/70',
+        highlight && 'bg-primary/10'
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
