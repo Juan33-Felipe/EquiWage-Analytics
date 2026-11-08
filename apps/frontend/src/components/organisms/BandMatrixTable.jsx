@@ -11,7 +11,7 @@ function EditableCell({ value, onChange }) {
       type="number"
       value={value}
       onChange={(event) => onChange(Number(event.target.value))}
-      className="w-full bg-transparent text-sm font-medium text-content-main text-right focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-md px-2 py-1.5 hover:bg-gray-50 focus:bg-orange-50/50 transition-colors"
+      className="w-full bg-transparent text-sm font-medium text-content-main text-right focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-md px-2 py-1.5 hover:bg-surface-light focus:bg-primary/10 transition-colors"
     />
   );
 }
@@ -33,9 +33,9 @@ export function BandMatrixTable() {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-100">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50 text-xs font-semibold text-content-muted uppercase tracking-wider">
+          <thead className="bg-surface-light text-xs font-semibold text-content-muted uppercase tracking-wider">
             <tr>
               <th className="px-4 py-3 font-medium whitespace-nowrap">{t('bands.jobLevel')}</th>
               <th className="px-4 py-3 font-medium text-right whitespace-nowrap">{t('bands.minSalary')}</th>
@@ -43,11 +43,11 @@ export function BandMatrixTable() {
               <th className="px-4 py-3 font-medium text-right whitespace-nowrap">{t('bands.maxSalary')}</th>
             </tr>
           </thead>
-          <tbody className="text-sm divide-y divide-gray-50">
+          <tbody className="text-sm divide-y divide-border/50">
             {bands.map((band) => (
-              <tr key={band.level} className="hover:bg-gray-50/50 transition-colors">
+              <tr key={band.level} className="hover:bg-surface-light/50 transition-colors">
                 <td className="px-4 py-2">
-                  <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-orange-50 text-primary font-bold text-sm">
+                  <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary/15 text-primary font-bold text-sm">
                     {band.level}
                   </span>
                 </td>
