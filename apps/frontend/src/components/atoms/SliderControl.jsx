@@ -14,7 +14,7 @@ export function SliderControl({
 }) {
   const { isDark } = useTheme();
   const percent = ((value - min) / (max - min)) * 100;
-  const trackRemainder = isDark ? '#374151' : '#F3F4F6';
+  const trackRemainder = isDark ? '#2A2A35' : '#E5E7EB';
 
   return (
     <div className={cn('w-full', className)}>
@@ -22,7 +22,7 @@ export function SliderControl({
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           {label && <span className="text-sm font-medium text-content-main min-w-0">{label}</span>}
           {valueLabel && (
-            <span className="text-sm font-bold text-primary bg-orange-50 px-2.5 py-0.5 rounded-full shrink-0">
+            <span className="text-sm font-bold text-primary bg-primary/15 dark:bg-primary/15 bg-orange-50 px-2.5 py-0.5 rounded-full shrink-0">
               {valueLabel}
             </span>
           )}
