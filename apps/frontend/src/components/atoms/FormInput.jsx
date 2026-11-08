@@ -1,10 +1,6 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-/**
- * Atomic FormInput component following Warm Enterprise / Soft UI design tokens
- * with full Dark Mode (#1F2937 / #111827) and validation state support.
- */
 export function FormInput({
   id,
   label,
@@ -38,12 +34,12 @@ export function FormInput({
         <input
           id={id}
           className={cn(
-            'w-full rounded-2xl bg-gray-50 border px-4 py-3 text-sm text-content-main placeholder:text-content-muted transition-all duration-200 focus:outline-none',
+            'w-full rounded-2xl bg-surface-light border px-4 py-3 text-sm text-content-main placeholder:text-content-muted transition-all duration-200 focus:outline-none',
             Icon && 'pl-11',
             trailingAction && 'pr-11',
             hasError
               ? 'border-danger focus:border-danger'
-              : 'border-gray-200 focus:border-primary focus:bg-surface',
+              : 'border-border focus:border-primary focus:bg-surface',
             className
           )}
           {...props}
