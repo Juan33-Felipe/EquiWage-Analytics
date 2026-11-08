@@ -24,22 +24,22 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
 
   return (
     <Card className="p-0 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-2">
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-sm font-bold text-content-main tracking-tight truncate">{t('report.livePreview')}</h3>
           <p className="text-xs text-content-muted truncate">{t('report.a4')}</p>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-content-muted bg-gray-100 px-2.5 py-1 rounded-full shrink-0">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-content-muted bg-surface-light px-2.5 py-1 rounded-full shrink-0">
           {t('report.preview')}
         </span>
       </div>
 
       <div className="p-4 sm:p-6">
         {/* A4 canvas */}
-        <div className="bg-white border border-gray-100 rounded-lg shadow-soft p-6 sm:p-8 min-h-[540px] flex flex-col overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-4 mb-5">
+        <div className="bg-surface border border-border rounded-lg p-6 sm:p-8 min-h-[540px] flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4 mb-5">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-9 h-9 shrink-0 rounded-xl bg-orange-50 flex items-center justify-center text-primary">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -56,19 +56,19 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                 {t('report.executiveCostSummary')}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="rounded-lg bg-orange-50 p-3 min-w-0">
+                <div className="rounded-lg bg-primary/15 p-3 min-w-0">
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.adjustmentBudget')}>
                     {t('report.adjustmentBudget')}
                   </p>
                   <p className="text-base font-bold text-primary truncate">{formatCurrency(metrics.minToMedianBudget)}</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3 min-w-0">
+                <div className="rounded-lg bg-surface-light p-3 min-w-0">
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.employeesAnalyzed')}>
                     {t('report.employeesAnalyzed')}
                   </p>
                   <p className="text-base font-bold text-content-main truncate">{metrics.headcount}</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3 min-w-0">
+                <div className="rounded-lg bg-surface-light p-3 min-w-0">
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.belowBand')}>
                     {t('report.belowBand')}
                   </p>
@@ -80,7 +80,7 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
 
           {/* Anonymized AI Executive Diagnostic Section (RF-007) */}
           {(aiDiagnostic || aiLoading) && (
-            <div className="mb-5 rounded-xl border border-orange-100 bg-orange-50/40 p-4">
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/10 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -90,7 +90,7 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                       : 'AI Executive Diagnostic (Anonymized)'}
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-success bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-700 dark:text-emerald-400 bg-green-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded-full border border-green-200 dark:border-emerald-500/20">
                   <ShieldCheck className="w-3 h-3" />
                   {language === 'es' ? '0 PII Enviado' : '0 PII Transmitted'}
                 </span>
@@ -110,7 +110,7 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                     </p>
                     {Array.isArray(aiDiagnostic.departmentRecommendations) &&
                       aiDiagnostic.departmentRecommendations.length > 0 && (
-                        <div className="pt-2 border-t border-orange-100/80 space-y-1.5">
+                        <div className="pt-2 border-t border-primary/15 space-y-1.5">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-content-muted">
                             {language === 'es'
                               ? 'Plan de Acción por Departamento'
@@ -119,7 +119,7 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                           {aiDiagnostic.departmentRecommendations.slice(0, 2).map((rec) => (
                             <div
                               key={rec.department}
-                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] bg-white/80 rounded-lg px-2.5 py-1.5 border border-gray-100"
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] bg-surface-light rounded-lg px-2.5 py-1.5 border border-border"
                             >
                               <span className="text-content-main">
                                 <strong>{rec.department}:</strong> {rec.actionPlan}
@@ -143,19 +143,19 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                 {t('report.statisticalDisparity')}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="flex justify-between gap-2 border-b border-gray-50 pb-1">
+                <div className="flex justify-between gap-2 border-b border-border/50 pb-1">
                   <span className="text-content-muted truncate">{t('report.averageSalaryGap')}</span>
                   <span className="font-semibold text-danger shrink-0">{(metrics.averageGap * 100).toFixed(1)}%</span>
                 </div>
-                <div className="flex justify-between gap-2 border-b border-gray-50 pb-1">
+                <div className="flex justify-between gap-2 border-b border-border/50 pb-1">
                   <span className="text-content-muted truncate">{t('report.internalInequities')}</span>
                   <span className="font-semibold text-content-main shrink-0">{metrics.inequityCount}</span>
                 </div>
-                <div className="flex justify-between gap-2 border-b border-gray-50 pb-1">
+                <div className="flex justify-between gap-2 border-b border-border/50 pb-1">
                   <span className="text-content-muted truncate">{t('report.alignmentRate')}</span>
                   <span className="font-semibold text-success shrink-0">{Math.round(metrics.alignedRate * 100)}%</span>
                 </div>
-                <div className="flex justify-between gap-2 border-b border-gray-50 pb-1">
+                <div className="flex justify-between gap-2 border-b border-border/50 pb-1">
                   <span className="text-content-muted truncate">{t('report.simulatedAdjustments')}</span>
                   <span className="font-semibold text-content-main shrink-0">{simulationResult.affectedCount}</span>
                 </div>
@@ -193,7 +193,7 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                   .filter((employee) => employee.status === 'below')
                   .slice(0, 4)
                   .map((employee) => (
-                    <div key={employee.id} className="flex justify-between gap-2 text-xs border-b border-gray-50 pb-1">
+                    <div key={employee.id} className="flex justify-between gap-2 text-xs border-b border-border/50 pb-1">
                       <span className="text-content-main truncate">
                         {employee.name} <span className="text-content-muted">• L{employee.level}</span>
                       </span>
@@ -212,12 +212,12 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
           {/* Signatures */}
           <div className="grid grid-cols-2 gap-8 mt-auto pt-6">
             <div className="min-w-0">
-              <div className="h-px bg-gray-300 mb-1.5" />
+              <div className="h-px bg-border mb-1.5" />
               <p className="text-[10px] font-semibold text-content-main truncate">{t('report.hrApproval')}</p>
               <p className="text-[10px] text-content-muted truncate">{t('report.compensationBenefits')}</p>
             </div>
             <div className="min-w-0">
-              <div className="h-px bg-gray-300 mb-1.5" />
+              <div className="h-px bg-border mb-1.5" />
               <p className="text-[10px] font-semibold text-content-main truncate">{t('report.financeApproval')}</p>
               <p className="text-[10px] text-content-muted truncate">{t('report.budgetController')}</p>
             </div>
