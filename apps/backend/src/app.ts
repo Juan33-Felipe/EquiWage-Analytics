@@ -26,6 +26,16 @@ export function createApp(): Express {
           callback(null, true);
           return;
         }
+        // Allow any local network IP / device on Wi-Fi or LAN (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+        if (/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin)) {
+          callback(null, true);
+          return;
+        }
+        // In non-production environments, allow any device connecting to the server
+        if (envConfig.nodeEnv !== 'production') {
+          callback(null, true);
+          return;
+        }
         callback(null, false);
       },
       credentials: true,
