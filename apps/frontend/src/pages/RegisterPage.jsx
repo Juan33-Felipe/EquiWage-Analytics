@@ -195,7 +195,31 @@ export function RegisterPage() {
     }
   };
 
-  const activeErrorMessage = localError || authError?.message;
+  const getAuthErrorMessage = () => {
+    if (!authError) return null;
+    const key = authError.errorKey;
+    if (key && t(key) && t(key) !== key) {
+      return t(key);
+    }
+    const msg = authError.message || '';
+    if (
+      !msg ||
+      msg.includes('TypeError') ||
+      msg.includes('Failed to fetch') ||
+      msg.includes('ECONN') ||
+      msg.includes('SQLITE') ||
+      msg.includes('Internal') ||
+      msg.includes('SMTP') ||
+      msg.includes('500') ||
+      msg.includes('502') ||
+      msg.includes('Backend request failed')
+    ) {
+      return t('auth.generalError');
+    }
+    return msg;
+  };
+
+  const activeErrorMessage = localError || getAuthErrorMessage();
 
   return (
     <div className="min-h-screen bg-background text-content-main flex flex-col justify-between p-4 sm:p-8 transition-colors duration-200">
@@ -346,7 +370,13 @@ export function RegisterPage() {
                         setEmail(e.target.value);
                         if (localError) setLocalError(null);
                       }}
-                      hasError={Boolean(activeErrorMessage && activeErrorMessage.includes('email'))}
+                      hasError={Boolean(
+                        activeErrorMessage &&
+                          (activeErrorMessage.includes('email') ||
+                            activeErrorMessage.includes('correo') ||
+                            authError?.errorKey === 'auth.invalidEmail' ||
+                            authError?.errorKey === 'auth.emailAlreadyRegistered')
+                      )}
                     />
 
                     {/* Password */}
@@ -362,7 +392,12 @@ export function RegisterPage() {
                         setPassword(e.target.value);
                         if (localError) setLocalError(null);
                       }}
-                      hasError={Boolean(activeErrorMessage && activeErrorMessage.includes('Password'))}
+                      hasError={Boolean(
+                        activeErrorMessage &&
+                          (activeErrorMessage.includes('Password') ||
+                            activeErrorMessage.includes('contraseña') ||
+                            authError?.errorKey === 'auth.passwordTooShort')
+                      )}
                       trailingAction={
                         <button
                           type="button"
@@ -390,7 +425,10 @@ export function RegisterPage() {
                       }}
                       hasError={Boolean(
                         (confirmPassword && password !== confirmPassword) ||
-                          (activeErrorMessage && activeErrorMessage.includes('match'))
+                          (activeErrorMessage &&
+                            (activeErrorMessage.includes('match') ||
+                              activeErrorMessage.includes('coinciden') ||
+                              authError?.errorKey === 'auth.passwordMismatch'))
                       )}
                       trailingAction={
                         <button
