@@ -6,6 +6,15 @@ import { apiRequest } from './http.client';
  */
 export const authApi = {
   /**
+   * Retrieves all registered active users across devices for easy cross-device sign-in.
+   */
+  getRegisteredUsers() {
+    return apiRequest(API_ENDPOINTS.AUTH_USERS, {
+      method: 'GET',
+    });
+  },
+
+  /**
    * Authenticates the HR analyst with email/username and password.
    */
   login({ identifier, password, rememberMe = true }) {
