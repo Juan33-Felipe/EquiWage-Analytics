@@ -1,6 +1,7 @@
 import type {
   AuthSessionPayload,
   AuthStatusResponse,
+  AuthUser,
   LoginCredentials,
 } from '@equiwage/shared';
 import { logger } from '../config/logger.js';
@@ -11,6 +12,13 @@ import { authCryptoService } from './auth-crypto.service.js';
 import { emailService } from './email.service.js';
 
 export class AuthService {
+  /**
+   * Retrieves all registered active users across any device (safe AuthUser objects).
+   */
+  public getRegisteredUsers(): AuthUser[] {
+    return usersRepository.listActiveUsers();
+  }
+
   /**
    * Authenticates a local HR analyst by username or email and password,
    * updates last_login_at in SQLite, and returns a signed JWT session.
