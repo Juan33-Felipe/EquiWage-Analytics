@@ -19,6 +19,9 @@ function resolveDatabasePath(rawPath?: string): string {
   if (path.isAbsolute(rawPath)) {
     return rawPath;
   }
+  if (rawPath.startsWith('./apps/backend') || rawPath.startsWith('apps/backend')) {
+    return path.resolve(MONOREPO_ROOT, rawPath);
+  }
   return path.resolve(BACKEND_ROOT, rawPath);
 }
 
