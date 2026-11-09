@@ -124,7 +124,11 @@ export function AuthProvider({ children }) {
       return { ok: true, data: result };
     } catch (error) {
       const errorKey = error?.errorKey || 'auth.registrationFailed';
-      const message = error?.message || 'Could not complete registration. Please check your data.';
+      const rawMsg = error?.message || '';
+      const message =
+        rawMsg && !rawMsg.includes('fetch') && !rawMsg.includes('failed (') && !rawMsg.includes('Internal')
+          ? rawMsg
+          : 'Could not complete registration. Please check your data.';
       setAuthError({ errorKey, message });
       return { ok: false, errorKey, message };
     } finally {
@@ -150,7 +154,11 @@ export function AuthProvider({ children }) {
       return { ok: true, user: session.user };
     } catch (error) {
       const errorKey = error?.errorKey || 'auth.invalidCode';
-      const message = error?.message || 'Invalid or expired verification code.';
+      const rawMsg = error?.message || '';
+      const message =
+        rawMsg && !rawMsg.includes('fetch') && !rawMsg.includes('failed (') && !rawMsg.includes('Internal')
+          ? rawMsg
+          : 'Invalid or expired verification code.';
       setAuthError({ errorKey, message });
       return { ok: false, errorKey, message };
     } finally {
@@ -164,7 +172,11 @@ export function AuthProvider({ children }) {
       return { ok: true, data: result };
     } catch (error) {
       const errorKey = error?.errorKey || 'auth.resendFailed';
-      const message = error?.message || 'Failed to resend code.';
+      const rawMsg = error?.message || '';
+      const message =
+        rawMsg && !rawMsg.includes('fetch') && !rawMsg.includes('failed (') && !rawMsg.includes('Internal')
+          ? rawMsg
+          : 'Failed to resend code.';
       return { ok: false, errorKey, message };
     }
   }, []);
