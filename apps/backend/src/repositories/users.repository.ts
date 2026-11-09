@@ -39,6 +39,18 @@ export class UsersRepository {
   }
 
   /**
+   * Retrieves all active registered users across all devices (safe AuthUser objects, passwords excluded).
+   */
+  public listActiveUsers(): AuthUser[] {
+    const db = getDatabase();
+    const rows = db
+      .prepare('SELECT * FROM users WHERE is_active = 1 ORDER BY created_at ASC')
+      .all() as unknown as UserDbRow[];
+
+    return rows.map((r) => mapRowToAuthUser(r));
+  }
+
+  /**
    * Updates the last_login_at timestamp for a user after successful authentication.
    */
   public recordLoginTimestamp(userId: string): AuthUser | null {
