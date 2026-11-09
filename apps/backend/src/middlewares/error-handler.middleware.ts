@@ -44,10 +44,16 @@ export function errorHandlerMiddleware(
   _next: NextFunction
 ): void {
   if (err instanceof AppError) {
+    // For 5xx server-level errors, ensure a general, safe message is sent to clients without technical details
+    const safeMessage =
+      err.statusCode >= 500
+        ? 'An error occurred while processing your request. Please try again later.'
+        : err.message;
+
     const response: ApiErrorResponse = {
       ok: false,
       errorKey: err.errorKey,
-      message: err.message,
+      message: safeMessage,
       missingColumns: err.missingColumns,
       details: err.details,
       timestamp: new Date().toISOString(),
@@ -58,15 +64,10 @@ export function errorHandlerMiddleware(
 
   logger.error('Unhandled backend error', err);
 
-  const fallbackMessage =
-    err instanceof Error && err.message
-      ? err.message
-      : 'An unexpected error occurred while processing your request.';
-
   const response: ApiErrorResponse = {
     ok: false,
     errorKey: 'error.internalServer',
-    message: fallbackMessage,
+    message: 'An unexpected error occurred while processing your request. Please try again later.',
     timestamp: new Date().toISOString(),
   };
 
