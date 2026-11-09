@@ -79,6 +79,7 @@ export declare const DEFAULT_LEGAL_COMPLIANCE_CONFIG: Readonly<LegalComplianceCo
 export declare const API_ENDPOINTS: Readonly<{
   HEALTH: '/api/health';
   AUTH_LOGIN: '/api/auth/login';
+  AUTH_USERS: '/api/auth/users';
   AUTH_REGISTER: '/api/auth/register';
   AUTH_VERIFY_CODE: '/api/auth/verify-code';
   AUTH_RESEND_CODE: '/api/auth/resend-code';
