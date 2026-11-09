@@ -306,6 +306,7 @@ export const DEFAULT_LEGAL_COMPLIANCE_CONFIG = Object.freeze({
 export const API_ENDPOINTS = Object.freeze({
   HEALTH: '/api/health',
   AUTH_LOGIN: '/api/auth/login',
+  AUTH_USERS: '/api/auth/users',
   AUTH_REGISTER: '/api/auth/register',
   AUTH_VERIFY_CODE: '/api/auth/verify-code',
   AUTH_RESEND_CODE: '/api/auth/resend-code',
