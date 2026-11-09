@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -11,10 +11,12 @@ import {
   ShieldCheck,
   TrendingUp,
   User,
+  Users,
 } from 'lucide-react';
 import { FormInput } from '../components/atoms/FormInput';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { authApi } from '../services/auth.api';
 import { cn } from '../utils/cn';
 
 export function LoginPage() {
@@ -28,6 +30,32 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [localValidationError, setLocalValidationError] = useState(null);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getRegisteredUsers()
+      .then((users) => {
+        if (active && Array.isArray(users)) {
+          setRegisteredUsers(users);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectUser = (u) => {
+    setIdentifier(u.username || u.email);
+    if (u.username === 'hr.admin' || u.email === 'admin@equiwage.local') {
+      setPassword('EquiWage2026!');
+    }
+    if (localValidationError) setLocalValidationError(null);
+    if (authError) clearAuthError();
+  };
 
   const destination = location.state?.from?.pathname || '/dashboard/overview';
 
@@ -128,6 +156,50 @@ export function LoginPage() {
                 {t('auth.heroSubtitle')}
               </p>
             </div>
+
+            {/* Registered Accounts Available Globally for Any Device */}
+            {registeredUsers.length > 0 && (
+              <div className="mt-6 pt-5 border-t border-orange-400/30">
+                <div className="flex items-center justify-between mb-2.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-orange-100 flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>
+                      {language === 'es' ? 'Cuentas Registradas' : 'Registered Accounts'}
+                    </span>
+                  </p>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-orange-100 font-mono font-bold">
+                    {registeredUsers.length}
+                  </span>
+                </div>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {registeredUsers.map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => selectUser(u)}
+                      className="w-full text-left p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 transition-all flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-md bg-white/25 flex items-center justify-center font-bold text-[11px] text-white shrink-0">
+                          {u.initials || u.fullName?.slice(0, 2)?.toUpperCase() || 'U'}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-white truncate leading-tight">
+                            {u.fullName || u.username}
+                          </p>
+                          <p className="text-[10px] text-orange-100/80 truncate font-mono">
+                            {u.email}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-black/20 text-orange-100 shrink-0 ml-1 group-hover:bg-[#9A3412] group-hover:text-white transition-colors">
+                        {language === 'es' ? 'Usar' : 'Use'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Form Container */}
