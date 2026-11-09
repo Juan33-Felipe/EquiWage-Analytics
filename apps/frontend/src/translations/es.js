@@ -519,4 +519,11 @@ export const es = {
   'auth.codeExpired': 'El código de verificación ha expirado. Por favor solicita uno nuevo.',
   'auth.changeEmail': 'Usar otro correo electrónico',
   'auth.accountCreatedSuccess': '¡Cuenta verificada y activada exitosamente! Bienvenido a EquiWage Analytics.',
+  'auth.generalError': 'Ocurrió un error al procesar tu solicitud. Por favor intenta nuevamente.',
+  'auth.registrationFailed': 'No se pudo completar el registro. Por favor verifica tus datos e intenta de nuevo.',
+  'auth.emailDeliveryFailed': 'No se pudo enviar el correo de verificación. Por favor intenta de nuevo.',
+  'auth.resendFailed': 'No se pudo reenviar el código. Por favor intenta de nuevo en unos momentos.',
+  'auth.noPendingRegistration': 'No se encontró un registro pendiente para este correo.',
+  'auth.tooManyAttempts': 'Demasiados intentos fallidos. Por favor solicita un nuevo código.',
+  'error.general': 'Ocurrió un error inesperado al procesar la solicitud. Por favor intenta de nuevo más tarde.',
 };
