@@ -3,6 +3,7 @@ import { authController } from '../controllers/auth.controller.js';
 
 export const authRouter = Router();
 
+authRouter.get('/users', (req, res, next) => authController.getRegisteredUsers(req, res, next));
 authRouter.post('/login', (req, res, next) => authController.login(req, res, next));
 authRouter.post('/register', (req, res, next) => authController.register(req, res, next));
 authRouter.post('/verify-code', (req, res, next) => authController.verifyCode(req, res, next));
