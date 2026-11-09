@@ -10,6 +10,23 @@ import { authService } from '../services/auth.service.js';
 
 export class AuthController {
   /**
+   * GET /api/auth/users
+   * Returns list of registered active users across devices (safe AuthUser objects, no secrets).
+   */
+  public getRegisteredUsers(_req: Request, res: Response, next: NextFunction): void {
+    try {
+      const users = authService.getRegisteredUsers();
+      res.status(200).json({
+        ok: true,
+        data: users,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * POST /api/auth/login
    * Validates local HR analyst credentials and returns a signed JWT session.
    */
