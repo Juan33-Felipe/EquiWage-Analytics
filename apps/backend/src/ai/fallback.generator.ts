@@ -18,6 +18,27 @@ export function generateFallbackExecutiveDiagnostic(
   providerLabel = 'local-deterministic-fallback'
 ): AiExecutiveDiagnosticResponse {
   const isEs = language === 'es';
+
+  if (!context.totalEmployeesAnalyzed || context.totalEmployeesAnalyzed === 0) {
+    return {
+      generatedAt: new Date().toISOString(),
+      provider: providerLabel,
+      isFallback: true,
+      language,
+      executiveSummary: isEs
+        ? 'No hay registros salariales ni colaboradores disponibles para auditar en el alcance seleccionado. Por favor importe o registre nóminas para generar el diagnóstico ejecutivo de equidad.'
+        : 'No employee records or salary data found for the selected scope. Please import or add payroll data to generate an executive compensation diagnostic.',
+      keyFindings: [],
+      departmentRecommendations: [],
+      rolloutStrategy: isEs
+        ? 'Se requiere importar una nómina salarial para calcular simulaciones presupuestales de nivelación salarial.'
+        : 'Import payroll data to calculate leveling budget simulations.',
+      privacyGuarantee: isEs
+        ? 'Privacidad Verificada: 0 nombres o IDs de empleados transmitidos. Análisis generado exclusivamente con métricas estadísticas agregadas.'
+        : 'Privacy Verified: 0 employee names or personal IDs transmitted. Analysis generated exclusively from aggregated statistical metrics.',
+      anonymizedMetricsUsed: context,
+    };
+  }
   const minBudgetFormatted = formatCurrency(context.totalBudgetToBandMinimum);
   const medianBudgetFormatted = formatCurrency(context.totalBudgetToMarketMedian);
   const activeBudgetFormatted = formatCurrency(context.activeSimulationBudget);
@@ -49,7 +70,9 @@ export function generateFallbackExecutiveDiagnostic(
       description: isEs
         ? `Se identificaron ${context.legalViolationsCount} colaboradores cuyo salario base fijo se encuentra por debajo del salario mínimo estatutario vigente, representando riesgo de sanción legal inmediata.`
         : `Identified ${context.legalViolationsCount} employee(s) whose fixed base salary sits below the active statutory minimum wage, creating immediate legal liability exposure.`,
-      metricHighlight: `${context.legalViolationsCount} legal violations • ${legalCostFormatted} deficit`,
+      metricHighlight: isEs
+        ? `${context.legalViolationsCount} infracciones legales • déficit de ${legalCostFormatted}`
+        : `${context.legalViolationsCount} legal violations • ${legalCostFormatted} deficit`,
     });
   }
 
@@ -62,7 +85,9 @@ export function generateFallbackExecutiveDiagnostic(
       description: isEs
         ? `${context.belowBandMinimumCount} posiciones operan por debajo del percentil 25 de su banda salarial, generando riesgo de rotación temprana en niveles ${compressedLevelLabels}.`
         : `${context.belowBandMinimumCount} positions currently sit below the 25th percentile of their salary band, creating retention vulnerability across job levels ${compressedLevelLabels}.`,
-      metricHighlight: `${context.belowBandMinimumCount} positions • ${minBudgetFormatted} to P25`,
+      metricHighlight: isEs
+        ? `${context.belowBandMinimumCount} posiciones • ${minBudgetFormatted} a P25`
+        : `${context.belowBandMinimumCount} positions • ${minBudgetFormatted} to P25`,
     },
     {
       title: isEs
@@ -72,7 +97,9 @@ export function generateFallbackExecutiveDiagnostic(
       description: isEs
         ? `Se detectaron ${context.internalInequityCasesCount} colaboradores en grupos de mismo cargo y nivel cuya brecha entre el salario mínimo y máximo supera el umbral de política del 10%.`
         : `Flagged ${context.internalInequityCasesCount} employees in identical role-and-level cohorts where peer salary dispersion exceeds the 10% HR policy threshold.`,
-      metricHighlight: `${context.internalInequityCasesCount} flagged peers`,
+      metricHighlight: isEs
+        ? `${context.internalInequityCasesCount} colaboradores señalados`
+        : `${context.internalInequityCasesCount} flagged peers`,
     },
     {
       title: isEs
@@ -82,7 +109,9 @@ export function generateFallbackExecutiveDiagnostic(
       description: isEs
         ? `La brecha salarial promedio frente a la mediana (P50) se ubica en ${context.averageMarketGapPercent}%, con oportunidades de ajuste progresivo en ${compressedLevelLabels}.`
         : `Organizational average gap against the P50 market median stands at ${context.averageMarketGapPercent}%, with targeted calibration opportunities in ${compressedLevelLabels}.`,
-      metricHighlight: `${context.averageMarketGapPercent}% avg gap vs P50`,
+      metricHighlight: isEs
+        ? `${context.averageMarketGapPercent}% brecha prom. vs P50`
+        : `${context.averageMarketGapPercent}% avg gap vs P50`,
     }
   );
 
