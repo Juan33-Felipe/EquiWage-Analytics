@@ -52,7 +52,7 @@ export function rowsToEmployees(rows) {
         id: String(lookup['id'] || `ROW-${index + 1}`),
         name: String(lookup['nombre'] || 'Sin nombre'),
         role: String(lookup['cargo'] || 'Sin cargo'),
-        department: String(lookup['departamento'] || lookup['department'] || 'Unassigned'),
+        department: String(lookup['departamento'] || lookup['department'] || 'Sin Asignar'),
         level,
         currentSalary: salary,
       };
