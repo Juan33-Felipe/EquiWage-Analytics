@@ -20,8 +20,8 @@ export class SessionService {
   /**
    * Exports the complete active analysis session into a portable .json project object (RF-008).
    */
-  exportProjectSession(): ProjectSessionPayload {
-    const employees = employeesRepository.findAll();
+  exportProjectSession(userId?: string): ProjectSessionPayload {
+    const employees = employeesRepository.findAll({}, userId);
     const bands = bandsRepository.findAll().map(({ level, min, median, max }) => ({
       level,
       min,
@@ -41,7 +41,7 @@ export class SessionService {
       simulation,
     };
 
-    const summary = auditService.getFullAuditSummary();
+    const summary = auditService.getFullAuditSummary(userId);
     snapshotsRepository.createSnapshot({
       name: `Exported session (${payrollSource})`,
       payrollSource,
@@ -58,7 +58,7 @@ export class SessionService {
   /**
    * Restores a complete project session from a .json payload into SQLite (RF-008).
    */
-  restoreProjectSession(rawPayload: unknown): AuditSummaryPayload {
+  restoreProjectSession(rawPayload: unknown, userId?: string): AuditSummaryPayload {
     const validation = validateSessionPayload(rawPayload);
     if (!validation.ok) {
       throw new AppError(validation.message, {
@@ -71,11 +71,11 @@ export class SessionService {
 
     runInTransaction(() => {
       bandsRepository.replaceAllBands(session.bands);
-      employeesRepository.replaceAllEmployees(session.employees, session.payrollSource);
+      employeesRepository.replaceAllEmployees(session.employees, session.payrollSource, userId);
       settingsRepository.updateSimulationParams(session.simulation);
     });
 
-    const restoredAudit = auditService.getFullAuditSummary();
+    const restoredAudit = auditService.getFullAuditSummary(userId);
 
     snapshotsRepository.createSnapshot({
       name: `Restored session (${session.payrollSource})`,
@@ -93,9 +93,13 @@ export class SessionService {
   /**
    * Resets the local SQLite database back to the initial realistic seed dataset.
    */
-  resetProjectSession(): AuditSummaryPayload {
+  resetProjectSession(userId?: string): AuditSummaryPayload {
+    if (userId && userId !== 'USR-ADMIN-001') {
+      employeesRepository.loadDemoEmployees(userId);
+      return auditService.getFullAuditSummary(userId);
+    }
     resetDatabaseToSeed();
-    return auditService.getFullAuditSummary();
+    return auditService.getFullAuditSummary(userId);
   }
 
   /**
