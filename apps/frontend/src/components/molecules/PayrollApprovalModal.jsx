@@ -14,6 +14,7 @@ import {
 import { Button } from '../atoms/Button';
 import { Badge } from '../atoms/Badge';
 import { formatCurrency } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function PayrollApprovalModal({
   isOpen,
@@ -22,8 +23,9 @@ export function PayrollApprovalModal({
   simulation,
   onConfirmApprove,
 }) {
+  const { t, tDept, language } = useLanguage();
   const [commitToDatabase, setCommitToDatabase] = useState(false);
-  const [approvedBy, setApprovedBy] = useState('HR Director');
+  const [approvedBy, setApprovedBy] = useState(() => (language === 'es' ? 'Directora de Compensaciones' : 'HR Director'));
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
 
@@ -58,22 +60,22 @@ export function PayrollApprovalModal({
     if (!plan || !plan.items) return;
 
     const headers = [
-      'Employee ID',
-      'Full Name',
-      'Department',
-      'Job Level',
-      'Previous Base Salary (USD)',
-      'Approved Increase Amount (USD)',
-      'Approved Increase Percentage (%)',
-      'New Effective Salary (USD)',
-      'Adjustment Reason',
-      'Notes',
+      t('payrollOrder.col.employeeId'),
+      t('payrollOrder.col.fullName'),
+      t('payrollOrder.col.department'),
+      t('payrollOrder.col.jobLevel'),
+      t('payrollOrder.col.previousSalary'),
+      t('payrollOrder.col.increaseAmount'),
+      t('payrollOrder.col.increasePercent'),
+      t('payrollOrder.col.newSalary'),
+      t('payrollOrder.col.reason'),
+      t('payrollOrder.col.notes'),
     ];
 
     const csvRows = plan.items.map((item) => [
       `"${item.employeeId}"`,
       `"${item.fullName.replace(/"/g, '""')}"`,
-      `"${item.department}"`,
+      `"${tDept(item.department)}"`,
       item.level,
       item.previousSalary,
       item.increaseAmount,
@@ -88,7 +90,8 @@ export function PayrollApprovalModal({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Payroll_Execution_Order_${new Date().toISOString().slice(0, 10)}.csv`;
+    const filePrefix = language === 'es' ? 'Orden_Ejecucion_Nomina' : 'Payroll_Execution_Order';
+    link.download = `${filePrefix}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -119,10 +122,10 @@ export function PayrollApprovalModal({
               </div>
               <div>
                 <h3 className="text-lg font-bold text-content-main tracking-tight">
-                  Aprobar Plan y Generar Orden de Nómina
+                  {t('payrollOrder.modalTitle')}
                 </h3>
                 <p className="text-xs text-content-muted">
-                  Flujo de aprobación ejecutiva y exportación formal para Finanzas / Nóminas
+                  {t('payrollOrder.modalSubtitle')}
                 </p>
               </div>
             </div>
@@ -143,18 +146,17 @@ export function PayrollApprovalModal({
 
               <div>
                 <h4 className="text-lg font-bold text-content-main">
-                  ¡Orden de Nómina Aprobada y Generada!
+                  {t('payrollOrder.successTitle')}
                 </h4>
                 <p className="text-xs text-content-muted mt-1 max-w-md mx-auto">
-                  La orden de ejecución formal (.CSV) se ha descargado a tu equipo con {generatedPlan.affectedCount}{' '}
-                  ajustes salariales autorizados.
+                  {t('payrollOrder.successSubtitle', { count: generatedPlan.affectedCount })}
                 </p>
               </div>
 
               {commitToDatabase && (
                 <div className="p-3 max-w-md mx-auto rounded-xl bg-green-50 dark:bg-emerald-500/15 border border-green-200 dark:border-emerald-500/20 text-xs text-green-700 dark:text-emerald-300 flex items-center justify-center gap-2">
                   <Database className="w-4 h-4" />
-                  <span>Los salarios fueron consolidados como actuales en la base de datos SQLite.</span>
+                  <span>{t('payrollOrder.successCommitted')}</span>
                 </div>
               )}
 
@@ -165,10 +167,10 @@ export function PayrollApprovalModal({
                   className="gap-2 text-xs"
                 >
                   <Download className="w-4 h-4" />
-                  Descargar de Nuevo (.CSV)
+                  {t('payrollOrder.downloadAgain')}
                 </Button>
                 <Button variant="primary" onClick={onClose} className="text-xs">
-                  Cerrar
+                  {t('common.close')}
                 </Button>
               </div>
             </div>
@@ -178,19 +180,19 @@ export function PayrollApprovalModal({
               {/* Executive Summary Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 rounded-xl bg-surface-light border border-border">
-                  <p className="text-[11px] text-content-muted font-medium">Presupuesto Aprobado</p>
+                  <p className="text-[11px] text-content-muted font-medium">{t('payrollOrder.approvedBudget')}</p>
                   <p className="text-base font-bold text-primary mt-0.5">{formatCurrency(totalCost)}</p>
                 </div>
                 <div className="p-3 rounded-xl bg-surface-light border border-border">
-                  <p className="text-[11px] text-content-muted font-medium">Colaboradores Beneficiados</p>
+                  <p className="text-[11px] text-content-muted font-medium">{t('payrollOrder.benefitedEmployees')}</p>
                   <p className="text-base font-bold text-content-main mt-0.5">
-                    {affectedCount} personas
+                    {affectedCount} {t('payrollOrder.people')}
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-surface-light border border-border">
-                  <p className="text-[11px] text-content-muted font-medium">Objetivo de Política</p>
+                  <p className="text-[11px] text-content-muted font-medium">{t('payrollOrder.policyTarget')}</p>
                   <p className="text-base font-bold text-content-main mt-0.5 capitalize">
-                    {simulation.target === 'minimum' ? 'P25 Mínimo' : 'P50 Mediana'}
+                    {simulation.target === 'minimum' ? (language === 'es' ? 'P25 Mínimo' : 'P25 Minimum') : (language === 'es' ? 'P50 Mediana' : 'P50 Median')}
                   </p>
                 </div>
               </div>
@@ -206,11 +208,10 @@ export function PayrollApprovalModal({
                   />
                   <div>
                     <span className="block text-xs font-bold text-content-main">
-                      Consolidar en Base de Datos SQLite (Actualizar Salarios Vigentes)
+                      {t('payrollOrder.commitToggleTitle')}
                     </span>
                     <span className="block text-[11px] text-content-muted mt-0.5 leading-relaxed">
-                      Si se activa, el nuevo salario propuesto reemplazará el salario base actual en la tabla local{' '}
-                      <code>employees</code>. Si se deja desmarcado, solo generará la orden exportable sin sobreescribir la nómina activa.
+                      {t('payrollOrder.commitToggleDesc')}
                     </span>
                   </div>
                 </label>
@@ -219,13 +220,13 @@ export function PayrollApprovalModal({
               {/* Approver Name */}
               <div>
                 <label className="block text-xs font-semibold text-content-main mb-1.5">
-                  Autorizado Por (Responsable RRHH / Finanzas)
+                  {t('payrollOrder.authorizedByLabel')}
                 </label>
                 <input
                   type="text"
                   value={approvedBy}
                   onChange={(e) => setApprovedBy(e.target.value)}
-                  placeholder="Ej. Directora de Compensaciones & Beneficios"
+                  placeholder={t('payrollOrder.authorizedByPlaceholder')}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 />
               </div>
@@ -234,14 +235,14 @@ export function PayrollApprovalModal({
               <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-content-main flex items-start gap-2">
                 <FileSpreadsheet className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  El archivo descargable incluye: <em>ID, Nombre Completo, Departamento, Nivel, Salario Anterior, Incremento (+USD y +%), Nuevo Salario y Motivo de Ajuste (Cumplimiento Legal / Mínimo P25 / Mediana P50 / Ajuste Manual)</em>.
+                  {t('payrollOrder.datasetNotice')}
                 </p>
               </div>
 
               {/* Action Buttons */}
               <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
                 <Button type="button" variant="outline" onClick={onClose} disabled={isProcessing}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -251,7 +252,9 @@ export function PayrollApprovalModal({
                   className="gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  {isProcessing ? 'Procesando Plan...' : 'Aprobar y Descargar Orden de Nómina'}
+                  {isProcessing
+                    ? (language === 'es' ? 'Procesando Plan...' : 'Processing Plan...')
+                    : (language === 'es' ? 'Aprobar y Descargar Orden de Nómina' : 'Approve & Download Payroll Order')}
                 </Button>
               </div>
             </div>
