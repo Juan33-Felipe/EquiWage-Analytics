@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Users, TrendingUp } from 'lucide-react';
+import { AnimatedNumber } from '../atoms/AnimatedNumber';
 import { formatCurrency, useCompensation } from '../../context/CompensationContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -30,11 +31,20 @@ export function SimulatorHeroCard() {
             transition={{ duration: 0.25 }}
             className="text-4xl sm:text-5xl font-bold tracking-tight truncate"
           >
-            {formatCurrency(simulationResult.totalBudget)}
+            <AnimatedNumber
+              value={simulationResult.totalBudget}
+              formatter={(v) => formatCurrency(Math.round(v))}
+              duration={1300}
+            />
           </motion.h2>
 
           <p className="text-xs text-white/80 mt-2">
-            {t('simulator.perQuarter')} {formatCurrency(simulationResult.perQuarter)}
+            {t('simulator.perQuarter')}{' '}
+            <AnimatedNumber
+              value={simulationResult.perQuarter}
+              formatter={(v) => formatCurrency(Math.round(v))}
+              duration={1300}
+            />
           </p>
 
           {/* Detailed Budget Breakdown Badges */}
@@ -42,15 +52,30 @@ export function SimulatorHeroCard() {
             {simulationResult.legalComplianceCost > 0 && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-orange-950/60 text-orange-200 border border-orange-400/40 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-300" />
-                Piso Legal: {formatCurrency(simulationResult.legalComplianceCost)}
+                {t('simulator.legalFloor')}{' '}
+                <AnimatedNumber
+                  value={simulationResult.legalComplianceCost}
+                  formatter={(v) => formatCurrency(Math.round(v))}
+                  duration={1200}
+                />
               </span>
             )}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/15 text-white border border-white/20 font-medium">
-              Nivelación de Banda: {formatCurrency(simulationResult.bandLevelingCost || (simulationResult.totalBudget - (simulationResult.legalComplianceCost || 0) - (simulationResult.manualAdjustmentsCost || 0)))}
+              {t('simulator.bandLeveling')}{' '}
+              <AnimatedNumber
+                value={simulationResult.bandLevelingCost || (simulationResult.totalBudget - (simulationResult.legalComplianceCost || 0) - (simulationResult.manualAdjustmentsCost || 0))}
+                formatter={(v) => formatCurrency(Math.round(v))}
+                duration={1200}
+              />
             </span>
             {simulationResult.manualAdjustmentsCost > 0 && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/25 text-white border border-white/30 font-medium">
-                Ajustes Manuales: +{formatCurrency(simulationResult.manualAdjustmentsCost)}
+                {t('simulator.manualAdjustments')}{' '}
+                <AnimatedNumber
+                  value={simulationResult.manualAdjustmentsCost}
+                  formatter={(v) => formatCurrency(Math.round(v))}
+                  duration={1200}
+                />
               </span>
             )}
           </div>
@@ -61,14 +86,26 @@ export function SimulatorHeroCard() {
             <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
               <Users className="w-5 h-5" />
             </div>
-            <p className="text-2xl font-bold">{simulationResult.affectedCount}</p>
+            <p className="text-2xl font-bold">
+              <AnimatedNumber
+                value={simulationResult.affectedCount}
+                formatter={(v) => Math.round(v).toLocaleString()}
+                duration={1100}
+              />
+            </p>
             <p className="text-[11px] text-white/80">{t('simulator.employeesBenefiting')}</p>
           </div>
           <div className="text-center">
             <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <p className="text-2xl font-bold">{formatCurrency(simulationResult.averageAdjustment)}</p>
+            <p className="text-2xl font-bold">
+              <AnimatedNumber
+                value={simulationResult.averageAdjustment}
+                formatter={(v) => formatCurrency(Math.round(v))}
+                duration={1300}
+              />
+            </p>
             <p className="text-[11px] text-white/80">{t('simulator.averageIncrease')}</p>
           </div>
         </div>
