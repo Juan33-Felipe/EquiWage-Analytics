@@ -40,8 +40,8 @@ export function SearchInput() {
   return (
     <div className="relative group">
       <div className="relative flex items-center">
-        <div className="absolute left-3 text-content-muted group-focus-within:text-primary transition-colors">
-          <Search className="w-4 h-4" />
+        <div className="absolute left-3.5 text-content-muted group-focus-within:text-primary transition-colors">
+          <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
         </div>
         <input
           ref={inputRef}
@@ -54,17 +54,17 @@ export function SearchInput() {
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder={t('search.placeholder')}
-          className="w-52 xl:w-64 bg-surface border border-border rounded-full py-2 pl-9 pr-12 text-sm text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-content-muted truncate"
+          className="w-56 xl:w-72 bg-white/60 dark:bg-[#181920]/80 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-full py-2 pl-10 pr-12 text-sm text-content-main focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-content-muted shadow-[0_2px_8px_rgba(0,0,0,0.03)] truncate"
         />
-        <div className="absolute right-3 flex items-center">
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-surface-light text-[10px] font-medium text-content-muted font-sans">
+        <div className="absolute right-3.5 flex items-center">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border dark:border-white/10 bg-surface-light dark:bg-white/[0.06] text-[10px] font-medium text-content-muted font-sans">
             <span className="text-xs">⌘</span> K
           </kbd>
         </div>
       </div>
 
       {open && query.trim() && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-surface rounded-xl border border-border p-2 z-50">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-surface/95 dark:bg-[#1A1A23]/95 backdrop-blur-2xl rounded-2xl border border-white/40 dark:border-white/10 p-2 z-50 shadow-soft">
           {results.length === 0 && (
             <p className="text-xs text-content-muted px-3 py-3">{t('search.noEmployees', { query })}</p>
           )}
@@ -76,7 +76,7 @@ export function SearchInput() {
                 setQuery('');
                 navigate('/employees');
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-light transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/60 dark:hover:bg-white/10 transition-colors text-left"
             >
               <Avatar initials={getInitials(employee.name)} className="w-8 h-8 text-xs shrink-0" />
               <div className="min-w-0 flex-1">
