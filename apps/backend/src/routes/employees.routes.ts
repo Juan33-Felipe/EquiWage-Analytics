@@ -6,6 +6,7 @@ import { uploadFileMiddleware } from '../middlewares/upload.middleware.js';
 export const employeesRouter = Router();
 
 employeesRouter.get('/', employeesController.listEmployees);
+employeesRouter.post('/load-demo', employeesController.loadDemoData);
 employeesRouter.post('/import', uploadFileMiddleware.single('file'), importController.importPayroll);
 employeesRouter.get('/:id', employeesController.getEmployeeById);
 employeesRouter.post('/', employeesController.createEmployee);
