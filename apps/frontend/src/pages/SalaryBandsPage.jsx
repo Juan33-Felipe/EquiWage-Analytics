@@ -9,7 +9,16 @@ import { FileDropzone } from '../components/molecules/FileDropzone';
 import { parseBandsFile } from '../utils/payrollParser';
 import { useCompensation } from '../context/CompensationContext';
 import { useLanguage } from '../context/LanguageContext';
-import { ArrowRight, SlidersHorizontal, Upload, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  SlidersHorizontal,
+  Upload,
+  ShieldCheck,
+  ShieldAlert,
+  Layers,
+  X,
+  FileSpreadsheet,
+} from 'lucide-react';
 import { cn } from '../utils/cn';
 
 export function SalaryBandsPage() {
@@ -24,7 +33,8 @@ export function SalaryBandsPage() {
     updateLegalCompliance,
   } = useCompensation();
   const { t } = useLanguage();
-  const [mode, setMode] = useState('manual');
+  const [activeTab, setActiveTab] = useState('bands'); // 'bands' | 'compliance'
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [status, setStatus] = useState('idle');
   const [uploadMeta, setUploadMeta] = useState(null);
   const [errorKey, setErrorKey] = useState('');
@@ -69,105 +79,159 @@ export function SalaryBandsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-content-main tracking-tight">{t('bands.title')}</h2>
-        <p className="text-sm text-content-muted mt-1">
-          {t('bands.subtitleText')}
-        </p>
+      {/* Top Header with Tab Switcher & Navigation Flow */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-content-main tracking-tight">{t('bands.title')}</h2>
+          <p className="text-sm text-content-muted mt-1">
+            {t('bands.subtitleText')}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="outline"
+            onClick={() => setIsImportModalOpen(true)}
+            className="gap-2 text-xs font-semibold"
+          >
+            <Upload className="w-4 h-4 text-primary" />
+            Cargar Bandas (CSV / Excel)
+          </Button>
+
+          <Button
+            variant="dark"
+            onClick={() => navigate('/dashboard/distribution')}
+            className="gap-2 text-xs"
+          >
+            Auditar Curva Salarial
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Feature D: Legal Minimum Wage Compliance Card */}
-      <LegalComplianceCard
-        legalCompliance={legalCompliance}
-        referenceCountries={referenceCountries}
-        legalViolatorsCount={metrics.legalViolationsCount}
-        legalComplianceCost={metrics.legalComplianceCost}
-        onUpdateCompliance={updateLegalCompliance}
-      />
+      {/* Visual Navigation Tabs */}
+      <div className="flex items-center gap-2 p-1 bg-surface-light border border-border rounded-xl w-fit">
+        <button
+          onClick={() => setActiveTab('bands')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+            activeTab === 'bands'
+              ? 'bg-surface text-content-main shadow-soft border border-border/80'
+              : 'text-content-muted hover:text-content-main'
+          )}
+        >
+          <Layers className="w-3.5 h-3.5 text-primary" />
+          <span>{t('bands.matrixTab')}</span>
+          <Badge variant="default" className="text-[10px] px-1.5 py-0">
+            {bands.length} {t('bands.levelsSuffix')}
+          </Badge>
+        </button>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <div className="xl:col-span-4 space-y-6">
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <SlidersHorizontal className="w-4 h-4 text-primary shrink-0" />
-              <h3 className="text-base font-bold text-content-main">{t('bands.configuration')}</h3>
-            </div>
-            <p className="text-xs text-content-muted mb-5">{t('bands.chooseHow')}</p>
+        <button
+          onClick={() => setActiveTab('compliance')}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+            activeTab === 'compliance'
+              ? 'bg-surface text-content-main shadow-soft border border-border/80'
+              : 'text-content-muted hover:text-content-main'
+          )}
+        >
+          <ShieldAlert className="w-3.5 h-3.5 text-primary" />
+          <span>{t('bands.legalTab')}</span>
+          {metrics.legalViolationsCount > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              {metrics.legalViolationsCount}
+            </span>
+          )}
+        </button>
+      </div>
 
-            <div className="flex bg-surface-light p-1 rounded-full mb-5 gap-1">
-              <button
-                onClick={() => setMode('import')}
-                className={cn(
-                  'flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs font-semibold transition-all',
-                  mode === 'import' ? 'bg-surface text-content-main' : 'text-content-muted hover:text-content-main'
-                )}
-              >
-                <Upload className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{t('bands.importMarketBands')}</span>
-              </button>
-              <button
-                onClick={() => setMode('manual')}
-                className={cn(
-                  'flex-1 min-w-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs font-semibold transition-all',
-                  mode === 'manual' ? 'bg-surface text-content-main' : 'text-content-muted hover:text-content-main'
-                )}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{t('bands.manualRangeInput')}</span>
-              </button>
-            </div>
+      {/* Tab 1: Full-Width Salary Bands Matrix Table */}
+      {activeTab === 'bands' && (
+        <div className="space-y-6">
+          <Card className="p-0 overflow-hidden w-full">
+            <BandMatrixTable />
 
-            {mode === 'import' ? (
-              <FileDropzone
-                onFile={handleFile}
-                status={status}
-                successMessage={successMessage}
-                errorMessage={errorMessage}
-                missingColumns={missingColumns}
-                hint={t('bands.importHint')}
-              />
-            ) : (
-              <div className="rounded-xl bg-surface-light p-4">
-                <p className="text-sm font-semibold text-content-main mb-1">{t('bands.manualReady')}</p>
-                <p className="text-xs text-content-muted leading-relaxed">
-                  {t('bands.manualHint')}
-                </p>
+            {/* Guided Footer Banner */}
+            <div className="p-4 sm:p-5 bg-surface-light border-t border-border flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-xs text-content-muted">
+                <ShieldCheck className="w-4 h-4 text-success shrink-0" />
+                <span>{t('bands.footerNotice')}</span>
               </div>
-            )}
-
-            <div className="mt-5 pt-5 border-t border-border flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-success mt-0.5 shrink-0" />
-              <p className="text-xs text-content-muted leading-relaxed">
-                {t('bands.keptLocally')}
-              </p>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex justify-between items-center gap-2 mb-3">
-              <h3 className="text-sm font-bold text-content-main min-w-0 truncate">{t('bands.configuredJobLevels')}</h3>
-              <Badge variant="successOutline" className="shrink-0">{t('bands.levelsCount', { count: bands.length })}</Badge>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {bands.map((band) => (
-                <span key={band.level} className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/15 text-primary font-bold text-sm">
-                  {band.level}
-                </span>
-              ))}
+              <div className="flex items-center gap-3">
+                <Button variant="outline" className="text-xs" onClick={() => setActiveTab('compliance')}>
+                  <ShieldAlert className="w-3.5 h-3.5 mr-1.5 text-primary" />
+                  {t('bands.checkLegal')}
+                </Button>
+                <Button variant="primary" className="gap-2 text-xs" onClick={() => navigate('/dashboard/distribution')}>
+                  <span>{t('bands.auditCurve')}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
+      )}
 
-        <div className="xl:col-span-8 space-y-6">
-          <BandMatrixTable />
-          <div className="flex justify-end">
-            <Button variant="primary" className="gap-2 px-6" onClick={() => navigate('/dashboard/overview')}>
-              {t('bands.validateAndRun')}
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+      {/* Tab 2: Legal Minimum Wage Compliance */}
+      {activeTab === 'compliance' && (
+        <div className="space-y-6 max-w-4xl">
+          <LegalComplianceCard
+            legalCompliance={legalCompliance}
+            referenceCountries={referenceCountries}
+            legalViolatorsCount={metrics.legalViolationsCount}
+            legalComplianceCost={metrics.legalComplianceCost}
+            onUpdateCompliance={updateLegalCompliance}
+          />
+        </div>
+      )}
+
+      {/* Focus Modal: Bands File Upload */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface rounded-2xl border border-border max-w-xl w-full p-6 shadow-soft space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-bold text-content-main tracking-tight">{t('bands.modalTitle')}</h3>
+              </div>
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-content-muted">
+              {t('bands.modalSubtitle')}
+            </p>
+
+            <FileDropzone
+              onFile={handleFile}
+              status={status}
+              successMessage={successMessage}
+              errorMessage={errorMessage}
+              missingColumns={missingColumns}
+              hint={t('bands.dropHint')}
+            />
+
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-[11px] text-content-muted flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-success" />
+                Almacenamiento Local Seguro • 100% Privado
+              </span>
+              <Button
+                variant="primary"
+                onClick={() => setIsImportModalOpen(false)}
+                className="text-xs"
+              >
+                {t('common.done')}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
