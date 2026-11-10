@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CompensationProvider } from './context/CompensationContext';
 import { ProtectedRoute } from './components/templates/ProtectedRoute';
@@ -13,12 +13,19 @@ import { EmployeesImportPage } from './pages/EmployeesImportPage';
 import { SalaryBandsPage } from './pages/SalaryBandsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ProfilePage } from './pages/ProfilePage';
+
+const isElectron =
+  typeof window !== 'undefined' &&
+  (window.navigator?.userAgent?.includes('Electron') || window.location?.protocol === 'file:');
 
 function App() {
+  const RouterComponent = isElectron ? HashRouter : BrowserRouter;
+
   return (
     <AuthProvider>
       <CompensationProvider>
-        <BrowserRouter>
+        <RouterComponent>
           <Routes>
             {/* Public Authentication Routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -36,11 +43,12 @@ function App() {
                 <Route path="/bands" element={<SalaryBandsPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="*" element={<Navigate to="/dashboard/overview" replace />} />
               </Route>
             </Route>
           </Routes>
-        </BrowserRouter>
+        </RouterComponent>
       </CompensationProvider>
     </AuthProvider>
   );
