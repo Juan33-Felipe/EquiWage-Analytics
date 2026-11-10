@@ -102,6 +102,31 @@ export function ensureDefaultUsersSeeded(db: DatabaseSync): void {
     username: DEFAULT_LOCAL_ADMIN_USER.username,
     email: DEFAULT_LOCAL_ADMIN_USER.email,
   });
+
+  // Seed default analyst user (Alejandro Jorge / xaizy2006)
+  const existingAnalyst = db
+    .prepare('SELECT id FROM users WHERE username = ? OR email = ?')
+    .get('xaizy2006', 'xaizy2006@gmail.com') as { id: string } | undefined;
+
+  if (!existingAnalyst) {
+    const analystPasswordHash = authCryptoService.hashPasswordSync('lucero1977');
+    db.prepare(`
+      INSERT INTO users (
+        id, username, email, full_name, role, department, initials, password_hash, is_active, last_login_at, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NULL, ?, ?)
+    `).run(
+      'USR-MWAWNH4Y',
+      'xaizy2006',
+      'xaizy2006@gmail.com',
+      'Alejandro Jorge',
+      'Compensation Analyst',
+      'HR',
+      'AJ',
+      analystPasswordHash,
+      now,
+      now
+    );
+  }
 }
 
 /**
