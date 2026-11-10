@@ -330,7 +330,7 @@ async function main() {
         assertEqual(res.status, 200, 'HTTP status must be 200 OK when SMTP is unconfigured');
         assertEqual(res.body.ok, true, 'ok must be true');
         assertEqual(res.body.data.email, 'nosmtp@example.com', 'email matches');
-        assert(typeof res.body.data.devCode === 'string', 'devCode is returned in simulation mode');
+        assert(typeof res.body.data.devVerificationCode === 'string', 'devVerificationCode is returned in simulation mode');
       } finally {
         db.prepare('DELETE FROM users WHERE email = ?').run('nosmtp@example.com');
         db.prepare('DELETE FROM verification_codes WHERE email = ?').run('nosmtp@example.com');
