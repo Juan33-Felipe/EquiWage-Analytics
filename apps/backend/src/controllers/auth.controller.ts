@@ -3,6 +3,7 @@ import type {
   ApiSuccessResponse,
   AuthSessionPayload,
   AuthStatusResponse,
+  AuthUser,
 } from '@equiwage/shared';
 import { extractBearerToken } from '../middlewares/auth.middleware.js';
 import { AppError } from '../middlewares/error-handler.middleware.js';
@@ -153,6 +154,28 @@ export class AuthController {
       const response: ApiSuccessResponse<typeof result> = {
         ok: true,
         data: result,
+        timestamp: new Date().toISOString(),
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * PUT /api/auth/profile
+   * Updates profile fields for the authenticated user.
+   */
+  public updateProfile(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const user = (req as any).user;
+      if (!user?.id) {
+        throw new AppError('Unauthorized', { statusCode: 401, errorKey: 'auth.unauthorized' });
+      }
+      const updatedUser = authService.updateProfile(user.id, req.body || {});
+      const response: ApiSuccessResponse<AuthUser> = {
+        ok: true,
+        data: updatedUser,
         timestamp: new Date().toISOString(),
       };
       res.status(200).json(response);
