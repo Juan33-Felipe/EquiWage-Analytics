@@ -18,7 +18,7 @@ for (const envPath of envCandidates) {
     try {
       require('dotenv').config({ path: envPath });
       break;
-    } catch (_) {}
+    } catch (_) { }
   }
 }
 
