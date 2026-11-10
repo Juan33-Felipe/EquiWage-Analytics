@@ -252,20 +252,38 @@ html.dark .tab-pill-container {
 }
 
 /* ═══════════════════════════════════════════
-   Scrollbar — dark mode only
+   Modern Slim Scrollbar — Global Light & Dark
    ═══════════════════════════════════════════ */
-html.dark ::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
-html.dark ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
 html.dark ::-webkit-scrollbar-thumb {
-  background: #2A2A35;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #3A3A48;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Utility to completely hide scrollbars while allowing scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 /* ═══════════════════════════════════════════
