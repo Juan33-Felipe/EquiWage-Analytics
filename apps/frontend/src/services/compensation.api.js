@@ -102,6 +102,11 @@ export const compensationApi = {
     return apiRequest(API_ENDPOINTS.SESSION_RESET, { method: 'POST' });
   },
 
+  /** POST /api/employees/load-demo */
+  loadDemoData() {
+    return apiRequest('/api/employees/load-demo', { method: 'POST' });
+  },
+
   /** POST /api/reports/executive (binary .xlsx download) */
   async downloadExecutiveExcel(options = {}) {
     const blob = await apiRequest(API_ENDPOINTS.REPORTS_EXECUTIVE, {
