@@ -71,8 +71,12 @@ export function runSchemaMigrations(db: DatabaseSync): void {
       username TEXT NOT NULL UNIQUE COLLATE NOCASE,
       email TEXT NOT NULL UNIQUE COLLATE NOCASE,
       full_name TEXT NOT NULL,
-      role TEXT NOT NULL,
-      department TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT '',
+      department TEXT NOT NULL DEFAULT '',
+      location TEXT DEFAULT '',
+      phone TEXT DEFAULT '',
+      license TEXT DEFAULT '',
+      timezone TEXT DEFAULT '',
       initials TEXT NOT NULL,
       password_hash TEXT NOT NULL,
       is_active INTEGER NOT NULL DEFAULT 1,
@@ -100,8 +104,8 @@ export function runSchemaMigrations(db: DatabaseSync): void {
       first_name TEXT NOT NULL,
       last_name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
-      department TEXT NOT NULL DEFAULT 'HR',
-      role TEXT NOT NULL DEFAULT 'Compensation Analyst',
+      department TEXT NOT NULL DEFAULT '',
+      role TEXT NOT NULL DEFAULT '',
       attempts INTEGER NOT NULL DEFAULT 0,
       expires_at TEXT NOT NULL,
       created_at TEXT NOT NULL
@@ -180,6 +184,26 @@ export function runSchemaMigrations(db: DatabaseSync): void {
     db.exec(`ALTER TABLE simulation_settings ADD COLUMN include_legal_compliance INTEGER NOT NULL DEFAULT 1;`);
   } catch {
     // Column already exists, safe to ignore
+  }
+
+  // Ensure user_id column exists in employees table (for per-user payroll isolation)
+  try {
+    db.exec(`ALTER TABLE employees ADD COLUMN user_id TEXT;`);
+  } catch {
+    // Column already exists, safe to ignore
+  }
+
+  try {
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_employees_user_id ON employees(user_id);`);
+  } catch {
+    // Index already exists, safe to ignore
+  }
+
+  // Backfill existing seed employees to default local admin user if user_id is null
+  try {
+    db.exec(`UPDATE employees SET user_id = 'USR-ADMIN-001' WHERE user_id IS NULL;`);
+  } catch {
+    // Safe to ignore
   }
 
   logger.info('SQLite schema migrations and indexes verified');
