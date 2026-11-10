@@ -3,6 +3,7 @@ import { TrendingUp, Sparkles, ShieldCheck } from 'lucide-react';
 import { Card } from '../atoms/Card';
 import { formatCurrency, useCompensation } from '../../context/CompensationContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { AnimatedNumber } from '../atoms/AnimatedNumber';
 import { Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, Line, ComposedChart } from 'recharts';
 
 export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoading = false }) {
@@ -60,26 +61,52 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.adjustmentBudget')}>
                     {t('report.adjustmentBudget')}
                   </p>
-                  <p className="text-base font-bold text-primary truncate">{formatCurrency(metrics.minToMedianBudget)}</p>
+                  <p className="text-base font-bold text-primary truncate">
+                    <AnimatedNumber
+                      value={metrics.minToMedianBudget}
+                      formatter={(v) => formatCurrency(Math.round(v))}
+                      duration={1200}
+                    />
+                  </p>
                 </div>
                 <div className="rounded-lg bg-surface-light p-3 min-w-0">
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.employeesAnalyzed')}>
                     {t('report.employeesAnalyzed')}
                   </p>
-                  <p className="text-base font-bold text-content-main truncate">{metrics.headcount}</p>
+                  <p className="text-base font-bold text-content-main truncate">
+                    <AnimatedNumber value={metrics.headcount} duration={1000} />
+                  </p>
                 </div>
                 <div className="rounded-lg bg-surface-light p-3 min-w-0">
                   <p className="text-[10px] text-content-muted mb-1 truncate" title={t('report.belowBand')}>
                     {t('report.belowBand')}
                   </p>
-                  <p className="text-base font-bold text-danger truncate">{metrics.marketDisparities}</p>
+                  <p className="text-base font-bold text-danger truncate">
+                    <AnimatedNumber value={metrics.marketDisparities} duration={1000} />
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Anonymized AI Executive Diagnostic Section (RF-007) */}
-          {(aiDiagnostic || aiLoading) && (
+          {employees.length === 0 ? (
+            <div className="mb-5 rounded-xl border border-dashed border-border bg-surface-light/50 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1 text-content-muted">
+                <Sparkles className="w-3.5 h-3.5" />
+                <p className="text-[10px] font-bold uppercase tracking-wider">
+                  {language === 'es'
+                    ? 'Diagnóstico Ejecutivo IA (Anonimizado)'
+                    : 'AI Executive Diagnostic (Anonymized)'}
+                </p>
+              </div>
+              <p className="text-xs text-content-muted">
+                {language === 'es'
+                  ? 'No hay colaboradores registrados. Importe o agregue empleados para generar el diagnóstico inteligente.'
+                  : 'No employee records found. Import or add employees to generate AI diagnostics.'}
+              </p>
+            </div>
+          ) : (aiDiagnostic || aiLoading) && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/10 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-1.5">
@@ -174,9 +201,33 @@ export function ReportPreviewCard({ sections = [], aiDiagnostic = null, aiLoadin
                     <XAxis dataKey="level" type="number" domain={[1, 8]} tick={{ fontSize: 8, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 8, fill: '#9CA3AF' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${Math.round(v / 1000)}k`} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', fontSize: '10px' }} />
-                    <Line data={bandData} type="monotone" dataKey="p50" stroke="#F97316" strokeWidth={2} dot={false} />
-                    <Scatter data={points.filter((p) => p.status !== 'below')} dataKey="salary" fill="#10B981" />
-                    <Scatter data={points.filter((p) => p.status === 'below')} dataKey="salary" fill="#EF4444" />
+                    <Line
+                      data={bandData}
+                      type="monotone"
+                      dataKey="p50"
+                      stroke="#F97316"
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={true}
+                      animationDuration={1200}
+                      animationEasing="ease-out"
+                    />
+                    <Scatter
+                      data={points.filter((p) => p.status !== 'below')}
+                      dataKey="salary"
+                      fill="#10B981"
+                      isAnimationActive={true}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
+                    />
+                    <Scatter
+                      data={points.filter((p) => p.status === 'below')}
+                      dataKey="salary"
+                      fill="#EF4444"
+                      isAnimationActive={true}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
