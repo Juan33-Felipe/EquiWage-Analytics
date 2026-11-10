@@ -28,7 +28,8 @@ export class HealthController {
         employeeCount,
         bandCount,
         payrollSource,
-      },
+        neonConfigured: Boolean(envConfig.databaseUrl && envConfig.databaseUrl.length > 0),
+      } as any,
       ai: {
         configured: envConfig.ai.isConfigured,
         provider: envConfig.ai.provider,
