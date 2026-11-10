@@ -229,6 +229,45 @@ export class UsersRepository {
     }
     return user;
   }
+
+  /**
+   * Updates an existing user's profile information.
+   */
+  public updateUserProfile(userId: string, data: {
+    fullName?: string;
+    role?: string;
+    department?: string;
+    location?: string;
+    phone?: string;
+    license?: string;
+    timezone?: string;
+  }): AuthUser | null {
+    const db = getDatabase();
+    const user = this.findUserById(userId);
+    if (!user) return null;
+
+    const fullName = data.fullName !== undefined ? data.fullName : user.fullName;
+    const role = data.role !== undefined ? data.role : user.role;
+    const department = data.department !== undefined ? data.department : user.department;
+    const location = data.location !== undefined ? data.location : (user.location || '');
+    const phone = data.phone !== undefined ? data.phone : (user.phone || '');
+    const license = data.license !== undefined ? data.license : (user.license || '');
+    const timezone = data.timezone !== undefined ? data.timezone : (user.timezone || '');
+
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.[0] || 'E';
+    const second = parts[1]?.[0] || (parts[0]?.[1] || 'A');
+    const initials = (first + second).toUpperCase();
+    const now = new Date().toISOString();
+
+    db.prepare(`
+      UPDATE users
+      SET full_name = ?, role = ?, department = ?, location = ?, phone = ?, license = ?, timezone = ?, initials = ?, updated_at = ?
+      WHERE id = ?
+    `).run(fullName, role, department, location, phone, license, timezone, initials, now, userId);
+
+    return this.findUserById(userId);
+  }
 }
 
 export const usersRepository = new UsersRepository();
