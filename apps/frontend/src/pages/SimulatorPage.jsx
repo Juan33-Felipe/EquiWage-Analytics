@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { Avatar } from '../components/atoms/Avatar';
@@ -9,19 +10,29 @@ import { DepartmentImpactChart } from '../components/organisms/DepartmentImpactC
 import { formatCurrency, getInitials, useCompensation } from '../context/CompensationContext';
 import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
 import { PayrollApprovalModal } from '../components/molecules/PayrollApprovalModal';
-import { ArrowRight, Download, ArrowUpRight, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+  ArrowRight,
+  Download,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Sliders,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
 const SEVERITY = {
-  legal_violation: { labelKey: '< Mínimo Legal', variant: 'legal' },
+  legal_violation: { labelKey: 'compliance.legalViolationLabel', variant: 'legal' },
   critical: { labelKey: 'alerts.critical', variant: 'dangerOutline' },
   moderate: { labelKey: 'alerts.moderate', variant: 'warning' },
   none: { labelKey: 'employees.table.aligned', variant: 'success' },
 };
 
 export function SimulatorPage() {
+  const navigate = useNavigate();
   const {
+    employees,
     simulationResult,
     simulation,
     exportSession,
@@ -31,10 +42,11 @@ export function SimulatorPage() {
     setManualAdjustment,
     removeManualAdjustment,
   } = useCompensation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [appliedNotice, setAppliedNotice] = React.useState(false);
   const [selectedDrawerEmployee, setSelectedDrawerEmployee] = React.useState(null);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = React.useState(false);
+  const [isTableExpanded, setIsTableExpanded] = React.useState(true);
   const rows = simulationResult.rows;
 
   const handleApplyScenario = async () => {
@@ -57,32 +69,71 @@ export function SimulatorPage() {
 
   return (
     <div className="space-y-6">
+      {/* Top Header with Scenario Actions */}
       <div className="flex flex-wrap justify-between items-center gap-4">
-        <div className="min-w-0">
+        <div>
           <h2 className="text-xl font-bold text-content-main tracking-tight">{t('simulator.budgetSimulatorTitle')}</h2>
           <p className="text-sm text-content-muted mt-1">
             {t('simulator.modelDescription')}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" className="gap-2" onClick={exportSession}>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <Button variant="outline" className="gap-2 text-xs" onClick={exportSession}>
             <Download className="w-4 h-4" />
             {t('simulator.saveSession')}
           </Button>
+
           <Button
             variant="primary"
-            className="gap-2"
+            className="gap-2 text-xs"
             onClick={() => setIsApprovalModalOpen(true)}
             disabled={rows.length === 0}
           >
             <CheckCircle2 className="w-4 h-4" />
-            Aprobar y Generar Orden de Nómina
+            {language === 'es' ? 'Aprobar Plan de Nómina' : 'Approve Payroll Plan'}
+          </Button>
+
+          <Button
+            variant="dark"
+            className="gap-2 text-xs"
+            onClick={() => navigate('/reports')}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>{language === 'es' ? 'Informes Ejecutivos' : 'Executive Reports'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
 
+      {employees?.length === 0 && (
+        <Card className="p-5 border border-primary/30 bg-primary/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Sliders className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-content-main">
+                {language === 'es' ? 'No hay empleados en tu nómina para simular ajustes' : 'No employees in payroll to simulate adjustments'}
+              </p>
+              <p className="text-[11px] text-content-muted mt-0.5">
+                {language === 'es' ? 'Carga tu nómina para proyectar presupuestos, costos de inflación y nivelación salarial.' : 'Upload your payroll to forecast budgets, inflation impact, and salary leveling.'}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            className="text-xs shrink-0"
+            onClick={() => navigate('/employees')}
+          >
+            {language === 'es' ? 'Ir a Cargar Nómina' : 'Go to Upload Payroll'}
+          </Button>
+        </Card>
+      )}
+
+      {/* Hero Metric Banner */}
       <SimulatorHeroCard />
 
+      {/* Simulator Controls & Dept Impact Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <SimulatorControlsCard />
@@ -92,6 +143,7 @@ export function SimulatorPage() {
         </div>
       </div>
 
+      {/* Simulated Adjustments Breakdown Table (Collapsible for Progressive Disclosure) */}
       <Card className="p-0 overflow-hidden">
         <div className="p-6 border-b border-border flex flex-wrap justify-between items-center gap-4">
           <div className="min-w-0">
@@ -103,114 +155,125 @@ export function SimulatorPage() {
               {rolloutCaption}
             </p>
           </div>
-          <Badge variant="primary" className="bg-primary/15 text-primary shrink-0">
-            {t('simulator.employeesBadge', {
-              count: rows.length,
-              budget: formatCurrency(simulationResult.totalBudget),
-            })}
-          </Badge>
+
+          <div className="flex items-center gap-2.5">
+            <Badge variant="primary" className="bg-primary/15 text-primary shrink-0">
+              {t('simulator.employeesBadge', {
+                count: rows.length,
+                budget: formatCurrency(simulationResult.totalBudget),
+              })}
+            </Badge>
+
+            <button
+              onClick={() => setIsTableExpanded(!isTableExpanded)}
+              className="p-1.5 rounded-lg border border-border text-content-muted hover:text-content-main hover:bg-surface-light transition-colors flex items-center gap-1 text-xs font-semibold"
+              title={isTableExpanded ? t('common.hide') : t('common.viewList')}
+            >
+              <span>{isTableExpanded ? t('common.hide') : t('common.viewList')}</span>
+              {isTableExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
-        <div className="max-h-[460px] overflow-auto">
-          {rows.length === 0 ? (
-            <div className="p-12 text-center text-sm text-content-muted">
-              {t('simulator.noAdjustment')}
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-surface-light sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
-                <tr>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.employee')}</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.currentSalary')}</th>
-                  <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.proposedSalary')}</th>
-                  <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('simulator.netIncrease')}</th>
-                  <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('simulator.gapSeverity')}</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm divide-y divide-border/50">
-                {rows.map((row, index) => {
-                  const severity = SEVERITY[row.severity] || SEVERITY.none;
-                  return (
-                    <motion.tr
-                      key={row.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.2) }}
-                      onClick={() => setSelectedDrawerEmployee(row)}
-                      className="hover:bg-surface-light transition-colors group cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Avatar initials={getInitials(row.name)} className="w-9 h-9 text-xs shrink-0" />
-                          <div className="min-w-0">
-                            <p className="font-semibold text-content-main group-hover:text-primary transition-colors truncate">
-                              {row.name}
-                            </p>
-                            <p className="text-xs text-content-muted mt-0.5 truncate">
-                              L{row.level} • {row.role}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-content-main font-medium whitespace-nowrap">
-                        {formatCurrency(row.currentSalary)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="text-content-muted line-through text-xs font-medium">
+        <AnimatePresence>
+          {isTableExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="max-h-[460px] overflow-auto"
+            >
+              {rows.length === 0 ? (
+                <div className="p-12 text-center text-sm text-content-muted">
+                  {t('simulator.noAdjustment')}
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-surface-light sticky top-0 text-xs font-semibold text-content-muted uppercase tracking-wider z-10">
+                    <tr>
+                      <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.employee')}</th>
+                      <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.currentSalary')}</th>
+                      <th className="px-6 py-4 font-medium whitespace-nowrap">{t('simulator.proposedSalary')}</th>
+                      <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('simulator.netIncrease')}</th>
+                      <th className="px-6 py-4 font-medium text-right whitespace-nowrap">{t('simulator.gapSeverity')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm divide-y divide-border/50">
+                    {rows.map((row, index) => {
+                      const severity = SEVERITY[row.severity] || SEVERITY.none;
+                      return (
+                        <motion.tr
+                          key={row.id}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.2) }}
+                          onClick={() => setSelectedDrawerEmployee(row)}
+                          className="hover:bg-surface-light transition-colors group cursor-pointer"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <Avatar initials={getInitials(row.name)} className="w-9 h-9 text-xs shrink-0" />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-content-main truncate">{row.name}</p>
+                                <p className="text-xs text-content-muted mt-0.5 truncate">
+                                  {row.role} • L{row.level}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-content-muted">
                             {formatCurrency(row.currentSalary)}
-                          </span>
-                          <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span className="text-primary font-bold">{formatCurrency(row.proposedSalary)}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 font-semibold text-green-700 dark:text-emerald-400 bg-green-50 dark:bg-emerald-500/15 px-2 py-1 rounded-md text-xs border border-green-200 dark:border-emerald-500/20">
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                          +{formatCurrency(row.adjustment)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <Badge variant={severity.variant}>{getSeverityLabel(row.severity)}</Badge>
-                      </td>
-                    </motion.tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap font-semibold text-content-main">
+                            {formatCurrency(row.proposedSalary)}
+                          </td>
+                          <td className="px-6 py-4 text-right whitespace-nowrap">
+                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                              +{formatCurrency(row.increase)}
+                            </span>
+                            <span className="text-xs text-content-muted ml-1.5 font-normal">
+                              (+{row.increasePercent}%)
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right whitespace-nowrap">
+                            <Badge variant={severity.variant} className="whitespace-nowrap">
+                              {getSeverityLabel(row.severity)}
+                            </Badge>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
-        <div className="p-6 border-t border-border flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <p className="text-xs text-content-muted">
-              {t('simulator.totalBudgetRequired')}{' '}
-              <span className="font-bold text-content-main">{formatCurrency(simulationResult.totalBudget)}</span>
-            </p>
-            {appliedNotice && (
-              <Badge variant="successOutline" className="text-xs">
-                SQLite Updated
-              </Badge>
-            )}
+        {/* Guided Step Footer Banner */}
+        <div className="p-4 sm:p-5 bg-surface-light border-t border-border flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-content-muted">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>Escenario simulado en memoria local • Genera la orden formal o exporta el reporte.</span>
           </div>
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
-              className="gap-2"
-              onClick={handleApplyScenario}
-              disabled={rows.length === 0}
-            >
-              {t('simulator.applyScenario')}
-            </Button>
-            <Button
-              variant="primary"
-              className="gap-2 active:scale-95 transition-transform shrink-0"
+              className="text-xs"
               onClick={() => setIsApprovalModalOpen(true)}
               disabled={rows.length === 0}
             >
-              <CheckCircle2 className="w-4 h-4" />
-              Aprobar y Generar Orden (.CSV)
-              <ArrowRight className="w-4 h-4" />
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-primary" />
+              {language === 'es' ? 'Aprobar Nómina (.CSV)' : 'Approve Payroll (.CSV)'}
+            </Button>
+            <Button
+              variant="primary"
+              className="gap-2 text-xs"
+              onClick={() => navigate('/reports')}
+            >
+              <span>{language === 'es' ? 'Generar Informe Ejecutivo para Dirección' : 'Generate Executive Report for Leadership'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </div>
         </div>
