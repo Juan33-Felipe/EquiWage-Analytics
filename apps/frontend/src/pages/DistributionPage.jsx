@@ -67,10 +67,6 @@ export function DistributionPage() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3 mb-1">
             <h2 className="text-xl font-bold text-content-main tracking-tight">{t('distribution.salaryCurve')}</h2>
-            <Badge variant="successOutline" className="gap-1.5 px-2 py-0.5 bg-emerald-500/10 shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-success" />
-              {t('distribution.secureLocalSession')}
-            </Badge>
           </div>
           <p className="text-sm text-content-muted">
             {t('distribution.compareEvery')}
@@ -89,8 +85,8 @@ export function DistributionPage() {
         onReset={() => setFilters({ department: 'all', level: 'all', range: 'all' })}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-10 gap-6 h-auto xl:h-[560px]">
-        <div className="xl:col-span-7 h-full min-h-0">
+      <div className="grid grid-cols-1 xl:grid-cols-10 gap-4 sm:gap-6 min-h-[520px]">
+        <div className="xl:col-span-7 h-full min-h-0 w-full">
           <SalaryDistributionChart
             employees={filtered}
             bands={bands}
@@ -102,7 +98,7 @@ export function DistributionPage() {
           />
         </div>
 
-        <div className="xl:col-span-3 h-full min-h-0">
+        <div className="xl:col-span-3 h-full min-h-0 w-full">
           <Card className="h-full flex flex-col p-6 min-h-0">
             <div className="flex items-start justify-between gap-2 mb-6">
               <div className="min-w-0">
