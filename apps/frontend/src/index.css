@@ -9,30 +9,31 @@
    ═══════════════════════════════════════════ */
 @layer base {
   :root {
-    /* Light mode */
-    --color-background: #F9FAFB;
+    /* Refined Warm Slate / Soft Mist Mode - Eliminates Snowblindness */
+    --color-background: #EEF1F6;
     --color-surface: #FFFFFF;
-    --color-surface-light: #F3F4F6;
-    --color-border: #E5E7EB;
-    --color-content-main: #111827;
-    --color-content-muted: #6B7280;
-    --color-sidebar: #FFFFFF;
-    --shadow-soft: 0px 10px 30px rgba(0, 0, 0, 0.04);
-    --chart-grid: #F3F4F6;
-    --chart-tick: #9CA3AF;
+    --color-surface-light: #E5E9F1;
+    --color-border: #D8DEE9;
+    --color-content-main: #0F172A;
+    --color-content-muted: #64748B;
+    --color-sidebar: #F5F7FA;
+    --shadow-soft: 0px 8px 24px rgba(15, 23, 42, 0.05), 0px 2px 6px rgba(15, 23, 42, 0.03);
+    --chart-grid: #E2E8F0;
+    --chart-tick: #94A3B8;
   }
 
   html.dark {
-    --color-background: #0E0E12;
-    --color-surface: #1A1A23;
-    --color-surface-light: #22222E;
-    --color-border: #2A2A35;
-    --color-content-main: #FFFFFF;
-    --color-content-muted: #8B8B9E;
-    --color-sidebar: #141419;
-    --shadow-soft: 0px 4px 24px rgba(0, 0, 0, 0.25);
-    --chart-grid: #2A2A35;
-    --chart-tick: #8B8B9E;
+    /* Sophisticated Dark Mode — Neutral Slate & Charcoal Canvas (Balanced & Uncluttered) */
+    --color-background: #0B0D13;
+    --color-surface: rgba(20, 23, 33, 0.75);
+    --color-surface-light: rgba(28, 32, 46, 0.85);
+    --color-border: #232738;
+    --color-content-main: #F8FAFC;
+    --color-content-muted: #94A3B8;
+    --color-sidebar: rgba(15, 18, 26, 0.65);
+    --shadow-soft: 0px 8px 30px rgba(0, 0, 0, 0.45);
+    --chart-grid: #1E2333;
+    --chart-tick: #94A3B8;
     color-scheme: dark;
   }
 
@@ -52,20 +53,22 @@
    utility classes that use hardcoded colors
    ═══════════════════════════════════════════ */
 
-/* Grays → dark surfaces */
+/* Grays → dark refined surfaces */
 html.dark .bg-white {
-  background-color: #1A1A23 !important;
+  background-color: #141721 !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 html.dark .bg-gray-50,
 html.dark .bg-gray-50\/60,
 html.dark .bg-gray-50\/80 {
-  background-color: rgba(14, 14, 18, 0.65) !important;
+  background-color: rgba(28, 32, 46, 0.75) !important;
 }
 
 html.dark .bg-gray-100,
 html.dark .bg-gray-100\/80 {
-  background-color: #0E0E12 !important;
+  background-color: #0F121A !important;
 }
 
 html.dark .hover\:bg-gray-50:hover,
@@ -74,21 +77,45 @@ html.dark .hover\:bg-gray-50\/60:hover,
 html.dark .hover\:bg-gray-50\/70:hover,
 html.dark .hover\:bg-gray-100:hover,
 html.dark .hover\:bg-gray-200\/50:hover {
-  background-color: rgba(42, 42, 53, 0.55) !important;
+  background-color: rgba(35, 39, 56, 0.7) !important;
 }
 
-html.dark .border-gray-50,
-html.dark .border-gray-100 {
-  border-color: #2A2A35 !important;
+/* ═══════════════════════════════════════════
+   Dark Mode Borders: Neutral Slate & Subtle Glass
+   (Non-saturated, clean enterprise appearance)
+   ═══════════════════════════════════════════ */
+html.dark .border,
+html.dark [class*="border-border"],
+html.dark [class*="border-gray"],
+html.dark .border-t,
+html.dark .border-b,
+html.dark .border-l,
+html.dark .border-r {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-html.dark .border-gray-200,
-html.dark .border-gray-300 {
-  border-color: #2A2A35 !important;
+html.dark .divide-y > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-x > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-gray-50 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-border > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-html.dark .divide-gray-50 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #2A2A35 !important;
+/* Maintain semantic colored borders in dark mode with refined opacity */
+html.dark .border-primary,
+html.dark [class*="border-primary"] {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+}
+
+html.dark .border-red-500,
+html.dark [class*="border-red"] {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+html.dark .border-emerald-500,
+html.dark [class*="border-emerald"],
+html.dark [class*="border-green"] {
+  border-color: rgba(16, 185, 129, 0.35) !important;
 }
 
 /* Text grays */
@@ -101,20 +128,20 @@ html.dark .text-gray-700 {
   color: #E5E7EB !important;
 }
 
-/* Orange semantic */
+/* Orange semantic - subtle accent, not aggressive */
 html.dark .bg-orange-50,
 html.dark .bg-orange-50\/40,
 html.dark .bg-orange-50\/50,
 html.dark .bg-orange-50\/60 {
-  background-color: rgba(249, 115, 22, 0.15) !important;
+  background-color: rgba(249, 115, 22, 0.1) !important;
 }
 
 html.dark .bg-orange-100 {
-  background-color: rgba(249, 115, 22, 0.22) !important;
+  background-color: rgba(249, 115, 22, 0.15) !important;
 }
 
 html.dark .border-orange-100 {
-  border-color: rgba(249, 115, 22, 0.3) !important;
+  border-color: rgba(249, 115, 22, 0.22) !important;
 }
 
 /* Green semantic */
@@ -163,22 +190,23 @@ html.dark .shadow-sm {
 /* Select */
 html.dark select,
 html.dark select option {
-  background-color: #1A1A23;
+  background-color: #14151B;
   color: #FFFFFF;
 }
 
 /* Inputs in dark */
 html.dark input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
 html.dark textarea {
-  background-color: #22222E;
-  border-color: #2A2A35;
+  background-color: #161720;
+  border-color: rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
 }
 
 html.dark input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):focus,
 html.dark textarea:focus {
-  background-color: #1A1A23;
-  border-color: rgba(249, 115, 22, 0.4);
+  background-color: #14151B;
+  border-color: rgba(249, 115, 22, 0.5);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
 }
 
 /* Tables in dark */
@@ -187,20 +215,20 @@ html.dark table {
 }
 
 html.dark thead {
-  background-color: #22222E;
+  background-color: #161720;
 }
 
 html.dark th {
-  color: #8B8B9E;
-  border-color: #2A2A35;
+  color: #8E92A4;
+  border-color: rgba(255, 255, 255, 0.07);
 }
 
 html.dark td {
-  border-color: #2A2A35;
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 html.dark tr:hover td {
-  background-color: rgba(34, 34, 46, 0.5);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 /* ═══════════════════════════════════════════
@@ -276,4 +304,188 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   border: 3px solid var(--color-background);
   box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
   cursor: pointer;
+}
+
+
+/* ═══════════════════════════════════════════
+   Glassmorphism Styles for Buttons & Controls
+   ═══════════════════════════════════════════ */
+.btn-glass-primary {
+  background: rgba(249, 115, 22, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3) !important;
+}
+
+.btn-glass-primary:hover {
+  background: rgba(249, 115, 22, 0.98) !important;
+  box-shadow: 0 6px 22px rgba(249, 115, 22, 0.45) !important;
+}
+
+.btn-glass-outline {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.dark .btn-glass-outline {
+  background: rgba(28, 32, 46, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+}
+
+.btn-glass-outline:hover {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(249, 115, 22, 0.45) !important;
+}
+
+html.dark .btn-glass-outline:hover {
+  background: rgba(35, 39, 56, 0.8) !important;
+  border-color: rgba(249, 115, 22, 0.35) !important;
+}
+
+/* ═══════════════════════════════════════════
+   Glassmorphism Badges & Info Pills
+   ═══════════════════════════════════════════ */
+.badge-glass-base {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.015em;
+}
+
+/* Success / Emerald Glass */
+.badge-glass-success {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(52, 211, 153, 0.38) !important;
+  color: #047857 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(16, 185, 129, 0.3) !important;
+}
+html.dark .badge-glass-success {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
+  color: #34D399 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(16, 185, 129, 0.35) !important;
+}
+.badge-glass-success:hover {
+  background: rgba(16, 185, 129, 0.22) !important;
+  border-color: rgba(52, 211, 153, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* Danger / Red Glass */
+.badge-glass-danger {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(248, 113, 113, 0.38) !important;
+  color: #B91C1C !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(239, 68, 68, 0.3) !important;
+}
+html.dark .badge-glass-danger {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+  color: #F87171 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(239, 68, 68, 0.35) !important;
+}
+.badge-glass-danger:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  border-color: rgba(248, 113, 113, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Warning / Amber Glass */
+.badge-glass-warning {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(251, 191, 36, 0.38) !important;
+  color: #B45309 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(245, 158, 11, 0.3) !important;
+}
+html.dark .badge-glass-warning {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(251, 191, 36, 0.45) !important;
+  color: #FBBF24 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(245, 158, 11, 0.35) !important;
+}
+.badge-glass-warning:hover {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: rgba(251, 191, 36, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(245, 158, 11, 0.45) !important;
+}
+
+/* Primary / Orange Glass */
+.badge-glass-primary {
+  background: rgba(249, 115, 22, 0.12) !important;
+  border: 1px solid rgba(251, 146, 60, 0.38) !important;
+  color: #C2410C !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(249, 115, 22, 0.3) !important;
+}
+html.dark .badge-glass-primary {
+  background: rgba(249, 115, 22, 0.18) !important;
+  border: 1px solid rgba(251, 146, 60, 0.45) !important;
+  color: #FB923C !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(249, 115, 22, 0.35) !important;
+}
+.badge-glass-primary:hover {
+  background: rgba(249, 115, 22, 0.24) !important;
+  border-color: rgba(251, 146, 60, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(249, 115, 22, 0.45) !important;
+}
+
+/* Legal / Violet-Purple Glass */
+.badge-glass-legal {
+  background: rgba(168, 85, 247, 0.12) !important;
+  border: 1px solid rgba(192, 132, 252, 0.38) !important;
+  color: #7E22CE !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(168, 85, 247, 0.3) !important;
+}
+html.dark .badge-glass-legal {
+  background: rgba(168, 85, 247, 0.18) !important;
+  border: 1px solid rgba(192, 132, 252, 0.45) !important;
+  color: #C084FC !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(168, 85, 247, 0.35) !important;
+}
+.badge-glass-legal:hover {
+  background: rgba(168, 85, 247, 0.24) !important;
+  border-color: rgba(192, 132, 252, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(168, 85, 247, 0.45) !important;
+}
+
+/* Neutral / Slate Glass */
+.badge-glass-neutral {
+  background: rgba(100, 116, 139, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  color: #334155 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 6px -1px rgba(0, 0, 0, 0.06) !important;
+}
+html.dark .badge-glass-neutral {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #E2E8F0 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px -1px rgba(0, 0, 0, 0.3) !important;
+}
+.badge-glass-neutral:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), 0 3px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Info / Blue Glass */
+.badge-glass-info {
+  background: rgba(59, 130, 246, 0.12) !important;
+  border: 1px solid rgba(96, 165, 250, 0.38) !important;
+  color: #1D4ED8 !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px -2px rgba(59, 130, 246, 0.3) !important;
+}
+html.dark .badge-glass-info {
+  background: rgba(59, 130, 246, 0.18) !important;
+  border: 1px solid rgba(96, 165, 250, 0.45) !important;
+  color: #60A5FA !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25), 0 2px 12px -1px rgba(59, 130, 246, 0.35) !important;
+}
+.badge-glass-info:hover {
+  background: rgba(59, 130, 246, 0.24) !important;
+  border-color: rgba(96, 165, 250, 0.65) !important;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px -1px rgba(59, 130, 246, 0.45) !important;
 }
