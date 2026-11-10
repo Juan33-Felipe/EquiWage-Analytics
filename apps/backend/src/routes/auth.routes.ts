@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authController } from '../controllers/auth.controller.js';
+import { requireAuthMiddleware } from '../middlewares/auth.middleware.js';
 
 export const authRouter = Router();
 
@@ -11,4 +12,5 @@ authRouter.post('/verify', (req, res, next) => authController.verifyCode(req, re
 authRouter.post('/resend-code', (req, res, next) => authController.resendCode(req, res, next));
 authRouter.get('/session', (req, res, next) => authController.getSession(req, res, next));
 authRouter.get('/me', (req, res, next) => authController.getSession(req, res, next));
+authRouter.put('/profile', requireAuthMiddleware, (req, res, next) => authController.updateProfile(req, res, next));
 authRouter.post('/logout', (req, res, next) => authController.logout(req, res, next));
