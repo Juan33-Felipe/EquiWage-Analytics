@@ -60,13 +60,10 @@ export function SimulatorControlsCard() {
 
       {/* Projected Market Inflation Slider (Feature C) */}
       <div className="mb-6 p-4 rounded-xl bg-primary/10 border border-primary/20">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2">
           <label className="text-xs font-bold text-content-main tracking-tight flex items-center gap-1.5">
-            <span>Inflación de Mercado Proyectada</span>
+            <span>{t('simulator.projectedInflation')}</span>
           </label>
-          <span className="text-xs font-mono font-bold text-primary bg-surface px-2 py-0.5 rounded-md border border-primary/20">
-            +{simulation.inflationPercent || 0}%
-          </span>
         </div>
         <SliderControl
           min={0}
@@ -77,7 +74,7 @@ export function SimulatorControlsCard() {
           valueLabel={`+${simulation.inflationPercent || 0}%`}
         />
         <p className="text-[11px] text-content-muted mt-2 leading-relaxed">
-          Desplaza dinámicamente las bandas salariales (P25, P50, P75) hacia arriba para proyectar desfases de competitividad para el próximo ciclo.
+          {t('simulator.inflationDesc')}
         </p>
       </div>
 
