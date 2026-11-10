@@ -26,19 +26,21 @@ export function StatCard({
     <Card className={cn('p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden group', className)}>
       {/* Top Row: CoinSphere-styled Icon Badge + Status Pill */}
       <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/25 shadow-xs">
-            <Icon className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-[11px] font-bold tracking-wider uppercase text-content-muted/80 truncate">
-            {title}
-          </span>
+        <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/25 shadow-xs">
+          <Icon className="w-5 h-5 text-primary" />
         </div>
         {badgeText && (
           <Badge variant={badgeVariant} className="font-semibold text-xs py-1 px-2.5 rounded-full whitespace-nowrap">
             {badgeText}
           </Badge>
         )}
+      </div>
+
+      {/* Title Label */}
+      <div className="relative z-10 mb-2">
+        <span className="text-[11px] font-bold tracking-wider uppercase text-content-muted/80 truncate block" title={title}>
+          {title}
+        </span>
       </div>
 
       {/* Middle Block: Bold Numeric Metric + Sparkline Wave */}
