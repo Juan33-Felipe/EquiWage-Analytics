@@ -25,7 +25,7 @@ export function CompensationProvider({ children }) {
   const { isAuthenticated } = useAuth();
   const [rawEmployees, setRawEmployees] = useState([]);
   const [bands, setBands] = useState([]);
-  const [payrollSource, setPayrollSource] = useState('SQLite Local Database');
+  const [payrollSource, setPayrollSource] = useState('Sample dataset');
   const [simulation, setSimulation] = useState({
     target: 'minimum', // 'minimum' | 'median'
     rolloutQuarters: 1,
@@ -511,7 +511,7 @@ export function CompensationProvider({ children }) {
           const auditPayload = await compensationApi.updateBand(level, patch);
           applyBackendAuditState(auditPayload);
         } catch (error) {
-          setSyncError(error?.message || 'Failed to update salary band in SQLite.');
+          setSyncError(error?.message || 'Failed to update salary band.');
         }
       }, 220);
     },
@@ -649,6 +649,20 @@ export function CompensationProvider({ children }) {
   );
 
   /** Restablecer la base de datos SQLite al lote inicial de ejemplo. */
+  const loadDemoData = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const res = await compensationApi.loadDemoData();
+      if (res?.audit) {
+        applyBackendAuditState(res.audit);
+      } else {
+        await refreshAuditFromBackend();
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [applyBackendAuditState, refreshAuditFromBackend]);
+
   const resetSession = useCallback(async () => {
     setIsSyncing(true);
     try {
@@ -871,6 +885,7 @@ export function CompensationProvider({ children }) {
     exportSession,
     importSession,
     resetSession,
+    loadDemoData,
     // Stage 3 CRUD & Compliance actions
     addEmployee,
     updateEmployee,
