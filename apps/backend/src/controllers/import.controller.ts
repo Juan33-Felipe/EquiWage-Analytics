@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import { AppError } from '../middlewares/error-handler.middleware.js';
 import { importService } from '../services/index.js';
 
@@ -8,6 +9,7 @@ export class ImportController {
    * Processes .CSV / .XLSX file uploads or JSON rows for employee payroll (RF-001, RNF-003).
    */
   importPayroll = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const uploadedFile = req.file;
     const body = (req.body || {}) as Record<string, unknown>;
 
@@ -33,6 +35,7 @@ export class ImportController {
       employees: Array.isArray(body.employees) ? body.employees : undefined,
       fileName,
       strictDepartment: body.strictDepartment === true || body.strictDepartment === 'true',
+      userId,
     });
 
     res.status(200).json({
