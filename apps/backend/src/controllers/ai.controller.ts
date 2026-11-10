@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import type { AiExecutiveDiagnosticRequest } from '@equiwage/shared';
 import { envConfig } from '../config/env.config.js';
 import { aiDiagnosticsService } from '../ai/index.js';
@@ -28,14 +29,18 @@ export class AiController {
    * to the external LLM API, proving zero employee names or personal IDs are included.
    */
   getAnonymizedPreview = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const departmentFilter =
       typeof req.query.department === 'string' ? req.query.department : 'all';
     const levelFilter = typeof req.query.level === 'string' ? req.query.level : 'all';
 
-    const preview = aiDiagnosticsService.getAnonymizedSnapshot({
-      departmentFilter,
-      levelFilter,
-    });
+    const preview = aiDiagnosticsService.getAnonymizedSnapshot(
+      {
+        departmentFilter,
+        levelFilter,
+      },
+      userId
+    );
 
     res.status(200).json({
       ok: true,
@@ -55,8 +60,9 @@ export class AiController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      const userId = (req as AuthenticatedRequest).user?.id;
       const body = (req.body || {}) as AiExecutiveDiagnosticRequest;
-      const diagnostic = await aiDiagnosticsService.generateExecutiveDiagnostics(body);
+      const diagnostic = await aiDiagnosticsService.generateExecutiveDiagnostics(body, userId);
 
       res.status(200).json({
         ok: true,
