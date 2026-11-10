@@ -171,7 +171,7 @@ export class AuthService {
     confirmPassword: string;
     department?: string;
     role?: string;
-  }): Promise<{ email: string; message: string; expiresInSeconds: number; devCode?: string }> {
+  }): Promise<{ email: string; message: string; expiresInSeconds: number; devVerificationCode?: string }> {
     const firstName = String(payload.firstName || '').trim();
     const lastName = String(payload.lastName || '').trim();
     const email = String(payload.email || '').trim().toLowerCase();
@@ -225,28 +225,39 @@ export class AuthService {
       firstName,
       lastName,
       passwordHash,
-      department: payload.department || 'HR',
-      role: payload.role || 'Compensation Analyst',
+      department: payload.department || '',
+      role: payload.role || '',
       expiresInMinutes: 15,
     });
 
-    const emailResult = await emailService.sendVerificationCodeEmail(email, firstName, code);
-    const isSimulated = !emailResult.delivered;
+    let devVerificationCode: string | undefined;
+    try {
+      const emailResult = await emailService.sendVerificationCodeEmail(email, firstName, code);
+      if (!emailResult.delivered) {
+        devVerificationCode = code;
+      }
+    } catch (error) {
+      logger.warn('Email delivery failed during registration, enabling local code fallback', {
+        email,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      devVerificationCode = code;
+    }
 
     return {
       email,
-      message: emailResult.delivered
-        ? 'Verification code sent to your email address.'
-        : `Verification code generated: ${code} (Email service unconfigured/simulated)`,
-      ...(isSimulated ? { devCode: code } : {}),
+      message: devVerificationCode
+        ? 'Verification code generated for your session.'
+        : 'Verification code sent to your email address.',
       expiresInSeconds: 900,
+      devVerificationCode,
     };
   }
 
   /**
    * Resends a fresh 4-digit code to an email currently pending registration.
    */
-  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number; devCode?: string }> {
+  public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number; devVerificationCode?: string }> {
     const email = String(emailRaw || '').trim().toLowerCase();
     const pending = usersRepository.getLatestVerificationCode(email);
 
@@ -269,16 +280,27 @@ export class AuthService {
       expiresInMinutes: 15,
     });
 
-    const emailResult = await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
-    const isSimulated = !emailResult.delivered;
+    let devVerificationCode: string | undefined;
+    try {
+      const emailResult = await emailService.sendVerificationCodeEmail(pending.email, pending.first_name, code);
+      if (!emailResult.delivered) {
+        devVerificationCode = code;
+      }
+    } catch (error) {
+      logger.warn('Email delivery failed during resend, enabling local code fallback', {
+        email: pending.email,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      devVerificationCode = code;
+    }
 
     return {
       email: pending.email,
-      message: emailResult.delivered
-        ? 'New verification code sent.'
-        : `New verification code generated: ${code} (Email service unconfigured/simulated)`,
-      ...(isSimulated ? { devCode: code } : {}),
+      message: devVerificationCode
+        ? 'New verification code generated for your session.'
+        : 'New verification code sent to your email address.',
       expiresInSeconds: 900,
+      devVerificationCode,
     };
   }
 
@@ -346,8 +368,8 @@ export class AuthService {
       username,
       email: pending.email,
       fullName,
-      role: pending.role || 'Compensation Analyst',
-      department: pending.department || 'HR',
+      role: pending.role || '',
+      department: pending.department || '',
       initials,
       passwordHash: pending.password_hash,
     });
@@ -368,6 +390,25 @@ export class AuthService {
       token,
       expiresAt,
     };
+  }
+
+  /**
+   * Updates profile fields for the authenticated user in SQLite.
+   */
+  public updateProfile(userId: string, data: {
+    fullName?: string;
+    role?: string;
+    department?: string;
+    location?: string;
+    phone?: string;
+    license?: string;
+    timezone?: string;
+  }): AuthUser {
+    const updated = usersRepository.updateUserProfile(userId, data);
+    if (!updated) {
+      throw new AppError('User not found.', { statusCode: 404, errorKey: 'auth.userNotFound' });
+    }
+    return updated;
   }
 }
 
