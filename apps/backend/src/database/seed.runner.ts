@@ -37,9 +37,30 @@ export function ensureDatabaseSeeded(db: DatabaseSync): { seeded: boolean; emplo
     }
   }
 
+  if (existingEmployees === 0) {
+    const now = new Date().toISOString();
+    const insertEmployee = db.prepare(`
+      INSERT INTO employees (id, name, role, department, level, current_salary, user_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    for (const emp of DEFAULT_SEED_EMPLOYEES) {
+      insertEmployee.run(
+        emp.id,
+        emp.name,
+        emp.role,
+        emp.department,
+        emp.level,
+        emp.currentSalary,
+        DEFAULT_LOCAL_ADMIN_USER.id,
+        now,
+        now
+      );
+    }
+  }
+
   return {
-    seeded: false,
-    employeeCount: existingEmployees,
+    seeded: existingBands === 0 || existingEmployees === 0,
+    employeeCount: existingEmployees || DEFAULT_SEED_EMPLOYEES.length,
     bandCount: existingBands || DEFAULT_SALARY_BANDS.length,
   };
 }
@@ -186,8 +207,8 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
     }
 
     const insertEmployee = db.prepare(`
-      INSERT INTO employees (id, name, role, department, level, current_salary, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO employees (id, name, role, department, level, current_salary, user_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const emp of DEFAULT_SEED_EMPLOYEES) {
@@ -198,6 +219,7 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
         emp.department,
         emp.level,
         emp.currentSalary,
+        DEFAULT_LOCAL_ADMIN_USER.id,
         now,
         now
       );
