@@ -13,6 +13,7 @@ import {
   Edit2,
 } from 'lucide-react';
 import { formatCurrency } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function LegalComplianceCard({
   legalCompliance,
@@ -22,6 +23,7 @@ export function LegalComplianceCard({
   onUpdateCompliance,
   className = '',
 }) {
+  const { t, language } = useLanguage();
   const isEnabled = Boolean(legalCompliance?.enabled);
   const currentMinimumWage = Number(legalCompliance?.minimumWage ?? legalCompliance?.currentMinimumWage ?? 42000);
   const currentCountryCode = legalCompliance?.countryCode || 'US';
@@ -97,14 +99,14 @@ export function LegalComplianceCard({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-content-main tracking-tight">
-                Cumplimiento de Salario Mínimo Legal
+                {t('compliance.title')}
               </h3>
               <Badge variant={isEnabled ? 'legal' : 'default'} className="text-[10px] font-bold">
-                {isEnabled ? 'Activo (Prioridad 1)' : 'Desactivado'}
+                {isEnabled ? (language === 'es' ? 'Activo (Prioridad 1)' : 'Active (Priority 1)') : (language === 'es' ? 'Desactivado' : 'Disabled')}
               </Badge>
             </div>
             <p className="text-xs text-content-muted mt-0.5">
-              Valida el piso salarial estatutario según regulación por país
+              {t('compliance.subtitle')}
             </p>
           </div>
         </div>
@@ -117,7 +119,7 @@ export function LegalComplianceCard({
           onClick={handleToggle}
           disabled={isSaving}
           className="group inline-flex items-center gap-2.5 cursor-pointer focus:outline-none select-none disabled:opacity-50"
-          title={isEnabled ? 'Desactivar cumplimiento legal' : 'Activar cumplimiento legal'}
+          title={isEnabled ? (language === 'es' ? 'Desactivar cumplimiento legal' : 'Disable legal compliance') : (language === 'es' ? 'Activar cumplimiento legal' : 'Enable legal compliance')}
         >
           <div
             className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out ${
@@ -131,7 +133,7 @@ export function LegalComplianceCard({
             />
           </div>
           <span className="text-xs font-semibold text-content-main">
-            {isEnabled ? 'Habilitado' : 'Deshabilitado'}
+            {isEnabled ? t('compliance.enabled') : t('compliance.disabled')}
           </span>
         </button>
       </div>
@@ -142,7 +144,7 @@ export function LegalComplianceCard({
         <div>
           <label className="block text-xs font-semibold text-content-main mb-1.5 flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5 text-content-muted" />
-            País de Referencia Regulatoria
+            {t('compliance.countryLabel')}
           </label>
           <select
             value={currentCountryCode}
@@ -152,13 +154,10 @@ export function LegalComplianceCard({
           >
             {referenceCountries.map((c) => (
               <option key={c.code} value={c.code}>
-                {c.name} ({c.code}) — Mínimo Ref: {formatCurrency(c.defaultMinimumWage)}
+                {c.name} ({c.code}) — {language === 'es' ? 'Mínimo Ref' : 'Ref Min'}: {formatCurrency(c.defaultMinimumWage)}
               </option>
             ))}
           </select>
-          <p className="text-[11px] text-content-muted mt-1">
-            Pre-cargado con marcos de LATAM, Norteamérica y Europa.
-          </p>
         </div>
 
         {/* 100% Editable Numeric Input for Statutory Minimum Wage */}
@@ -166,7 +165,7 @@ export function LegalComplianceCard({
           <label className="block text-xs font-semibold text-content-main mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <DollarSign className="w-3.5 h-3.5 text-content-muted" />
-              Salario Mínimo Legal Vigente (Anualizado)
+              {t('compliance.minimumWageLabel')}
             </span>
             <span className="text-[11px] text-primary font-bold">100% Editable</span>
           </label>
@@ -215,25 +214,19 @@ export function LegalComplianceCard({
                   className="px-2.5 py-1 rounded bg-primary text-white text-xs font-semibold flex items-center gap-1 hover:bg-primary-hover transition-colors shadow-sm"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  Guardar
+                  {t('common.save')}
                 </button>
               </div>
             )}
           </div>
-          <p className="text-[11px] text-content-muted mt-1">
-            Permite ajustar el valor legal exacto según decretos gubernamentales recientes.
-          </p>
         </div>
       </div>
 
-      {/* Informative Tooltip Banner */}
-      <div className="mt-4 p-3 rounded-xl bg-primary/15 border border-primary/20 flex items-start gap-2.5">
-        <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <p className="text-xs text-orange-700 dark:text-orange-200 leading-relaxed">
-          <span className="font-bold">Regla de Cumplimiento Legal:</span> La validación legal evalúa estrictamente el{' '}
-          <span className="font-bold underline decoration-primary">Salario Base Fijo</span> (excluyendo bonos variables, comisiones o beneficios no remunerativos). Todo caso detectado se clasifica como Prioridad 1 y se nivela antes de calcular brechas de mercado P25/P50.
-        </p>
-      </div>
+          {/* Informative Micro-Note */}
+          <div className="flex items-center gap-1.5 text-xs text-content-muted mt-2">
+            <Info className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span>{t('compliance.baseSalaryValidation')}</span>
+          </div>
 
       {/* Live Impact Counters if violations exist */}
       {isEnabled && legalViolatorsCount > 0 && (
@@ -241,11 +234,11 @@ export function LegalComplianceCard({
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-primary" />
             <span className="text-xs font-bold text-orange-700 dark:text-orange-200">
-              {legalViolatorsCount} {legalViolatorsCount === 1 ? 'empleado incumple' : 'empleados incumplen'} el salario mínimo legal
+              {t('compliance.violatorsCount', { count: legalViolatorsCount })}
             </span>
           </div>
           <span className="text-xs font-mono font-bold text-orange-600 dark:text-orange-300">
-            Fondo de Cumplimiento: {formatCurrency(legalComplianceCost)}
+            {t('compliance.complianceFund')} {formatCurrency(legalComplianceCost)}
           </span>
         </div>
       )}
