@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
 import { AppError } from '../middlewares/error-handler.middleware.js';
 import { sessionService } from '../services/index.js';
 
@@ -8,7 +9,8 @@ export class SessionController {
    * Exports the complete project state as a portable JSON session (RF-008).
    */
   exportSession = (req: Request, res: Response): void => {
-    const sessionPayload = sessionService.exportProjectSession();
+    const userId = (req as AuthenticatedRequest).user?.id;
+    const sessionPayload = sessionService.exportProjectSession(userId);
     const download = req.query.download === 'true';
 
     if (download) {
@@ -31,6 +33,7 @@ export class SessionController {
    * Restores a complete project state from a .json file upload or JSON body (RF-008).
    */
   restoreSession = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     let payload: unknown = req.body;
 
     if (req.file?.buffer) {
@@ -46,7 +49,7 @@ export class SessionController {
       payload = (payload as Record<string, unknown>).session;
     }
 
-    const restoredAudit = sessionService.restoreProjectSession(payload);
+    const restoredAudit = sessionService.restoreProjectSession(payload, userId);
 
     res.status(200).json({
       ok: true,
@@ -59,8 +62,9 @@ export class SessionController {
    * POST /api/session/reset
    * Resets the SQLite database back to the initial realistic seed dataset.
    */
-  resetSession = (_req: Request, res: Response): void => {
-    const freshAudit = sessionService.resetProjectSession();
+  resetSession = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
+    const freshAudit = sessionService.resetProjectSession(userId);
     res.status(200).json({
       ok: true,
       data: freshAudit,
