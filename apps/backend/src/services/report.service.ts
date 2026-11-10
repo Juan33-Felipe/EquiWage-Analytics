@@ -35,8 +35,11 @@ export class ReportService {
   /**
    * Generates structured data for Executive PDF/HTML and JSON reports (RF-007).
    */
-  generateExecutiveReportData(request: Partial<ReportExportRequest> = {}): StructuredExecutiveReport {
-    const audit = auditService.getFullAuditSummary();
+  generateExecutiveReportData(
+    request: Partial<ReportExportRequest> = {},
+    userId?: string
+  ): StructuredExecutiveReport {
+    const audit = auditService.getFullAuditSummary(userId);
     const department = request.department || 'all';
     const level = request.level !== undefined ? String(request.level) : 'all';
     const language: 'en' | 'es' = request.language === 'es' ? 'es' : 'en';
@@ -98,11 +101,14 @@ export class ReportService {
   /**
    * Builds a multi-sheet .XLSX binary buffer for the Executive Compensation Audit report (RF-007).
    */
-  generateExecutiveExcelBuffer(request: Partial<ReportExportRequest> = {}): {
+  generateExecutiveExcelBuffer(
+    request: Partial<ReportExportRequest> = {},
+    userId?: string
+  ): {
     buffer: Buffer;
     fileName: string;
   } {
-    const report = this.generateExecutiveReportData(request);
+    const report = this.generateExecutiveReportData(request, userId);
     const isEs = report.language === 'es';
     const workbook = XLSX.utils.book_new();
 
