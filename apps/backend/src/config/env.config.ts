@@ -7,10 +7,14 @@ const __dirname = path.dirname(__filename);
 const BACKEND_ROOT = path.resolve(__dirname, '../..');
 const MONOREPO_ROOT = path.resolve(BACKEND_ROOT, '../..');
 
-// Load .env from backend root, monorepo root, or cwd
+// Load .env from backend root, monorepo root, cwd, or Electron resources
 dotenv.config({ path: path.resolve(BACKEND_ROOT, '.env') });
 dotenv.config({ path: path.resolve(MONOREPO_ROOT, '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+if (typeof (process as any).resourcesPath === 'string') {
+  dotenv.config({ path: path.resolve((process as any).resourcesPath, '.env') });
+  dotenv.config({ path: path.resolve((process as any).resourcesPath, 'app.asar.unpacked', '.env') });
+}
 
 function resolveDatabasePath(rawPath?: string): string {
   if (!rawPath || rawPath.trim() === '') {
@@ -55,9 +59,6 @@ export interface BackendEnvConfig {
 }
 
 const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:5173,http://127.0.0.1:5173';
-const aiApiKey = (process.env.AI_API_KEY || '').trim();
-const smtpHost = (process.env.SMTP_HOST || '').trim();
-const smtpUser = (process.env.SMTP_USER || '').trim();
 
 export const envConfig: BackendEnvConfig = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -66,7 +67,8 @@ export const envConfig: BackendEnvConfig = {
   corsOrigins: rawOrigins.split(',').map((origin) => origin.trim()).filter(Boolean),
   sqliteDbPath: resolveDatabasePath(process.env.SQLITE_DB_PATH),
   get ai() {
-    const key = (process.env.AI_API_KEY || '').trim();
+    const rawKey = process.env.AI_API_KEY || '';
+    const key = rawKey.trim();
     return {
       provider: (process.env.AI_PROVIDER || 'gemini').trim().toLowerCase(),
       apiKey: key,
@@ -81,9 +83,12 @@ export const envConfig: BackendEnvConfig = {
     tokenExpiresInHours: Number(process.env.JWT_EXPIRES_IN_HOURS) || 24,
   },
   get email() {
-    const sHost = (process.env.SMTP_HOST || '').trim();
-    const sUser = (process.env.SMTP_USER || '').trim();
-    const sPass = (process.env.SMTP_PASS || '').trim();
+    const rawHost = process.env.SMTP_HOST;
+    const rawUser = process.env.SMTP_USER || '';
+    const rawPass = process.env.SMTP_PASS || '';
+    const sHost = (rawHost !== undefined ? rawHost : 'smtp.gmail.com').trim();
+    const sUser = rawUser.trim();
+    const sPass = rawPass.trim();
     return {
       host: sHost || 'smtp.gmail.com',
       port: Number(process.env.SMTP_PORT) || 465,
