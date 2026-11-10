@@ -35,6 +35,7 @@ export interface BackendEnvConfig {
   port: number;
   corsOrigins: string[];
   sqliteDbPath: string;
+  databaseUrl?: string;
   ai: {
     provider: string;
     apiKey: string;
@@ -66,6 +67,7 @@ export const envConfig: BackendEnvConfig = {
   port: Number(process.env.PORT) || 4000,
   corsOrigins: rawOrigins.split(',').map((origin) => origin.trim()).filter(Boolean),
   sqliteDbPath: resolveDatabasePath(process.env.SQLITE_DB_PATH),
+  databaseUrl: (process.env.DATABASE_URL || '').trim(),
   get ai() {
     const rawKey = process.env.AI_API_KEY || '';
     const key = rawKey.trim();

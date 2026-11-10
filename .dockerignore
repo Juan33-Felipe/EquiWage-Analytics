@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+apps/frontend
+dist
+build
+electron
+*.sqlite
+*.log
+.DS_Store

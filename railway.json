@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @equiwage/shared build && pnpm --filter @equiwage/backend build"
+  },
+  "deploy": {
+    "startCommand": "node apps/backend/dist/server.bundle.js",
+    "healthcheckPath": "/api/health",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

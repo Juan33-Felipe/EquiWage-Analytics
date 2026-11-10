@@ -25,7 +25,7 @@ for (const envPath of envCandidates) {
 let mainWindow = null;
 let backendProcess = null;
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const BACKEND_PORT = 4000;
 
 function resolveBackendPath() {
@@ -91,6 +91,7 @@ function startBackend() {
         PORT: String(BACKEND_PORT),
         HOST: '127.0.0.1',
         SQLITE_DB_PATH: sqliteDbPath,
+        DATABASE_URL: process.env.DATABASE_URL || '',
         BACKEND_ENTRY_PATH: backendPath,
         SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
         SMTP_PORT: process.env.SMTP_PORT || '465',

@@ -15,15 +15,15 @@ export class AuthService {
   /**
    * Retrieves all registered active users across any device (safe AuthUser objects).
    */
-  public getRegisteredUsers(): AuthUser[] {
-    return usersRepository.listActiveUsers();
+  public async getRegisteredUsers(): Promise<AuthUser[]> {
+    return await usersRepository.listActiveUsers();
   }
 
   /**
-   * Authenticates a local HR analyst by username or email and password,
-   * updates last_login_at in SQLite, and returns a signed JWT session.
+   * Authenticates a user by username or email and password,
+   * updates last_login_at in SQLite and Neon Cloud, and returns a signed JWT session.
    */
-  public login(credentials: LoginCredentials): AuthSessionPayload {
+  public async login(credentials: LoginCredentials): Promise<AuthSessionPayload> {
     const identifier = String(credentials?.identifier || '').trim();
     const password = String(credentials?.password || '');
 
@@ -37,9 +37,9 @@ export class AuthService {
       );
     }
 
-    const userRow = usersRepository.findByIdentifier(identifier);
+    const userRow = await usersRepository.findByIdentifier(identifier);
     if (!userRow) {
-      logger.warn('Failed local login attempt: identifier not found', { identifier });
+      logger.warn('Failed login attempt: identifier not found locally or in cloud', { identifier });
       throw new AppError(
         'We could not verify those credentials. Please check your username or email and password.',
         {
@@ -51,7 +51,7 @@ export class AuthService {
 
     const isPasswordValid = authCryptoService.verifyPasswordSync(password, userRow.password_hash);
     if (!isPasswordValid) {
-      logger.warn('Failed local login attempt: invalid password', { username: userRow.username });
+      logger.warn('Failed login attempt: invalid password', { username: userRow.username });
       throw new AppError(
         'We could not verify those credentials. Please check your username or email and password.',
         {
@@ -62,14 +62,14 @@ export class AuthService {
     }
 
     const updatedUser =
-      usersRepository.recordLoginTimestamp(userRow.id) ?? mapRowToAuthUser(userRow);
+      (await usersRepository.recordLoginTimestamp(userRow.id)) ?? mapRowToAuthUser(userRow);
 
     const { token, expiresAt } = authCryptoService.signSessionToken(
       updatedUser,
       credentials.rememberMe ?? true
     );
 
-    logger.info('Local HR analyst signed in successfully', {
+    logger.info('HR analyst signed in successfully across devices', {
       userId: updatedUser.id,
       username: updatedUser.username,
     });
@@ -84,7 +84,7 @@ export class AuthService {
   /**
    * Validates an active JWT token and verifies the user still exists and token is not revoked.
    */
-  public verifySession(token?: string | null): AuthStatusResponse {
+  public async verifySession(token?: string | null): Promise<AuthStatusResponse> {
     if (!token || !token.trim()) {
       return {
         authenticated: false,
@@ -100,14 +100,14 @@ export class AuthService {
       };
     }
 
-    if (usersRepository.isTokenRevoked(decoded.jti)) {
+    if (await usersRepository.isTokenRevoked(decoded.jti)) {
       return {
         authenticated: false,
         user: null,
       };
     }
 
-    const user = usersRepository.findUserById(decoded.sub);
+    const user = await usersRepository.findUserById(decoded.sub);
     if (!user) {
       return {
         authenticated: false,
@@ -129,7 +129,7 @@ export class AuthService {
   /**
    * Revokes a JWT token on logout so it can no longer be used.
    */
-  public logout(token?: string | null): void {
+  public async logout(token?: string | null): Promise<void> {
     if (!token || !token.trim()) {
       return;
     }
@@ -143,7 +143,7 @@ export class AuthService {
       ? new Date(decoded.exp * 1000).toISOString()
       : new Date(Date.now() + 24 * 3600 * 1000).toISOString();
 
-    usersRepository.revokeToken(decoded.jti, decoded.sub, expiresAt);
+    await usersRepository.revokeToken(decoded.jti, decoded.sub, expiresAt);
 
     logger.info('Local HR analyst signed out', {
       userId: decoded.sub,
@@ -160,26 +160,31 @@ export class AuthService {
   }
 
   /**
-   * Initiates user registration by validating inputs, creating a password hash,
-   * generating a 4-digit verification code, and sending it via email.
+   * Validates registration inputs, creates a temporary 4-digit verification code,
+   * stores it in SQLite and Neon Cloud, and dispatches an email via Gmail SMTP.
    */
   public async register(payload: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
     department?: string;
     role?: string;
-  }): Promise<{ email: string; message: string; expiresInSeconds: number; devVerificationCode?: string }> {
-    const firstName = String(payload.firstName || '').trim();
-    const lastName = String(payload.lastName || '').trim();
-    const email = String(payload.email || '').trim().toLowerCase();
-    const password = String(payload.password || '');
-    const confirmPassword = String(payload.confirmPassword || '');
+  }): Promise<{
+    email: string;
+    message: string;
+    expiresInSeconds: number;
+    devVerificationCode?: string;
+  }> {
+    const firstName = String(payload?.firstName || '').trim();
+    const lastName = String(payload?.lastName || '').trim();
+    const email = String(payload?.email || '').trim().toLowerCase();
+    const password = String(payload?.password || '');
+    const confirmPassword = String(payload?.confirmPassword || '');
 
     if (!firstName || !lastName) {
-      throw new AppError('First and last name are required.', {
+      throw new AppError('First name and last name are required.', {
         statusCode: 400,
         errorKey: 'auth.nameRequired',
       });
@@ -207,8 +212,8 @@ export class AuthService {
       });
     }
 
-    // Check if user already exists
-    const existingUser = usersRepository.findByEmail(email);
+    // Check if user already exists locally or globally
+    const existingUser = await usersRepository.findByEmail(email);
     if (existingUser) {
       throw new AppError('An account with this email address already exists. Please sign in.', {
         statusCode: 409,
@@ -219,7 +224,7 @@ export class AuthService {
     const passwordHash = authCryptoService.hashPasswordSync(password);
     const code = this.generate4DigitCode();
 
-    usersRepository.saveVerificationCode({
+    await usersRepository.saveVerificationCode({
       email,
       code,
       firstName,
@@ -259,7 +264,7 @@ export class AuthService {
    */
   public async resendCode(emailRaw: string): Promise<{ email: string; message: string; expiresInSeconds: number; devVerificationCode?: string }> {
     const email = String(emailRaw || '').trim().toLowerCase();
-    const pending = usersRepository.getLatestVerificationCode(email);
+    const pending = await usersRepository.getLatestVerificationCode(email);
 
     if (!pending) {
       throw new AppError('No pending registration found for this email. Please register first.', {
@@ -269,7 +274,7 @@ export class AuthService {
     }
 
     const code = this.generate4DigitCode();
-    usersRepository.saveVerificationCode({
+    await usersRepository.saveVerificationCode({
       email: pending.email,
       code,
       firstName: pending.first_name,
@@ -305,9 +310,9 @@ export class AuthService {
   }
 
   /**
-   * Validates the 4-digit code, activates the account in SQLite, and logs the user in.
+   * Validates the 4-digit code, activates the account in SQLite & Neon, and logs the user in.
    */
-  public verifyCode(emailRaw: string, codeRaw: string): AuthSessionPayload {
+  public async verifyCode(emailRaw: string, codeRaw: string): Promise<AuthSessionPayload> {
     const email = String(emailRaw || '').trim().toLowerCase();
     const inputCode = String(codeRaw || '').trim();
 
@@ -318,7 +323,7 @@ export class AuthService {
       });
     }
 
-    const pending = usersRepository.getLatestVerificationCode(email);
+    const pending = await usersRepository.getLatestVerificationCode(email);
     if (!pending) {
       throw new AppError('Verification code not found or expired. Please request a new code.', {
         statusCode: 404,
@@ -342,14 +347,14 @@ export class AuthService {
     }
 
     if (pending.code !== inputCode) {
-      usersRepository.incrementVerificationAttempts(pending.id);
+      await usersRepository.incrementVerificationAttempts(pending.id, pending.email);
       throw new AppError('Invalid verification code. Please check your email and try again.', {
         statusCode: 400,
         errorKey: 'auth.invalidCode',
       });
     }
 
-    // Code is valid! Create the user in SQLite
+    // Code is valid! Create the user in SQLite & Neon Cloud
     const fullName = `${pending.first_name} ${pending.last_name}`.trim();
     const initials = (
       (pending.first_name[0] || '') + (pending.last_name[0] || '')
@@ -358,12 +363,12 @@ export class AuthService {
     // Generate clean username from email or name
     const usernameCandidate = email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '');
     let username = usernameCandidate || `user_${Date.now()}`;
-    if (usersRepository.findByIdentifier(username)) {
+    if (await usersRepository.findByIdentifier(username)) {
       username = `${username}_${Math.floor(1000 + Math.random() * 9000)}`;
     }
     const userId = `USR-${Date.now().toString(36).toUpperCase()}`;
 
-    const createdUser = usersRepository.createUser({
+    const createdUser = await usersRepository.createUser({
       id: userId,
       username,
       email: pending.email,
@@ -375,12 +380,12 @@ export class AuthService {
     });
 
     // Clean pending verification code
-    usersRepository.deleteVerificationCodes(pending.email);
+    await usersRepository.deleteVerificationCodes(pending.email);
 
     // Generate immediate login session
     const { token, expiresAt } = authCryptoService.signSessionToken(createdUser, true);
 
-    logger.info('User account successfully verified and activated', {
+    logger.info('User account successfully verified and activated globally', {
       userId: createdUser.id,
       email: createdUser.email,
     });
@@ -393,9 +398,9 @@ export class AuthService {
   }
 
   /**
-   * Updates profile fields for the authenticated user in SQLite.
+   * Updates profile fields for the authenticated user in SQLite and Neon Cloud.
    */
-  public updateProfile(userId: string, data: {
+  public async updateProfile(userId: string, data: {
     fullName?: string;
     role?: string;
     department?: string;
@@ -403,8 +408,8 @@ export class AuthService {
     phone?: string;
     license?: string;
     timezone?: string;
-  }): AuthUser {
-    const updated = usersRepository.updateUserProfile(userId, data);
+  }): Promise<AuthUser> {
+    const updated = await usersRepository.updateUserProfile(userId, data);
     if (!updated) {
       throw new AppError('User not found.', { statusCode: 404, errorKey: 'auth.userNotFound' });
     }

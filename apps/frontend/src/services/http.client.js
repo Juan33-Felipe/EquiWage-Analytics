@@ -7,7 +7,28 @@ const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.
 
 export const AUTH_TOKEN_STORAGE_KEY = 'equiwage_auth_token';
 export const AUTH_USER_STORAGE_KEY = 'equiwage_auth_user';
+export const CUSTOM_API_URL_STORAGE_KEY = 'equiwage_custom_api_url';
 export const AUTH_UNAUTHORIZED_EVENT = 'equiwage:unauthorized';
+
+export function getCustomApiUrl() {
+  try {
+    return localStorage.getItem(CUSTOM_API_URL_STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function setCustomApiUrl(url) {
+  try {
+    if (!url || !url.trim()) {
+      localStorage.removeItem(CUSTOM_API_URL_STORAGE_KEY);
+    } else {
+      localStorage.setItem(CUSTOM_API_URL_STORAGE_KEY, url.trim().replace(/\/$/, ''));
+    }
+  } catch {
+    // Ignore storage quota
+  }
+}
 
 export function getStoredAuthToken() {
   try {
@@ -74,6 +95,10 @@ export class ApiClientError extends Error {
 }
 
 export function getApiBaseUrl() {
+  const customUrl = getCustomApiUrl();
+  if (customUrl) {
+    return customUrl;
+  }
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
   }

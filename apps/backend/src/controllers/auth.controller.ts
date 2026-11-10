@@ -14,9 +14,9 @@ export class AuthController {
    * GET /api/auth/users
    * Returns list of registered active users across devices (safe AuthUser objects, no secrets).
    */
-  public getRegisteredUsers(_req: Request, res: Response, next: NextFunction): void {
+  public async getRegisteredUsers(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const users = authService.getRegisteredUsers();
+      const users = await authService.getRegisteredUsers();
       res.status(200).json({
         ok: true,
         data: users,
@@ -29,14 +29,14 @@ export class AuthController {
 
   /**
    * POST /api/auth/login
-   * Validates local HR analyst credentials and returns a signed JWT session.
+   * Validates local & global HR analyst credentials and returns a signed JWT session.
    */
-  public login(req: Request, res: Response, next: NextFunction): void {
+  public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { identifier, email, username, password, rememberMe } = req.body ?? {};
       const resolvedIdentifier = String(identifier || email || username || '').trim();
 
-      const session = authService.login({
+      const session = await authService.login({
         identifier: resolvedIdentifier,
         password: String(password || ''),
         rememberMe: rememberMe !== false,
@@ -58,10 +58,10 @@ export class AuthController {
    * GET /api/auth/session
    * Verifies the current Bearer token and returns the authenticated user profile.
    */
-  public getSession(req: Request, res: Response, next: NextFunction): void {
+  public async getSession(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const token = extractBearerToken(req);
-      const status = authService.verifySession(token);
+      const status = await authService.verifySession(token);
 
       if (!status.authenticated || !status.user) {
         throw new AppError(
@@ -87,12 +87,12 @@ export class AuthController {
 
   /**
    * POST /api/auth/logout
-   * Revokes the current JWT token in SQLite and closes the local session.
+   * Revokes the current JWT token in SQLite & Neon and closes the session.
    */
-  public logout(req: Request, res: Response, next: NextFunction): void {
+  public async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const token = extractBearerToken(req);
-      authService.logout(token);
+      await authService.logout(token);
 
       const response: ApiSuccessResponse<{ loggedOut: true }> = {
         ok: true,
@@ -128,10 +128,10 @@ export class AuthController {
    * POST /api/auth/verify-code
    * Validates the 4-digit code, activates the account, and returns an authenticated JWT session.
    */
-  public verifyCode(req: Request, res: Response, next: NextFunction): void {
+  public async verifyCode(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, code, verificationCode } = req.body || {};
-      const session = authService.verifyCode(email, code || verificationCode);
+      const session = await authService.verifyCode(email, code || verificationCode);
       const response: ApiSuccessResponse<AuthSessionPayload> = {
         ok: true,
         data: session,
@@ -166,13 +166,13 @@ export class AuthController {
    * PUT /api/auth/profile
    * Updates profile fields for the authenticated user.
    */
-  public updateProfile(req: Request, res: Response, next: NextFunction): void {
+  public async updateProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = (req as any).user;
       if (!user?.id) {
         throw new AppError('Unauthorized', { statusCode: 401, errorKey: 'auth.unauthorized' });
       }
-      const updatedUser = authService.updateProfile(user.id, req.body || {});
+      const updatedUser = await authService.updateProfile(user.id, req.body || {});
       const response: ApiSuccessResponse<AuthUser> = {
         ok: true,
         data: updatedUser,

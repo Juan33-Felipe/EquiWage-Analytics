@@ -32,11 +32,11 @@ export function extractBearerToken(req: Request): string | null {
  * Authorization middleware that protects sensitive payroll, compensation bands,
  * audit engine, simulation, and report endpoints on the local server.
  */
-export function requireAuthMiddleware(
+export async function requireAuthMiddleware(
   req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   try {
     const token = extractBearerToken(req);
     if (!token) {
@@ -49,7 +49,7 @@ export function requireAuthMiddleware(
       );
     }
 
-    const status = authService.verifySession(token);
+    const status = await authService.verifySession(token);
     if (!status.authenticated || !status.user) {
       throw new AppError(
         'Your local session is invalid or has expired. Please sign in again.',

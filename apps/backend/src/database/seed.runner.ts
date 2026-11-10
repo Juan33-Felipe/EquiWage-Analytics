@@ -12,6 +12,7 @@ import {
 import { logger } from '../config/logger.js';
 import { authCryptoService } from '../services/auth-crypto.service.js';
 import { runInTransaction } from './sqlite.connection.js';
+import { queryNeon } from './neon.connection.js';
 
 /**
  * Populates the database with the comprehensive initial seed if tables are empty,
@@ -196,6 +197,11 @@ export function resetDatabaseToSeed(): { employeeCount: number; bandCount: numbe
     db.exec('DELETE FROM salary_bands;');
     db.exec('DELETE FROM employee_manual_adjustments;');
     db.exec('DELETE FROM payroll_action_plans;');
+
+    // Clean ephemeral test codes & non-admin users in Neon Cloud as well
+    queryNeon('DELETE FROM verification_codes;').catch(() => {});
+    queryNeon('DELETE FROM revoked_tokens;').catch(() => {});
+    queryNeon('DELETE FROM users WHERE id != $1;', [DEFAULT_LOCAL_ADMIN_USER.id]).catch(() => {});
 
     const insertBand = db.prepare(`
       INSERT INTO salary_bands (level, min_salary, median_salary, max_salary, updated_at)

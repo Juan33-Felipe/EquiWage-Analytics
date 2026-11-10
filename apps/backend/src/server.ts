@@ -4,12 +4,18 @@ import { closeDatabase, getDatabase } from './database/sqlite.connection.js';
 import { runSchemaMigrations } from './database/schema.migrations.js';
 import { ensureDatabaseSeeded } from './database/seed.runner.js';
 import { createApp } from './app.js';
+import { initNeonAuthSchema } from './database/neon.connection.js';
 
 function bootstrap(): void {
   // 1. Initialize SQLite connection, schema migrations, and initial seed
   const db = getDatabase();
   runSchemaMigrations(db);
   const seedStatus = ensureDatabaseSeeded(db);
+
+  // 1.1 Verify Neon Cloud PostgreSQL global schema in background
+  initNeonAuthSchema().catch((err) => {
+    logger.warn('Neon Cloud Database initialization warning', { error: String(err) });
+  });
 
   logger.info('SQLite database ready', {
     seededOnStartup: seedStatus.seeded,

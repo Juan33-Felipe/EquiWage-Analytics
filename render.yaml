@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: equiwage-analytics-backend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @equiwage/shared build && pnpm --filter @equiwage/backend build
+    startCommand: node apps/backend/dist/server.bundle.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        value: equiwage-vault-global-cloud-secret-2026
+      - key: JWT_EXPIRES_IN_HOURS
+        value: "24"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_SECURE
+        value: "true"

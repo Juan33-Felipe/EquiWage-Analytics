@@ -139,7 +139,7 @@ export function Header({ onOpenMobileMenu }) {
   const activeTab = DASHBOARD_TABS.find((tab) => tab.to === location.pathname)?.id || 'overview';
 
   return (
-    <header className="sticky top-2 sm:top-3 z-20 shrink-0 mx-2 sm:mx-3 mt-2 sm:mt-3 mb-1 rounded-2xl sm:rounded-[24px] bg-white/65 dark:bg-[#151210]/75 backdrop-blur-2xl border border-white/70 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all overflow-hidden">
+    <header className="sticky top-2 sm:top-3 z-20 shrink-0 mx-2 sm:mx-3 mt-2 sm:mt-3 mb-1 rounded-2xl sm:rounded-[24px] bg-white/65 dark:bg-[#151210]/75 backdrop-blur-2xl border border-white/70 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all">
       <div className="relative flex items-center justify-between gap-3 sm:gap-6 py-3.5 sm:py-4 px-4 sm:px-6 lg:px-8 min-w-0">
         {/* Left: Mobile Menu Trigger + Page Identity */}
         <div className="flex items-center gap-3 min-w-0 flex-1 max-w-[32%] sm:max-w-[36%] z-10">
