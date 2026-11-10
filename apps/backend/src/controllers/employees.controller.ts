@@ -1,4 +1,6 @@
 import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
+import { DEFAULT_LOCAL_ADMIN_USER } from '@equiwage/shared';
 import { enrichEmployeesWithBands } from '../engines/index.js';
 import { AppError } from '../middlewares/error-handler.middleware.js';
 import {
@@ -10,8 +12,8 @@ import {
 } from '../repositories/index.js';
 import { auditService } from '../services/index.js';
 
-function generateNextEmployeeId(): string {
-  const all = employeesRepository.findAll();
+function generateNextEmployeeId(userId?: string): string {
+  const all = employeesRepository.findAll({}, userId);
   let maxNum = 0;
   for (const emp of all) {
     const match = emp.id.match(/^EMP-(\d+)$/i);
@@ -29,16 +31,20 @@ export class EmployeesController {
    * Lists enriched employees with optional department, level, status, and search filters.
    */
   listEmployees = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const department = typeof req.query.department === 'string' ? req.query.department : undefined;
     const level = req.query.level !== undefined ? Number(req.query.level) : undefined;
     const search = typeof req.query.search === 'string' ? req.query.search : undefined;
     const status = typeof req.query.status === 'string' ? req.query.status : undefined;
 
-    const rawEmployees = employeesRepository.findAll({
-      department,
-      level: Number.isFinite(level) ? level : undefined,
-      search,
-    });
+    const rawEmployees = employeesRepository.findAll(
+      {
+        department,
+        level: Number.isFinite(level) ? level : undefined,
+        search,
+      },
+      userId
+    );
     const bands = bandsRepository.findAll();
     const legalCompliance = complianceRepository.getLegalComplianceConfig();
     const manualAdjustments = manualAdjustmentsRepository.findAll();
@@ -68,8 +74,9 @@ export class EmployeesController {
    * Retrieves a single employee record enriched with market band, legal compliance, and adjustments.
    */
   getEmployeeById = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const id = String(req.params.id || '').trim();
-    const raw = employeesRepository.findById(id);
+    const raw = employeesRepository.findById(id, userId);
 
     if (!raw) {
       throw new AppError(`Employee with ID "${id}" was not found.`, {
@@ -99,6 +106,7 @@ export class EmployeesController {
    * Creates a single employee record with validation (Feature A).
    */
   createEmployee = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const body = (req.body || {}) as Record<string, unknown>;
     const name = String(body.name || body.fullName || '').trim();
     const role = String(body.role || body.jobTitle || '').trim();
@@ -129,9 +137,9 @@ export class EmployeesController {
     }
 
     if (!id) {
-      id = generateNextEmployeeId();
+      id = generateNextEmployeeId(userId);
     } else {
-      const existing = employeesRepository.findById(id);
+      const existing = employeesRepository.findById(id, userId);
       if (existing) {
         throw new AppError(`An employee with ID "${id}" already exists.`, {
           statusCode: 409,
@@ -140,16 +148,19 @@ export class EmployeesController {
       }
     }
 
-    const newEmployee = employeesRepository.upsertEmployee({
-      id,
-      name,
-      role,
-      department,
-      level,
-      currentSalary,
-    });
+    const newEmployee = employeesRepository.upsertEmployee(
+      {
+        id,
+        name,
+        role,
+        department,
+        level,
+        currentSalary,
+      },
+      userId
+    );
 
-    const audit = auditService.getFullAuditSummary();
+    const audit = auditService.getFullAuditSummary(userId);
 
     res.status(201).json({
       ok: true,
@@ -166,8 +177,9 @@ export class EmployeesController {
    * Updates an existing employee's salary, role, department, level, or manual adjustment (Feature A & B).
    */
   updateEmployee = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const id = String(req.params.id || '').trim();
-    const existing = employeesRepository.findById(id);
+    const existing = employeesRepository.findById(id, userId);
 
     if (!existing) {
       throw new AppError(`Employee with ID "${id}" was not found.`, {
@@ -228,16 +240,19 @@ export class EmployeesController {
       }
     }
 
-    const updatedEmployee = employeesRepository.upsertEmployee({
-      id,
-      name,
-      role,
-      department,
-      level,
-      currentSalary,
-    });
+    const updatedEmployee = employeesRepository.upsertEmployee(
+      {
+        id,
+        name,
+        role,
+        department,
+        level,
+        currentSalary,
+      },
+      userId
+    );
 
-    const audit = auditService.getFullAuditSummary();
+    const audit = auditService.getFullAuditSummary(userId);
 
     res.status(200).json({
       ok: true,
@@ -254,8 +269,9 @@ export class EmployeesController {
    * Removes an employee from SQLite and recalculates all KPIs in < 1s (Feature A).
    */
   deleteEmployee = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id;
     const id = String(req.params.id || '').trim();
-    const existing = employeesRepository.findById(id);
+    const existing = employeesRepository.findById(id, userId);
 
     if (!existing) {
       throw new AppError(`Employee with ID "${id}" was not found.`, {
@@ -265,7 +281,7 @@ export class EmployeesController {
     }
 
     manualAdjustmentsRepository.deleteAdjustment(id);
-    const deleted = employeesRepository.deleteById(id);
+    const deleted = employeesRepository.deleteById(id, userId);
 
     if (!deleted) {
       throw new AppError(`Failed to delete employee with ID "${id}".`, {
@@ -274,13 +290,33 @@ export class EmployeesController {
       });
     }
 
-    const audit = auditService.getFullAuditSummary();
+    const audit = auditService.getFullAuditSummary(userId);
 
     res.status(200).json({
       ok: true,
       data: {
         deletedId: id,
         deletedName: existing.name,
+        audit,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  };
+
+  /**
+   * POST /api/employees/load-demo
+   * Populates demo/simulated employees explicitly when the user requests it.
+   */
+  loadDemoData = (req: Request, res: Response): void => {
+    const userId = (req as AuthenticatedRequest).user?.id || DEFAULT_LOCAL_ADMIN_USER.id;
+    const employees = employeesRepository.loadDemoEmployees(userId);
+    const audit = auditService.getFullAuditSummary(userId);
+
+    res.status(200).json({
+      ok: true,
+      data: {
+        loadedCount: employees.length,
+        employees,
         audit,
       },
       timestamp: new Date().toISOString(),
