@@ -6,6 +6,8 @@ import { TopMetricsRow } from '../components/organisms/TopMetricsRow';
 import { SalaryDistributionChart } from '../components/organisms/SalaryDistributionChart';
 import { InequityAlertsWidget } from '../components/organisms/InequityAlertsWidget';
 import { IndividualAdjustmentDrawer } from '../components/molecules/IndividualAdjustmentDrawer';
+import { OnboardingGuide } from '../components/molecules/OnboardingGuide';
+import { AnimatedNumber } from '../components/atoms/AnimatedNumber';
 import { useCompensation, formatCurrency } from '../context/CompensationContext';
 import { useLanguage } from '../context/LanguageContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -21,6 +23,7 @@ export function OverviewPage() {
     legalCompliance,
     setManualAdjustment,
     removeManualAdjustment,
+    loadDemoData,
   } = useCompensation();
   const { t } = useLanguage();
   const [highlightId, setHighlightId] = useState(null);
@@ -53,10 +56,14 @@ export function OverviewPage() {
         </div>
       </div>
 
+      <OnboardingGuide employeesCount={employees.length} />
+
+
+
       <TopMetricsRow />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[480px]">
-        <div className="lg:col-span-2 h-full min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 min-h-[480px]">
+        <div className="lg:col-span-2 h-full min-h-0 w-full">
           <SalaryDistributionChart
             employees={employees}
             bands={bands}
@@ -65,7 +72,7 @@ export function OverviewPage() {
             onClickPoint={(point) => setSelectedDrawerEmployee(point)}
           />
         </div>
-        <div className="h-full min-h-0">
+        <div className="h-full min-h-0 w-full">
           <InequityAlertsWidget
             onHover={(employee) => setHighlightId(employee.id)}
             onSelect={(employee) => {
@@ -76,7 +83,7 @@ export function OverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-1">
             <Activity className="w-4 h-4 text-primary shrink-0" />
@@ -95,6 +102,9 @@ export function OverviewPage() {
                   paddingAngle={4}
                   dataKey="value"
                   stroke="none"
+                  isAnimationActive={true}
+                  animationDuration={1300}
+                  animationEasing="ease-out"
                 >
                   {pieData.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
@@ -114,7 +124,9 @@ export function OverviewPage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-3xl font-bold text-content-main">{alignedPercent}%</span>
+              <span className="text-3xl font-bold text-content-main">
+                <AnimatedNumber value={alignedPercent} suffix="%" duration={1200} />
+              </span>
               <span className="text-xs text-content-muted">{t('overview.aligned')}</span>
             </div>
           </div>
@@ -128,52 +140,60 @@ export function OverviewPage() {
           </div>
         </Card>
 
-        <Card className="lg:col-span-2 bg-gradient-to-br from-primary-hover via-primary to-primary-light text-white border-primary/30 p-6 relative overflow-hidden">
+        <Card className="lg:col-span-2 bg-gradient-to-br from-primary-hover via-primary to-primary-light dark:from-[#181920] dark:via-[#1E1F28] dark:to-[#181920] backdrop-blur-xl text-white dark:text-content-main border-primary/30 dark:border-white/10 dark:shadow-soft p-6 relative overflow-hidden">
           <div className="relative z-10 flex flex-col h-full">
-            <h3 className="text-lg font-bold tracking-tight mb-1">{t('overview.financialImpact')}</h3>
-            <p className="text-xs text-white/80 mb-6">{t('overview.whatItWould')}</p>
+            <h3 className="text-lg font-bold tracking-tight mb-1 text-white dark:text-content-main">{t('overview.financialImpact')}</h3>
+            <p className="text-xs text-white/80 dark:text-content-muted mb-6">{t('overview.whatItWould')}</p>
 
             <div className="space-y-3">
-              <div className="p-4 bg-white/15 rounded-xl border border-white/20 flex justify-between items-center gap-3 backdrop-blur-sm">
+              <div className="p-4 bg-white/15 dark:bg-white/[0.04] rounded-xl border border-white/20 dark:border-white/[0.06] flex justify-between items-center gap-3 backdrop-blur-sm">
                 <div className="min-w-0">
-                  <h4 className="font-semibold text-sm">{t('overview.costToBandMin')}</h4>
-                  <p className="text-xs text-white/75 mt-0.5">
+                  <h4 className="font-semibold text-sm text-white dark:text-content-main">{t('overview.costToBandMin')}</h4>
+                  <p className="text-xs text-white/75 dark:text-content-muted mt-0.5">
                     {t('overview.bringEmployees', { count: metrics.marketDisparities })}
                   </p>
                 </div>
-                <span className="text-xl font-bold shrink-0">
-                  {formatCurrency(
-                    employees
+                <span className="text-xl font-bold text-white dark:text-content-main shrink-0">
+                  <AnimatedNumber
+                    value={employees
                       .filter((employee) => employee.status === 'below')
-                      .reduce((acc, employee) => acc + (employee.band.min - employee.currentSalary), 0)
-                  )}
+                      .reduce((acc, employee) => acc + (employee.band.min - employee.currentSalary), 0)}
+                    formatter={(v) => formatCurrency(Math.round(v))}
+                    duration={1400}
+                  />
                 </span>
               </div>
-              <div className="p-4 bg-black/15 rounded-xl border border-black/10 flex justify-between items-center gap-3">
+              <div className="p-4 bg-black/15 dark:bg-white/[0.02] rounded-xl border border-black/10 dark:border-white/[0.04] flex justify-between items-center gap-3">
                 <div className="min-w-0">
-                  <h4 className="font-semibold text-sm">{t('overview.costToMarketMedian')}</h4>
-                  <p className="text-xs text-white/70 mt-0.5">{t('overview.fullCompetitiveness')}</p>
+                  <h4 className="font-semibold text-sm text-white dark:text-content-main">{t('overview.costToMarketMedian')}</h4>
+                  <p className="text-xs text-white/70 dark:text-content-muted mt-0.5">{t('overview.fullCompetitiveness')}</p>
                 </div>
-                <span className="text-xl font-bold shrink-0">{formatCurrency(simulationResult.totalBudget)}</span>
+                <span className="text-xl font-bold text-white dark:text-content-main shrink-0">
+                  <AnimatedNumber
+                    value={simulationResult.totalBudget}
+                    formatter={(v) => formatCurrency(Math.round(v))}
+                    duration={1400}
+                  />
+                </span>
               </div>
             </div>
 
             <div className="mt-auto pt-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
-              <p className="text-xs text-white/80 flex items-center gap-2 min-w-0">
-                <Sparkles className="w-4 h-4 shrink-0" />
+              <p className="text-xs text-white/80 dark:text-content-muted flex items-center gap-2 min-w-0">
+                <Sparkles className="w-4 h-4 shrink-0 text-primary" />
                 <span>{t('overview.adjustScenario')}</span>
               </p>
-              <Button
-                variant="dark"
-                className="gap-2 shrink-0 whitespace-nowrap"
+              <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-xs shadow-md shadow-orange-500/25 active:scale-95 transition-all whitespace-nowrap cursor-pointer shrink-0"
                 onClick={() => navigate('/dashboard/simulator')}
               >
                 {t('overview.openSimulator')}
                 <ArrowRight className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-56 h-56 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute top-0 right-0 w-56 h-56 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         </Card>
       </div>
 
