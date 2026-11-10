@@ -3,7 +3,11 @@
  * Automatically attaches the local JWT Bearer token and signals 401 session expiration.
  */
 
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:4000';
+const DEFAULT_API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== 'undefined' && window.location?.origin && !window.location.origin.startsWith('file:')
+    ? window.location.origin
+    : 'https://equiwage-analytics-backend.onrender.com');
 
 export const AUTH_TOKEN_STORAGE_KEY = 'equiwage_auth_token';
 export const AUTH_USER_STORAGE_KEY = 'equiwage_auth_user';
@@ -104,13 +108,16 @@ export function getApiBaseUrl() {
   }
   if (typeof window !== 'undefined' && window.location?.hostname) {
     // When connecting through Vite dev server (port 5173), relative URLs route through Vite's /api proxy
-    // This allows any mobile or external LAN device to connect seamlessly over a single port
     if (window.location.port === '5173') {
       return '';
     }
+    // Electron file protocol uses the cloud Render backend directly
+    if (window.location.protocol === 'file:') {
+      return 'https://equiwage-analytics-backend.onrender.com';
+    }
     return `${window.location.protocol}//${window.location.hostname}:4000`;
   }
-  return 'http://127.0.0.1:4000';
+  return 'https://equiwage-analytics-backend.onrender.com';
 }
 
 export function resolveApiUrl(endpoint) {
