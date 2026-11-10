@@ -1,5 +1,7 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../atoms/Card';
+import { AnimatedNumber } from '../atoms/AnimatedNumber';
 import { formatCurrency, useCompensation } from '../../context/CompensationContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -24,7 +26,13 @@ export function DepartmentImpactChart() {
         </div>
         <div className="text-right shrink-0">
           <p className="text-xs text-content-muted">{t('chart.total')}</p>
-          <p className="text-xl font-bold text-content-main">{formatCurrency(simulationResult.totalBudget)}</p>
+          <p className="text-xl font-bold text-content-main">
+            <AnimatedNumber
+              value={simulationResult.totalBudget}
+              formatter={(v) => formatCurrency(Math.round(v))}
+              duration={1300}
+            />
+          </p>
         </div>
       </div>
 
@@ -33,7 +41,12 @@ export function DepartmentImpactChart() {
           {t('chart.noAdjustmentsRequired')}
         </div>
       ) : (
-        <div className="h-[280px] -ml-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="h-[280px] w-full min-w-0 -ml-2 sm:-ml-4 overflow-hidden"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} layout="vertical" margin={{ top: 0, right: 24, left: 8, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--chart-grid)" />
@@ -64,14 +77,22 @@ export function DepartmentImpactChart() {
                 itemStyle={{ color: 'var(--color-content-main)' }}
                 formatter={(value) => [formatCurrency(value), t('chart.budget')]}
               />
-              <Bar dataKey="cost" radius={[0, 8, 8, 0]} barSize={22}>
+              <Bar
+                dataKey="cost"
+                radius={[0, 8, 8, 0]}
+                barSize={22}
+                isAnimationActive={true}
+                animationDuration={1300}
+                animationEasing="ease-out"
+                animationBegin={150}
+              >
                 {data.map((entry, index) => (
                   <Cell key={entry.department} fill={BAR_TONES[index % BAR_TONES.length]} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       )}
 
       {data.length > 0 && (
@@ -86,7 +107,11 @@ export function DepartmentImpactChart() {
                 <span className="text-xs font-medium text-content-main truncate">{item.departmentLabel}</span>
               </div>
               <span className={cn('text-xs font-bold shrink-0', 'text-primary')}>
-                {Math.round(item.share * 100)}%
+                <AnimatedNumber
+                  value={Math.round(item.share * 100)}
+                  suffix="%"
+                  duration={1200}
+                />
               </span>
             </div>
           ))}
