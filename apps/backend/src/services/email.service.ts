@@ -99,11 +99,10 @@ export class EmailService {
     `.trim();
 
     if (!envConfig.email.isConfigured && !this.transporter) {
-      logger.warn('[EMAIL SERVICE] SMTP credentials (SMTP_USER / SMTP_PASS) not configured. Using local simulation mode.');
-      logger.info('========================================================================');
-      logger.info(`🔑 [SIMULATED EMAIL] Verification code for ${toEmail}: [ ${code} ]`);
-      logger.info('SMTP is not configured in apps/backend/.env. Code logged for local verification.');
-      logger.info('========================================================================');
+      logger.warn('SMTP credentials (SMTP_USER / SMTP_PASS) not configured. Using local verification fallback.', {
+        to: toEmail,
+        code,
+      });
       return {
         delivered: false,
         mode: 'dev_fallback',
@@ -113,7 +112,10 @@ export class EmailService {
 
     const transporter = this.getTransporter();
     if (!transporter) {
-      logger.warn(`[EMAIL SERVICE] Transporter unavailable. Fallback code for ${toEmail}: [ ${code} ]`);
+      logger.warn('Unable to initialize email transporter. Using local verification fallback.', {
+        to: toEmail,
+        code,
+      });
       return {
         delivered: false,
         mode: 'dev_fallback',
@@ -142,15 +144,11 @@ export class EmailService {
       };
     } catch (error) {
       const errMessage = error instanceof Error ? error.message : String(error);
-      logger.warn('Failed to send verification email via Gmail SMTP — falling back to local simulation mode', {
+      logger.warn('Failed to send verification email via Gmail SMTP, using local fallback', {
         to: toEmail,
         error: errMessage,
+        code,
       });
-      logger.info('========================================================================');
-      logger.info(`🔑 [FALLBACK EMAIL] Verification code for ${toEmail}: [ ${code} ]`);
-      logger.info(`Reason: ${errMessage}`);
-      logger.info('========================================================================');
-
       return {
         delivered: false,
         mode: 'dev_fallback',
