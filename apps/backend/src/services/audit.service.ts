@@ -32,10 +32,10 @@ export class AuditService {
    * Executes the full deterministic salary audit against SQLite in < 1s (typically < 3ms).
    * Fully integrates Legal Minimum Wage compliance, market inflation, and manual micro-adjustments.
    */
-  getFullAuditSummary(): AuditSummaryPayload {
+  getFullAuditSummary(userId?: string): AuditSummaryPayload {
     const startNs = process.hrtime.bigint();
 
-    const rawEmployees = employeesRepository.findAll();
+    const rawEmployees = employeesRepository.findAll({}, userId);
     const bands = bandsRepository.findAll();
     const simulation = settingsRepository.getSimulationParams();
     const payrollSource = settingsRepository.getPayrollSource();
@@ -82,8 +82,8 @@ export class AuditService {
   /**
    * Returns market gaps (RF-003) and filtered distribution + critical outliers (RF-006).
    */
-  getDistributionAndGaps(filters: DistributionFilterCriteria = {}) {
-    const rawEmployees = employeesRepository.findAll();
+  getDistributionAndGaps(filters: DistributionFilterCriteria = {}, userId?: string) {
+    const rawEmployees = employeesRepository.findAll({}, userId);
     const bands = bandsRepository.findAll();
     const simulation = settingsRepository.getSimulationParams();
     const legalCompliance = complianceRepository.getLegalComplianceConfig();
@@ -111,8 +111,8 @@ export class AuditService {
   /**
    * Returns internal salary inequities (RF-004) grouped by role and job level.
    */
-  getInternalInequityReport() {
-    const rawEmployees = employeesRepository.findAll();
+  getInternalInequityReport(userId?: string) {
+    const rawEmployees = employeesRepository.findAll({}, userId);
     const bands = bandsRepository.findAll();
     const simulation = settingsRepository.getSimulationParams();
     const legalCompliance = complianceRepository.getLegalComplianceConfig();
@@ -136,11 +136,11 @@ export class AuditService {
   /**
    * Runs a real-time budget simulation preview with optional override parameters (RF-005).
    */
-  previewSimulation(overrideParams?: Partial<SimulationParams>): {
+  previewSimulation(overrideParams?: Partial<SimulationParams>, userId?: string): {
     simulation: SimulationParams;
     simulationResult: SimulationResult;
   } {
-    const rawEmployees = employeesRepository.findAll();
+    const rawEmployees = employeesRepository.findAll({}, userId);
     const bands = bandsRepository.findAll();
     const currentSim = settingsRepository.getSimulationParams();
     const legalCompliance = complianceRepository.getLegalComplianceConfig();
@@ -185,9 +185,9 @@ export class AuditService {
   /**
    * Updates active simulation settings in SQLite and returns the updated full audit summary.
    */
-  updateSimulationSettings(patch: Partial<SimulationParams>): AuditSummaryPayload {
+  updateSimulationSettings(patch: Partial<SimulationParams>, userId?: string): AuditSummaryPayload {
     settingsRepository.updateSimulationParams(patch);
-    return this.getFullAuditSummary();
+    return this.getFullAuditSummary(userId);
   }
 
   /**
@@ -198,7 +198,7 @@ export class AuditService {
     request: ApprovePlanRequest = {},
     currentUserId?: string
   ): ApprovePlanResponse {
-    const rawEmployees = employeesRepository.findAll();
+    const rawEmployees = employeesRepository.findAll({}, currentUserId);
     const bands = bandsRepository.findAll();
     const currentSim = settingsRepository.getSimulationParams();
     const legalCompliance = complianceRepository.getLegalComplianceConfig();
@@ -286,7 +286,8 @@ export class AuditService {
 
       employeesRepository.replaceAllEmployees(
         updatedEmployees,
-        `${settingsRepository.getPayrollSource()} (Approved Plan ${planId})`
+        `${settingsRepository.getPayrollSource()} (Approved Plan ${planId})`,
+        currentUserId
       );
 
       // Clear obsolete manual adjustments once committed
@@ -324,8 +325,8 @@ export class AuditService {
    * Applies the active simulation scenario adjustments directly to employee salaries in SQLite
    * and records an audit snapshot.
    */
-  applySimulationScenario(scenarioName?: string): AuditSummaryPayload {
-    const currentSummary = this.getFullAuditSummary();
+  applySimulationScenario(scenarioName?: string, userId?: string): AuditSummaryPayload {
+    const currentSummary = this.getFullAuditSummary(userId);
     const adjustmentMap = new Map<string, number>();
 
     for (const row of currentSummary.simulationResult.rows) {
@@ -333,18 +334,19 @@ export class AuditService {
     }
 
     if (adjustmentMap.size > 0) {
-      const updatedEmployees: Employee[] = employeesRepository.findAll().map((emp) => ({
+      const updatedEmployees: Employee[] = employeesRepository.findAll({}, userId).map((emp) => ({
         ...emp,
         currentSalary: adjustmentMap.get(emp.id) ?? emp.currentSalary,
       }));
 
       employeesRepository.replaceAllEmployees(
         updatedEmployees,
-        `${currentSummary.payrollSource} (Leveled to ${currentSummary.simulation.target})`
+        `${currentSummary.payrollSource} (Leveled to ${currentSummary.simulation.target})`,
+        userId
       );
     }
 
-    const updatedSummary = this.getFullAuditSummary();
+    const updatedSummary = this.getFullAuditSummary(userId);
 
     snapshotsRepository.createSnapshot({
       name:
