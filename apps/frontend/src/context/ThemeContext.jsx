@@ -4,14 +4,18 @@ const ThemeContext = createContext(null);
 const THEME_KEY = 'equiwage.theme';
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState('light');
-
-  useEffect(() => {
+  // Initialize from localStorage or default to 'light'
+  const [theme, setThemeState] = useState(() => {
     try {
-      window.localStorage.removeItem(THEME_KEY);
-    } catch {}
-  }, []);
+      const saved = window.localStorage.getItem(THEME_KEY);
+      if (saved === 'dark' || saved === 'light') return saved;
+      return 'light';
+    } catch {
+      return 'light';
+    }
+  });
 
+  // Keep DOM class and localStorage synchronized
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -19,14 +23,28 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark');
     }
+    try {
+      window.localStorage.setItem(THEME_KEY, theme);
+    } catch {}
   }, [theme]);
 
   const setTheme = useCallback((next) => {
-    if (next === 'dark' || next === 'light') setThemeState(next);
+    if (next === 'dark' || next === 'light') {
+      setThemeState(next);
+      try {
+        window.localStorage.setItem(THEME_KEY, next);
+      } catch {}
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setThemeState((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        window.localStorage.setItem(THEME_KEY, next);
+      } catch {}
+      return next;
+    });
   }, []);
 
   const value = { theme, isDark: theme === 'dark', setTheme, toggleTheme };
