@@ -85,6 +85,7 @@ export declare const API_ENDPOINTS: Readonly<{
   AUTH_RESEND_CODE: '/api/auth/resend-code';
   AUTH_SESSION: '/api/auth/session';
   AUTH_LOGOUT: '/api/auth/logout';
+  AUTH_PROFILE: '/api/auth/profile';
   AUDIT_OVERVIEW: '/api/audit';
   EMPLOYEES: '/api/employees';
   BANDS: '/api/bands';
