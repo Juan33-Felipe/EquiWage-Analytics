@@ -20,6 +20,10 @@ export interface UserDbRow {
   full_name: string;
   role: string;
   department: string;
+  location?: string | null;
+  phone?: string | null;
+  license?: string | null;
+  timezone?: string | null;
   initials: string;
   password_hash: string;
   is_active: number;
@@ -49,8 +53,12 @@ export function mapRowToAuthUser(row: UserDbRow): AuthUser {
     username: String(row.username),
     email: String(row.email),
     fullName: String(row.full_name),
-    role: String(row.role),
-    department: String(row.department),
+    role: String(row.role || ''),
+    department: String(row.department || ''),
+    location: row.location ? String(row.location) : '',
+    phone: row.phone ? String(row.phone) : '',
+    license: row.license ? String(row.license) : '',
+    timezone: row.timezone ? String(row.timezone) : '',
     initials: String(row.initials),
     lastLoginAt: row.last_login_at ?? null,
     createdAt: row.created_at,
@@ -72,6 +80,7 @@ export interface EmployeeDbRow {
   department: string;
   level: number;
   current_salary: number;
+  user_id?: string | null;
   created_at: string;
   updated_at: string;
 }
