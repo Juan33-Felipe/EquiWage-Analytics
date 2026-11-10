@@ -57,6 +57,7 @@ export class ImportService {
     employees?: Employee[];
     fileName?: string;
     strictDepartment?: boolean;
+    userId?: string;
   }): PayrollImportSuccessResponse {
     const sourceName = params.fileName?.trim() || 'Imported dataset';
 
@@ -80,11 +81,11 @@ export class ImportService {
         });
       }
 
-      employeesRepository.replaceAllEmployees(normalized, sourceName);
+      employeesRepository.replaceAllEmployees(normalized, sourceName, params.userId);
       return {
         importedCount: normalized.length,
         sourceName,
-        audit: auditService.getFullAuditSummary(),
+        audit: auditService.getFullAuditSummary(params.userId),
       };
     }
 
@@ -111,13 +112,13 @@ export class ImportService {
       );
     }
 
-    employeesRepository.replaceAllEmployees(validation.data, sourceName);
+    employeesRepository.replaceAllEmployees(validation.data, sourceName, params.userId);
 
     return {
       importedCount: validation.data.length,
       sourceName,
       invalidRows: validation.invalidRows,
-      audit: auditService.getFullAuditSummary(),
+      audit: auditService.getFullAuditSummary(params.userId),
     };
   }
 
