@@ -8,22 +8,25 @@ import {
   Eye,
   EyeOff,
   Globe,
-  KeyRound,
   Lock,
   Mail,
+  Moon,
   RefreshCw,
   ShieldCheck,
+  Sun,
   TrendingUp,
   User,
 } from 'lucide-react';
 import { FormInput } from '../components/atoms/FormInput';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
 
 export function RegisterPage() {
   const { isAuthenticated, isAuthenticating, authError, register, verifyCode, resendCode, clearAuthError } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   // Registration step: 'form' | 'verification'
@@ -96,11 +99,15 @@ export function RegisterPage() {
     });
 
     if (result.ok) {
+      if (result.data?.devVerificationCode) {
+        const codeStr = String(result.data.devVerificationCode);
+        setDigits(codeStr.split('').slice(0, 4));
+        setDevCodeHint(codeStr);
+      } else {
+        setDevCodeHint(null);
+      }
       setStep('verification');
       setCountdown(45);
-      if (result.data?.devCode) {
-        setDevCodeHint(result.data.devCode);
-      }
       setTimeout(() => {
         digitInputRefs[0]?.current?.focus();
       }, 150);
@@ -170,6 +177,14 @@ export function RegisterPage() {
     });
 
     if (result.ok) {
+      if (result.user?.id) {
+        try {
+          localStorage.removeItem(`equiwage_onboarding_modal_${result.user.id}`);
+          localStorage.removeItem(`equiwage_onboarding_banner_${result.user.id}`);
+        } catch {
+          // Ignore localStorage errors
+        }
+      }
       navigate('/dashboard/overview', {
         replace: true,
         state: { successMessage: t('auth.accountCreatedSuccess') },
@@ -187,10 +202,14 @@ export function RegisterPage() {
     if (result.ok) {
       setCountdown(45);
       setResendNotification(t('auth.codeResent'));
-      if (result.data?.devCode) {
-        setDevCodeHint(result.data.devCode);
+      if (result.data?.devVerificationCode) {
+        const codeStr = String(result.data.devVerificationCode);
+        setDigits(codeStr.split('').slice(0, 4));
+        setDevCodeHint(codeStr);
+      } else {
+        setDigits(['', '', '', '']);
+        setDevCodeHint(null);
       }
-      setDigits(['', '', '', '']);
       digitInputRefs[0]?.current?.focus();
     }
   };
@@ -250,6 +269,15 @@ export function RegisterPage() {
             <span>{language === 'en' ? 'ES' : 'EN'}</span>
           </button>
 
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={isDark ? t('header.lightMode') : t('header.darkMode')}
+            title={isDark ? t('header.lightMode') : t('header.darkMode')}
+            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
         </div>
       </header>
 
@@ -280,7 +308,7 @@ export function RegisterPage() {
             <div className="mt-8 pt-6 border-t border-orange-300">
               <p className="text-xs text-orange-100 flex items-center gap-2 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-white" />
-                <span>Local Verification & Account Security</span>
+                <span>{t('auth.localVerificationSecurity')}</span>
               </p>
             </div>
           </div>
@@ -450,7 +478,7 @@ export function RegisterPage() {
                         type="submit"
                         disabled={isAuthenticating}
                         className={cn(
-                          'w-full rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold text-sm py-3.5 px-6 shadow-sm transition-colors flex items-center justify-center gap-2',
+                          'w-full rounded-full bg-primary/90 hover:bg-primary text-white font-semibold text-sm py-3.5 px-6 backdrop-blur-md border border-white/30 shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.5)] transition-all flex items-center justify-center gap-2 relative overflow-hidden active:scale-[0.99]',
                           isAuthenticating && 'opacity-75 cursor-not-allowed'
                         )}
                       >
@@ -527,20 +555,23 @@ export function RegisterPage() {
                     </motion.div>
                   )}
 
-                  {/* Dev Code Hint Banner if in local test environment */}
                   {devCodeHint && (
-                    <div className="mb-5 rounded-2xl bg-primary/15 border border-primary/20 p-4">
-                      <p className="text-xs font-bold text-content-main flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span>Development 4-Digit Code Simulated</span>
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-5 rounded-2xl bg-primary/10 border border-primary/25 p-4 text-center"
+                    >
+                      <p className="text-xs font-bold text-primary flex items-center justify-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-primary" />
+                        <span>{t('auth.localCodeReady')}</span>
                       </p>
-                      <p className="text-xs text-content-muted mt-1">
-                        Use this code or check your backend terminal:
-                      </p>
-                      <p className="text-lg font-mono font-bold tracking-widest text-primary mt-1">
+                      <p className="text-2xl font-mono font-extrabold tracking-widest text-primary mt-1">
                         {devCodeHint}
                       </p>
-                    </div>
+                      <p className="text-[11px] text-content-muted mt-1">
+                        {t('auth.localCodeNotice')}
+                      </p>
+                    </motion.div>
                   )}
 
                   <form onSubmit={handleVerifySubmit} className="space-y-6">
@@ -596,7 +627,7 @@ export function RegisterPage() {
                         type="submit"
                         disabled={isAuthenticating || digits.join('').length !== 4}
                         className={cn(
-                          'w-full rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold text-sm py-3.5 px-6 shadow-sm transition-colors flex items-center justify-center gap-2',
+                          'w-full rounded-full bg-primary/90 hover:bg-primary text-white font-semibold text-sm py-3.5 px-6 backdrop-blur-md border border-white/30 shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.5)] transition-all flex items-center justify-center gap-2 relative overflow-hidden active:scale-[0.99]',
                           (isAuthenticating || digits.join('').length !== 4) && 'opacity-65 cursor-not-allowed'
                         )}
                       >
