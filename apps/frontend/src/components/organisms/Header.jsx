@@ -139,24 +139,24 @@ export function Header({ onOpenMobileMenu }) {
   const activeTab = DASHBOARD_TABS.find((tab) => tab.to === location.pathname)?.id || 'overview';
 
   return (
-    <header className="sticky top-0 z-20 shrink-0 bg-background/80 dark:bg-[#0B0D13]/60 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-md transition-all">
-      <div className="flex items-center justify-between gap-4 py-4 sm:py-5 px-6 sm:px-8 lg:px-10 min-w-0">
-        {/* Left: Mobile Menu Trigger + Page Identity (Enlarged) */}
-        <div className="flex items-center gap-3.5 min-w-0 flex-1 sm:flex-initial">
+    <header className="sticky top-2 sm:top-3 z-20 shrink-0 mx-2 sm:mx-3 mt-2 sm:mt-3 mb-1 rounded-2xl sm:rounded-[24px] bg-white/65 dark:bg-[#151210]/75 backdrop-blur-2xl border border-white/70 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all overflow-hidden">
+      <div className="relative flex items-center justify-between gap-3 sm:gap-6 py-3.5 sm:py-4 px-4 sm:px-6 lg:px-8 min-w-0">
+        {/* Left: Mobile Menu Trigger + Page Identity */}
+        <div className="flex items-center gap-3 min-w-0 flex-1 max-w-[32%] sm:max-w-[36%] z-10">
           <button
             type="button"
             onClick={onOpenMobileMenu}
             aria-label={language === 'es' ? 'Abrir menú' : 'Open menu'}
-            className="lg:hidden w-11 h-11 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-border flex items-center justify-center text-content-muted hover:text-content-main shrink-0 active:scale-95 transition-all"
+            className="lg:hidden w-10 h-10 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-border flex items-center justify-center text-content-muted hover:text-content-main shrink-0 active:scale-95 transition-all"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-content-main tracking-tight leading-tight truncate">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-content-main tracking-tight leading-tight truncate">
               {titleText}
             </h1>
-            <p className="text-xs sm:text-sm text-content-muted hidden sm:flex items-center gap-2 font-medium truncate mt-1">
+            <p className="text-xs text-content-muted hidden sm:flex items-center gap-2 font-medium truncate mt-0.5">
               {subtitleText.includes('•') ? (
                 subtitleText.split('•').map((part, index) => (
                   <React.Fragment key={part.trim()}>
@@ -171,23 +171,25 @@ export function Header({ onOpenMobileMenu }) {
           </div>
         </div>
 
-        {/* Center: Enlarged In-flow TabPill for Wide Screens (xl and above) */}
+        {/* Center: Exactly Centered TabPill across Full Screen & Desktop */}
         {isDashboard && (
-          <div className="hidden xl:flex items-center justify-center flex-1 min-w-0 px-4">
-            <TabPill
-              tabs={DASHBOARD_TABS}
-              activeTab={activeTab}
-              onChange={(id) => {
-                const tab = DASHBOARD_TABS.find((item) => item.id === id);
-                if (tab) navigate(tab.to);
-              }}
-            />
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 items-center justify-center pointer-events-none z-10">
+            <div className="pointer-events-auto">
+              <TabPill
+                tabs={DASHBOARD_TABS}
+                activeTab={activeTab}
+                onChange={(id) => {
+                  const tab = DASHBOARD_TABS.find((item) => item.id === id);
+                  if (tab) navigate(tab.to);
+                }}
+              />
+            </div>
           </div>
         )}
 
         {/* Right: CoinSphere-styled Search + Pill Theme Toggle + Bell + User Profile Badge */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="hidden md:block">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 z-10 ml-auto">
+          <div>
             <SearchInput />
           </div>
 
@@ -204,7 +206,7 @@ export function Header({ onOpenMobileMenu }) {
             }}
             aria-label={isDark ? t('header.lightMode') : t('header.darkMode')}
             title={isDark ? t('header.lightMode') : t('header.darkMode')}
-            className="flex items-center p-1 rounded-full bg-white/60 dark:bg-[#181920]/80 border border-border dark:border-white/10 shadow-xs cursor-pointer select-none transition-all hover:border-primary/50"
+            className="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/[0.06] backdrop-blur-xl border border-white/80 dark:border-white/10 shadow-xs cursor-pointer select-none transition-all hover:border-primary/50"
           >
             <div
               className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
@@ -233,7 +235,7 @@ export function Header({ onOpenMobileMenu }) {
               onClick={() => setNotificationsOpen((prev) => !prev)}
               aria-label={t('header.notifications')}
               title={t('header.notifications')}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/60 dark:bg-[#181920]/80 border border-border dark:border-white/10 flex items-center justify-center text-content-muted hover:text-content-main hover:bg-white/80 dark:hover:bg-white/10 active:scale-95 transition-all relative shrink-0 cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/70 dark:bg-white/[0.06] backdrop-blur-xl border border-white/80 dark:border-white/10 flex items-center justify-center text-content-muted hover:text-content-main hover:bg-white/90 dark:hover:bg-white/10 active:scale-95 transition-all relative shrink-0 cursor-pointer shadow-xs"
             >
               <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               {totalAlertCount > 0 && (
@@ -367,16 +369,16 @@ export function Header({ onOpenMobileMenu }) {
             onClick={handleLogout}
             aria-label={t('header.signOut')}
             title={t('header.signOut')}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/60 dark:bg-[#181920]/80 border border-border dark:border-white/10 flex items-center justify-center text-content-muted hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all shrink-0 cursor-pointer"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/70 dark:bg-white/[0.06] backdrop-blur-xl border border-white/80 dark:border-white/10 flex items-center justify-center text-content-muted hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all shrink-0 cursor-pointer shadow-xs"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Responsive Second Row for TabPill on Viewports < xl */}
+      {/* Mobile Tab Navigation Row (< md) */}
       {isDashboard && (
-        <div className="xl:hidden pb-3.5 px-4 flex justify-center w-full overflow-x-auto min-w-0">
+        <div className="md:hidden pb-3 px-4 flex justify-center w-full overflow-x-auto min-w-0 no-scrollbar border-t border-border/30 dark:border-white/5 pt-2">
           <TabPill
             tabs={DASHBOARD_TABS}
             activeTab={activeTab}
