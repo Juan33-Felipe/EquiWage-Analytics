@@ -77,15 +77,15 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
 
       <aside
         className={cn(
-          'bg-sidebar/80 dark:bg-[#0B0D13]/60 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.03)] dark:shadow-md flex flex-col py-6 h-screen sticky top-0 transition-all duration-300 shrink-0 z-30',
-          collapsed ? 'lg:w-20 lg:items-center' : 'lg:w-64 lg:px-4',
+          'bg-white/75 dark:bg-[#151210]/85 backdrop-blur-2xl border border-border/80 dark:border-white/10 shadow-xl dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)] flex flex-col py-4 px-3.5 transition-all duration-300 shrink-0 z-30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:sticky lg:top-3 lg:my-3 lg:ml-3 lg:h-[calc(100vh-1.5rem)] lg:rounded-[26px]',
+          collapsed ? 'lg:w-20 lg:items-center' : 'lg:w-64',
           // Mobile Drawer Behavior vs Desktop Sticky
-          'fixed inset-y-0 left-0 z-50 w-72 px-4 lg:sticky lg:top-0 lg:z-30 lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-72 px-4 lg:px-0 lg:z-30 lg:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Brand Identity / Logo & Mobile Close Button */}
-        <div className={cn('flex items-center justify-between gap-3 mb-6 lg:mb-8', collapsed ? 'lg:justify-center' : 'px-2')}>
+        <div className={cn('flex items-center justify-between gap-3 mb-4 lg:mb-5', collapsed ? 'lg:justify-center' : 'px-2')}>
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-tr from-primary to-orange-500 text-white flex items-center justify-center shadow-lg shadow-primary/25 border border-white/20 backdrop-blur-sm">
               <TrendingUp className="w-5 h-5" />
@@ -109,7 +109,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
         </div>
 
         {/* Nav Items Grouped with Section Headings (CoinSphere style) */}
-        <nav className={cn('flex flex-col gap-4 flex-1 min-h-0 w-full overflow-y-auto pr-1 -mr-1', collapsed && 'lg:items-center')}>
+        <nav className={cn('flex flex-col gap-3 flex-1 min-h-0 w-full overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden', collapsed && 'lg:items-center')}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.titleKey} className="w-full flex flex-col gap-1">
               {(!collapsed || mobileOpen) && (
@@ -147,7 +147,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
     </div>
   )}
                       {isActive && (
-                        <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-r-full shadow-sm shadow-primary/50" />
+                        <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-full shadow-sm shadow-primary/50" />
                       )}
                     </>
                   )}
@@ -159,8 +159,8 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
 
         {/* CoinSphere Signature Help Center Card */}
         {(!collapsed || mobileOpen) ? (
-          <div className="w-full my-4 p-4 rounded-2xl bg-white/70 dark:bg-[#181920]/80 backdrop-blur-xl border border-border dark:border-white/10 shadow-md dark:shadow-md text-center relative overflow-hidden shrink-0">
-            <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-white/10 text-primary dark:text-white flex items-center justify-center mx-auto mb-2 border border-primary/20 dark:border-white/10">
+          <div className="w-full my-2.5 p-3.5 rounded-2xl bg-white/40 dark:bg-white/[0.04] backdrop-blur-2xl border border-white/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] text-center relative overflow-hidden shrink-0 group">
+            <div className="w-8 h-8 rounded-full bg-white/70 dark:bg-white/10 text-primary dark:text-white flex items-center justify-center mx-auto mb-2 border border-white/90 dark:border-white/15 shadow-xs">
               <HelpCircle className="w-4 h-4" />
             </div>
             <h4 className="text-xs font-bold text-content-main tracking-tight">{t('sidebar.helpCenter')}</h4>
@@ -170,7 +170,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
             <button
               type="button"
               onClick={() => alert(`Soporte EquiWage Analytics: contacto@equiwage.com`)}
-              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-xs shadow-md shadow-orange-500/30 active:scale-95 transition-all"
+              className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-[11px] shadow-sm shadow-orange-500/30 active:scale-95 transition-all"
             >
               {t('sidebar.contactUs')}
             </button>
@@ -194,7 +194,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
           {/* Desktop Collapse Toggle */}
           <button
             onClick={onToggle}
-            className="hidden lg:flex w-10 h-10 rounded-full items-center justify-center text-content-muted hover:bg-white/60 dark:hover:bg-white/10 hover:text-content-main backdrop-blur-sm transition-all"
+            className="hidden lg:flex w-9 h-9 rounded-xl items-center justify-center text-content-muted hover:text-primary bg-white/40 dark:bg-white/[0.04] backdrop-blur-xl border border-white/80 dark:border-white/10 shadow-xs hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
             title={collapsed ? t('sidebar.expandSidebar') : t('sidebar.collapseSidebar')}
           >
             {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -205,7 +205,7 @@ export function Sidebar({ collapsed = false, onToggle, mobileOpen = false, onClo
               'flex items-center justify-between gap-2 min-w-0 rounded-2xl p-2.5 transition-all',
               collapsed
                 ? 'lg:flex-col lg:justify-center'
-                : 'bg-white/50 dark:bg-[#181920]/80 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-xs'
+                : 'bg-white/40 dark:bg-white/[0.04] backdrop-blur-2xl border border-white/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:bg-white/50 dark:hover:bg-white/[0.06]'
             )}
           >
             <NavLink
