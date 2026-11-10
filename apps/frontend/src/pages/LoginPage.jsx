@@ -8,18 +8,22 @@ import {
   EyeOff,
   Globe,
   Lock,
+  Moon,
   ShieldCheck,
+  Sun,
   TrendingUp,
   User,
 } from 'lucide-react';
 import { FormInput } from '../components/atoms/FormInput';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
 
 export function LoginPage() {
   const { isAuthenticated, isAuthenticating, authError, login, clearAuthError } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -102,6 +106,15 @@ export function LoginPage() {
             <span>{language === 'en' ? 'ES' : 'EN'}</span>
           </button>
 
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={isDark ? t('header.lightMode') : t('header.darkMode')}
+            title={isDark ? t('header.lightMode') : t('header.darkMode')}
+            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-content-muted hover:text-content-main hover:bg-surface-light transition-colors"
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
         </div>
       </header>
 
@@ -254,7 +267,7 @@ export function LoginPage() {
                   type="submit"
                   disabled={isAuthenticating}
                   className={cn(
-                    'w-full rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold text-sm py-3.5 px-6 shadow-sm transition-colors flex items-center justify-center gap-2',
+                    'w-full rounded-full bg-primary/90 hover:bg-primary text-white font-semibold text-sm py-3.5 px-6 backdrop-blur-md border border-white/30 shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.5)] transition-all flex items-center justify-center gap-2 relative overflow-hidden active:scale-[0.99]',
                     isAuthenticating && 'opacity-75 cursor-not-allowed'
                   )}
                 >
