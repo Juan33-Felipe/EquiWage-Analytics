@@ -181,6 +181,52 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const updateProfile = useCallback(async (updates) => {
+    try {
+      const response = await authApi.updateProfile(updates);
+      const serverUser = response?.user;
+
+      setUser((prevUser) => {
+        const updated = {
+          ...prevUser,
+          ...updates,
+          ...(serverUser || {}),
+        };
+        if (updates.fullName || serverUser?.fullName) {
+          const nameToUse = serverUser?.fullName || updates.fullName;
+          const parts = nameToUse.trim().split(/\s+/);
+          const first = parts[0]?.[0] || 'E';
+          const second = parts[1]?.[0] || (parts[0]?.[1] || 'V');
+          updated.initials = (first + second).toUpperCase();
+        }
+        const token = getStoredAuthToken();
+        const rememberMe = Boolean(localStorage.getItem('equiwage_auth_token'));
+        setStoredAuthSession({ token, user: updated, rememberMe });
+        return updated;
+      });
+      return { ok: true, user: serverUser };
+    } catch (error) {
+      console.error('Failed to persist profile on server:', error);
+      setUser((prevUser) => {
+        const updated = {
+          ...prevUser,
+          ...updates,
+        };
+        if (updates.fullName) {
+          const parts = updates.fullName.trim().split(/\s+/);
+          const first = parts[0]?.[0] || 'E';
+          const second = parts[1]?.[0] || (parts[0]?.[1] || 'V');
+          updated.initials = (first + second).toUpperCase();
+        }
+        const token = getStoredAuthToken();
+        const rememberMe = Boolean(localStorage.getItem('equiwage_auth_token'));
+        setStoredAuthSession({ token, user: updated, rememberMe });
+        return updated;
+      });
+      return { ok: true };
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -205,9 +251,10 @@ export function AuthProvider({ children }) {
       verifyCode,
       resendCode,
       logout,
+      updateProfile,
       clearAuthError,
     }),
-    [user, token, isInitializing, isAuthenticating, authError, login, register, verifyCode, resendCode, logout, clearAuthError]
+    [user, token, isInitializing, isAuthenticating, authError, login, register, verifyCode, resendCode, logout, updateProfile, clearAuthError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
