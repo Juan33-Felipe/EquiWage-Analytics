@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../atoms/Card';
+import { Badge } from '../atoms/Badge';
 import { AlertRow } from '../molecules/AlertRow';
-import { ListFilter } from 'lucide-react';
+import { ListFilter, ArrowRight } from 'lucide-react';
 import { getInitials, useCompensation } from '../../context/CompensationContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -15,11 +17,19 @@ const AVATAR_TONES = [
 ];
 
 export function InequityAlertsWidget({ onSelect, onHover }) {
+  const navigate = useNavigate();
   const { employees, inequities, marketGaps, legalViolators } = useCompensation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [filterTab, setFilterTab] = React.useState('all');
 
   const items = useMemo(() => {
-    const list = [...employees].filter((employee) => {
+    let list = [...employees].filter((employee) => {
+      if (filterTab === 'critical') {
+        return employee.isBelowMinimumWage || employee.status === 'below';
+      }
+      if (filterTab === 'market') {
+        return marketGaps.some((gap) => gap.id === employee.id);
+      }
       return (
         employee.isBelowMinimumWage ||
         inequities.some((flagged) => flagged.id === employee.id) ||
@@ -33,27 +43,50 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
         if (!a.isBelowMinimumWage && b.isBelowMinimumWage) return 1;
         return a.gap - b.gap;
       })
-      .slice(0, 6);
-  }, [employees, inequities, marketGaps]);
+      .slice(0, 5);
+  }, [employees, inequities, marketGaps, filterTab]);
 
   const totalAlertCount = (legalViolators?.length || 0) + inequities.length + marketGaps.length;
 
   return (
-    <Card className="h-full flex flex-col p-6 min-h-0">
-      <div className="flex justify-between items-start gap-2 mb-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold text-content-main tracking-tight">{t('alerts.inequityAlerts')}</h3>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-500/15 text-[10px] font-bold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-              {t('alerts.detected', { count: totalAlertCount })}
-            </div>
-          </div>
-          <p className="text-xs text-content-muted">{t('alerts.largestGaps')}</p>
+    <Card className="h-full flex flex-col p-5 sm:p-6 min-h-0">
+      {/* CoinSphere Top Token Header with See All pill button */}
+      <div className="flex justify-between items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <h3 className="text-base font-bold text-content-main tracking-tight truncate">
+            {t('alerts.inequityAlerts')}
+          </h3>
+          <Badge variant="danger" className="text-[10px] font-bold px-2 py-0.5 shrink-0">
+            {totalAlertCount}
+          </Badge>
         </div>
-        <button className="w-8 h-8 shrink-0 rounded-lg border border-border flex items-center justify-center text-content-muted hover:bg-surface-light hover:text-content-main transition-colors">
-          <ListFilter className="w-4 h-4" />
+        <button
+          onClick={() => navigate('/dashboard/distribution')}
+          className="px-3 py-1 rounded-full text-xs font-semibold text-content-muted hover:text-content-main bg-white/50 dark:bg-white/[0.05] border border-border dark:border-white/[0.08] hover:border-primary/40 transition-all cursor-pointer shrink-0"
+        >
+          {t('alerts.seeAll')}
         </button>
+      </div>
+
+      {/* CoinSphere Filter Tabs */}
+      <div className="flex items-center gap-1.5 mb-3 p-1 rounded-full bg-white/50 dark:bg-[#1F2029]/80 border border-border/60 dark:border-white/10 text-xs">
+        {[
+          { id: 'all', label: language === 'es' ? 'Todos' : 'All' },
+          { id: 'critical', label: language === 'es' ? 'Críticos' : 'Critical' },
+          { id: 'market', label: language === 'es' ? 'Mercado' : 'Market' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setFilterTab(tab.id)}
+            className={`flex-1 py-1 px-2.5 rounded-full font-semibold transition-all text-center cursor-pointer ${
+              filterTab === tab.id
+                ? 'bg-primary text-white shadow-xs'
+                : 'text-content-muted hover:text-content-main'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex-1 flex flex-col gap-2 mt-2 overflow-y-auto pr-2 -mr-2 min-h-0">
@@ -75,7 +108,7 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
             role={`L${employee.level} • ${employee.role}`}
             gap={
               employee.isBelowMinimumWage
-                ? '< Min Wage'
+                ? t('alerts.belowMinWage')
                 : `${employee.gap >= 0 ? '+' : ''}${(employee.gap * 100).toFixed(1)}%`
             }
             colorClass={AVATAR_TONES[index % AVATAR_TONES.length]}
@@ -91,6 +124,16 @@ export function InequityAlertsWidget({ onSelect, onHover }) {
           />
         ))}
       </div>
+
+      {totalAlertCount > 0 && (
+        <button
+          onClick={() => navigate('/dashboard/distribution')}
+          className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs font-semibold text-primary hover:text-primary-hover transition-colors group shrink-0"
+        >
+          <span>{t('alerts.viewAllInDistribution', { count: totalAlertCount })}</span>
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      )}
     </Card>
   );
 }
