@@ -33,8 +33,10 @@ export function ReportsPage() {
   const [downloaded, setDownloaded] = useState(false);
 
   useEffect(() => {
-    runDiagnostics({ language, department, level });
-  }, [language, department, level, runDiagnostics]);
+    if (employees && employees.length > 0) {
+      runDiagnostics({ language, department, level });
+    }
+  }, [language, department, level, runDiagnostics, employees]);
 
   const levels = [...new Set(bands.map((band) => band.level))].sort((a, b) => a - b);
   const reportEmployees = useMemo(
@@ -89,8 +91,8 @@ export function ReportsPage() {
     ];
 
     if (aiDiagnostic?.executiveSummary) {
-      summary.push([], ['AI Executive Summary (Anonymized)', aiDiagnostic.executiveSummary]);
-      summary.push(['Rollout Strategy', aiDiagnostic.rolloutStrategy]);
+      summary.push([], [t('reports.aiSummaryTitle'), aiDiagnostic.executiveSummary]);
+      summary.push([t('reports.rolloutStrategyTitle'), aiDiagnostic.rolloutStrategy]);
     }
 
     XLSX.utils.book_append_sheet(
@@ -135,7 +137,8 @@ export function ReportsPage() {
       );
     }
 
-    XLSX.writeFile(workbook, `equiwage-compensation-audit-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    const fileNamePrefix = language === 'es' ? 'auditoria-compensaciones-equiwage' : 'equiwage-compensation-audit';
+    XLSX.writeFile(workbook, `${fileNamePrefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const printReport = () => {
@@ -223,7 +226,7 @@ export function ReportsPage() {
           variant="outline"
           className="gap-2 text-xs"
           onClick={() => runDiagnostics({ language, department, level })}
-          disabled={aiLoading}
+          disabled={aiLoading || !employees || employees.length === 0}
         >
           {aiLoading ? (
             <RefreshCw className="w-3.5 h-3.5 animate-spin text-primary" />
