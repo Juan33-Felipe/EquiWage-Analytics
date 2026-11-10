@@ -25,6 +25,12 @@ dist-ssr
 .claude/
 PLAN.md
 
+# Builds and releases
+release/
+apps/frontend/dist/
+apps/backend/dist/
+dist/
+
 # Environment & Local SQLite Database
 .env
 .env.*
