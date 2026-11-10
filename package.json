@@ -42,6 +42,10 @@
       {
         "from": ".env",
         "to": ".env"
+      },
+      {
+        "from": "apps/backend/data/equiwage.sqlite",
+        "to": "equiwage.sqlite"
       }
     ],
     "files": [
