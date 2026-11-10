@@ -5,6 +5,7 @@ import { Button } from '../atoms/Button';
 import { Badge } from '../atoms/Badge';
 import { Avatar } from '../atoms/Avatar';
 import { formatCurrency, getInitials } from '../../context/CompensationContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function IndividualAdjustmentDrawer({
   isOpen,
@@ -14,6 +15,7 @@ export function IndividualAdjustmentDrawer({
   onSaveAdjustment,
   onRemoveAdjustment,
 }) {
+  const { t, language } = useLanguage();
   const [adjustmentType, setAdjustmentType] = useState('amount'); // 'amount' | 'percent'
   const [inputValue, setInputValue] = useState('');
   const [notes, setNotes] = useState('');
@@ -141,10 +143,10 @@ export function IndividualAdjustmentDrawer({
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-content-main tracking-tight">
-                    Micro-Simulación Individual
+                    {t('drawer.title')}
                   </h3>
                   <p className="text-xs text-content-muted">
-                    Ajuste 1-a-1 de salario con impacto en tiempo real
+                    {t('drawer.subtitle')}
                   </p>
                 </div>
               </div>
@@ -169,7 +171,7 @@ export function IndividualAdjustmentDrawer({
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[11px] font-mono bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">
-                        Nivel {employee.level}
+                        {language === 'es' ? `Nivel ${employee.level}` : `Level ${employee.level}`}
                       </span>
                       <span className="text-[11px] text-content-muted font-mono">
                         {employee.id}
@@ -184,10 +186,12 @@ export function IndividualAdjustmentDrawer({
                 <div className="p-3.5 rounded-xl bg-primary/15 border border-primary/20 flex items-start gap-2.5">
                   <ShieldAlert className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div className="text-xs text-orange-700 dark:text-orange-300">
-                    <p className="font-bold">Violación de Salario Mínimo Legal</p>
+                    <p className="font-bold">{t('drawer.legalViolation')}</p>
                     <p className="mt-0.5">
-                      El salario actual ({formatCurrency(employee.currentSalary)}) está por debajo del piso legal obligatorio{' '}
-                      ({formatCurrency(legalCompliance.currentMinimumWage)}). Requiere un aumento mínimo de{' '}
+                      {t('drawer.legalViolationDesc', {
+                        current: formatCurrency(employee.currentSalary),
+                        minWage: formatCurrency(legalCompliance.currentMinimumWage),
+                      })}{' '}
                       <span className="font-bold text-orange-600 dark:text-orange-300">
                         {formatCurrency(employee.minimumWageDeficit)}
                       </span>.
@@ -200,7 +204,9 @@ export function IndividualAdjustmentDrawer({
               {employee.band && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-content-main">Banda Salarial Nivel {employee.level}</span>
+                    <span className="font-semibold text-content-main">
+                      {t('drawer.bandRange', { level: employee.level })}
+                    </span>
                     <span className="text-content-muted">
                       {formatCurrency(employee.band.min)} – {formatCurrency(employee.band.max)}
                     </span>
@@ -223,9 +229,9 @@ export function IndividualAdjustmentDrawer({
                     />
                   </div>
                   <div className="flex justify-between text-[11px] text-content-muted">
-                    <span>Mín: {formatCurrency(employee.band.min)}</span>
-                    <span className="font-medium text-primary">Mediana: {formatCurrency(employee.band.median)}</span>
-                    <span>Máx: {formatCurrency(employee.band.max)}</span>
+                    <span>{language === 'es' ? 'Mín' : 'Min'}: {formatCurrency(employee.band.min)}</span>
+                    <span className="font-medium text-primary">{language === 'es' ? 'Mediana' : 'Median'}: {formatCurrency(employee.band.median)}</span>
+                    <span>{language === 'es' ? 'Máx' : 'Max'}: {formatCurrency(employee.band.max)}</span>
                   </div>
                 </div>
               )}
@@ -233,7 +239,7 @@ export function IndividualAdjustmentDrawer({
               {/* Adjustment Inputs */}
               <div className="space-y-3">
                 <label className="block text-xs font-bold text-content-main uppercase tracking-wider">
-                  Configurar Aumento Propuesto
+                  {t('drawer.configureIncrease')}
                 </label>
 
                 {/* Type Selector (Amount / Percent) */}
@@ -247,7 +253,7 @@ export function IndividualAdjustmentDrawer({
                         : 'text-content-muted hover:text-content-main'
                     }`}
                   >
-                    Monto Fijo (+$ USD)
+                    {t('drawer.fixedAmount')}
                   </button>
                   <button
                     type="button"
@@ -258,7 +264,7 @@ export function IndividualAdjustmentDrawer({
                         : 'text-content-muted hover:text-content-main'
                     }`}
                   >
-                    Porcentaje (+% Base)
+                    {t('drawer.percentage')}
                   </button>
                 </div>
 
@@ -281,13 +287,13 @@ export function IndividualAdjustmentDrawer({
                 {/* Optional justification notes */}
                 <div>
                   <label className="block text-xs font-semibold text-content-main mb-1">
-                    Justificación / Notas (Opcional)
+                    {t('drawer.justification')}
                   </label>
                   <textarea
                     rows={2}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Ej. Nivelación salarial por mérito o ajuste extraordinario."
+                    placeholder={t('drawer.justificationPlaceholder')}
                     className="w-full px-3 py-2 rounded-xl border border-border bg-surface text-content-main text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                   />
                 </div>
@@ -299,20 +305,20 @@ export function IndividualAdjustmentDrawer({
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-primary" />
                     <h4 className="text-xs font-bold text-content-main uppercase tracking-wider">
-                      Vista Previa de Impacto en Tiempo Real
+                      {t('drawer.previewTitle')}
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div className="p-2.5 rounded-lg bg-surface-light border border-border">
-                      <p className="text-[11px] text-content-muted font-medium">Salario Actual</p>
+                      <p className="text-[11px] text-content-muted font-medium">{t('drawer.currentSalary')}</p>
                       <p className="text-sm font-bold text-content-main mt-0.5">
                         {formatCurrency(employee.currentSalary)}
                       </p>
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-surface-light border border-primary/20">
-                      <p className="text-[11px] text-primary font-bold">Nuevo Salario Propuesto</p>
+                      <p className="text-[11px] text-primary font-bold">{t('drawer.proposedSalary')}</p>
                       <p className="text-sm font-bold text-primary mt-0.5">
                         {formatCurrency(simulationPreview.newSalary)}
                       </p>
@@ -320,7 +326,7 @@ export function IndividualAdjustmentDrawer({
                   </div>
 
                   <div className="flex items-center justify-between text-xs pt-1 border-t border-primary/20">
-                    <span className="text-content-muted">Incremento Calculado:</span>
+                    <span className="text-content-muted">{t('drawer.calculatedIncrease')}</span>
                     <span className="font-bold text-green-700 dark:text-emerald-400">
                       +{formatCurrency(simulationPreview.increaseAmount)} (+
                       {simulationPreview.increasePercent.toFixed(1)}%)
@@ -328,7 +334,7 @@ export function IndividualAdjustmentDrawer({
                   </div>
 
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-content-muted">Posición en Banda:</span>
+                    <span className="text-content-muted">{t('drawer.bandPosition')}</span>
                     <Badge
                       variant={
                         simulationPreview.newStatus === 'aligned'
@@ -339,10 +345,10 @@ export function IndividualAdjustmentDrawer({
                       }
                     >
                       {simulationPreview.newStatus === 'aligned'
-                        ? 'Alineado a Mercado'
+                        ? t('drawer.alignedMarket')
                         : simulationPreview.newStatus === 'above'
-                          ? 'Sobre Banda'
-                          : 'Bajo Banda (P25)'}
+                          ? t('drawer.aboveBand')
+                          : t('drawer.belowBandP25')}
                     </Badge>
                   </div>
                 </div>
@@ -360,11 +366,11 @@ export function IndividualAdjustmentDrawer({
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/15 border-red-500/20 text-xs gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  Eliminar Ajuste
+                  {t('drawer.removeAdjustment')}
                 </Button>
               ) : (
                 <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
               )}
 
@@ -376,7 +382,7 @@ export function IndividualAdjustmentDrawer({
                 className="gap-2"
               >
                 <Save className="w-4 h-4" />
-                {isSubmitting ? 'Guardando...' : 'Aplicar Micro-Ajuste'}
+                {isSubmitting ? t('common.saving') : t('drawer.applyAdjustment')}
               </Button>
             </div>
           </motion.div>
