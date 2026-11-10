@@ -15,14 +15,17 @@ export class AiDiagnosticsService {
   /**
    * Generates an anonymized statistical snapshot and verifies zero PII.
    */
-  getAnonymizedSnapshot(options: {
-    departmentFilter?: string;
-    levelFilter?: string | number;
-  } = {}): {
+  getAnonymizedSnapshot(
+    options: {
+      departmentFilter?: string;
+      levelFilter?: string | number;
+    } = {},
+    userId?: string
+  ): {
     zeroPiiVerified: boolean;
     anonymizedContext: AnonymizedAuditContext;
   } {
-    const audit = auditService.getFullAuditSummary();
+    const audit = auditService.getFullAuditSummary(userId);
     const anonymizedContext = anonymizerService.buildAnonymizedContext(audit, options);
     const zeroPiiVerified = hasNoPersonalIdentifiers(anonymizedContext);
 
@@ -40,13 +43,17 @@ export class AiDiagnosticsService {
    *    fallback generator if unconfigured or if network errors occur.
    */
   async generateExecutiveDiagnostics(
-    request: AiExecutiveDiagnosticRequest = {}
+    request: AiExecutiveDiagnosticRequest = {},
+    userId?: string
   ): Promise<AiExecutiveDiagnosticResponse> {
     const language: 'en' | 'es' = request.language === 'es' ? 'es' : 'en';
-    const { anonymizedContext } = this.getAnonymizedSnapshot({
-      departmentFilter: request.departmentFilter,
-      levelFilter: request.levelFilter,
-    });
+    const { anonymizedContext } = this.getAnonymizedSnapshot(
+      {
+        departmentFilter: request.departmentFilter,
+        levelFilter: request.levelFilter,
+      },
+      userId
+    );
 
     if (!envConfig.ai.isConfigured) {
       logger.info('AI_API_KEY not configured — using local deterministic executive diagnostic generator');
