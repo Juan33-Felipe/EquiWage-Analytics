@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, UserPlus, Edit3, AlertCircle, Check } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { DEPARTMENTS } from '@equiwage/shared';
+import { useLanguage } from '../../context/LanguageContext';
 
 export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = null }) {
+  const { t, tDept, language } = useLanguage();
   const isEditing = Boolean(initialEmployee);
 
   const [formData, setFormData] = useState({
@@ -48,17 +50,17 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
 
   const validate = () => {
     const errs = {};
-    if (!formData.id?.trim()) errs.id = 'Employee ID is required';
-    if (!formData.name?.trim()) errs.name = 'Full name is required';
-    if (!formData.role?.trim()) errs.role = 'Role / Job title is required';
-    if (!formData.department?.trim()) errs.department = 'Department is required';
+    if (!formData.id?.trim()) errs.id = t('employees.validation.idRequired');
+    if (!formData.name?.trim()) errs.name = t('employees.validation.nameRequired');
+    if (!formData.role?.trim()) errs.role = t('employees.validation.roleRequired');
+    if (!formData.department?.trim()) errs.department = t('employees.validation.departmentRequired');
     const salaryNum = Number(formData.currentSalary);
     if (!formData.currentSalary || isNaN(salaryNum) || salaryNum <= 0) {
-      errs.currentSalary = 'Base salary must be a positive number';
+      errs.currentSalary = t('employees.validation.salaryPositive');
     }
     const levelNum = Number(formData.level);
     if (isNaN(levelNum) || levelNum < 1 || levelNum > 8) {
-      errs.level = 'Level must be between 1 and 8';
+      errs.level = t('employees.validation.levelRange');
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -118,12 +120,10 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
               </div>
               <div>
                 <h3 className="text-lg font-bold text-content-main tracking-tight">
-                  {isEditing ? 'Editar Empleado' : 'Registrar Nuevo Empleado'}
+                  {isEditing ? t('employeeModal.editTitle') : t('employeeModal.createTitle')}
                 </h3>
                 <p className="text-xs text-content-muted">
-                  {isEditing
-                    ? 'Actualiza los datos del empleado y recalcula auditoría en tiempo real.'
-                    : 'Añade un empleado al registro local de nómina.'}
+                  {isEditing ? t('employeeModal.editSubtitle') : t('employeeModal.createSubtitle')}
                 </p>
               </div>
             </div>
@@ -148,7 +148,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
               {/* Employee ID */}
               <div>
                 <label className="block text-xs font-semibold text-content-main mb-1.5">
-                  ID Empleado
+                  {t('employeeModal.employeeId')}
                 </label>
                 <input
                   type="text"
@@ -168,7 +168,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
               {/* Level */}
               <div>
                 <label className="block text-xs font-semibold text-content-main mb-1.5">
-                  Nivel de Puesto (L1 - L8)
+                  {t('employeeModal.level')}
                 </label>
                 <select
                   value={formData.level}
@@ -177,7 +177,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((lvl) => (
                     <option key={lvl} value={lvl}>
-                      Nivel {lvl} (L{lvl})
+                      {t('employeeModal.levelOption', { level: lvl })}
                     </option>
                   ))}
                 </select>
@@ -188,13 +188,13 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             {/* Full Name */}
             <div>
               <label className="block text-xs font-semibold text-content-main mb-1.5">
-                Nombre Completo
+                {t('employeeModal.fullName')}
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ej. Juan Pérez"
+                placeholder={language === 'es' ? 'Ej. Juan Pérez' : 'e.g. John Doe'}
                 className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
                   errors.name ? 'border-rose-400 focus:ring-rose-200' : 'border-border'
                 }`}
@@ -206,13 +206,13 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-main mb-1.5">
-                  Cargo / Rol
+                  {t('employeeModal.role')}
                 </label>
                 <input
                   type="text"
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  placeholder="Ej. Software Engineer"
+                  placeholder={language === 'es' ? 'Ej. Ingeniero de Software' : 'e.g. Software Engineer'}
                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface text-content-main text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${
                     errors.role ? 'border-rose-400 focus:ring-rose-200' : 'border-border'
                   }`}
@@ -222,7 +222,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
 
               <div>
                 <label className="block text-xs font-semibold text-content-main mb-1.5">
-                  Departamento
+                  {t('employeeModal.department')}
                 </label>
                 <select
                   value={formData.department}
@@ -231,7 +231,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                 >
                   {DEPARTMENTS.map((dept) => (
                     <option key={dept} value={dept}>
-                      {dept}
+                      {tDept(dept)}
                     </option>
                   ))}
                 </select>
@@ -241,7 +241,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             {/* Current Fixed Base Salary */}
             <div>
               <label className="block text-xs font-semibold text-content-main mb-1.5">
-                Salario Base Fijo Anual (USD)
+                {t('employeeModal.fixedSalary')}
               </label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-content-muted font-semibold text-sm">
@@ -260,7 +260,7 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
                 />
               </div>
               <p className="text-[11px] text-content-muted mt-1">
-                La auditoría y el cumplimiento legal validan estrictamente el salario base fijo.
+                {t('employeeModal.salaryNotice')}
               </p>
               {errors.currentSalary && <p className="text-[11px] text-rose-500 mt-1">{errors.currentSalary}</p>}
             </div>
@@ -268,11 +268,11 @@ export function EmployeeFormModal({ isOpen, onClose, onSave, initialEmployee = n
             {/* Action Buttons */}
             <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
               <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button type="submit" variant="primary" className="gap-2" disabled={isSubmitting}>
                 <Check className="w-4 h-4" />
-                {isSubmitting ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Registrar Empleado'}
+                {isSubmitting ? t('common.saving') : isEditing ? t('employeeModal.saveChanges') : t('employeeModal.registerEmployee')}
               </Button>
             </div>
           </form>
