@@ -47,6 +47,16 @@ export const authApi = {
   },
 
   /**
+   * Updates user profile fields in backend SQLite database.
+   */
+  updateProfile(updates) {
+    return apiRequest(API_ENDPOINTS.AUTH_PROFILE, {
+      method: 'PUT',
+      body: updates,
+    });
+  },
+
+  /**
    * Registers a new HR analyst profile and requests a 4-digit email verification code.
    */
   register({ firstName, lastName, email, password, confirmPassword, department, role }) {
