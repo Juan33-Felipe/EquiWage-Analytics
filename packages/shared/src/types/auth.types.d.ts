@@ -9,6 +9,10 @@ export interface AuthUser {
   fullName: string;
   role: string;
   department: string;
+  location?: string;
+  phone?: string;
+  license?: string;
+  timezone?: string;
   initials: string;
   lastLoginAt?: string | null;
   createdAt?: string;
